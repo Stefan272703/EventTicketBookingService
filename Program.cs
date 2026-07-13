@@ -12,6 +12,8 @@ namespace EventTicketBookingService
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -19,6 +21,8 @@ namespace EventTicketBookingService
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapSwagger();
+                app.MapSwaggerUI();
             }
 
             app.UseHttpsRedirection();
