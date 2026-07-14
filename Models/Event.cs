@@ -1,11 +1,17 @@
-﻿namespace EventTicketBookingService.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EventTicketBookingService.Models
 {
     public class Event
     {
-        public required int Id { get; set; }
-        public required string Title {  get; set; }
+        [Required(ErrorMessage = "ID обязательное для заполнения")]
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Title обязательное для заполнения")]
+        public string Title {  get; set; }
         public string Description { get; set; } = string.Empty;
-        public required DateTime StartAt { get;set;  }
-        public required DateTime EndAt { get;set;  }
+        [Required(ErrorMessage = "StartAt обязательное для заполнения")]
+        public DateTime StartAt { get;set;  }
+        [Required(ErrorMessage = "EndAt обязательное для заполнения")]
+        public DateTime EndAt { get;set;  }
     }
 }
