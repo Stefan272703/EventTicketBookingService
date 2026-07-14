@@ -1,4 +1,7 @@
 
+using EventTicketBookingService.Interfaces;
+using EventTicketBookingService.Services;
+
 namespace EventTicketBookingService
 {
     public class Program
@@ -14,6 +17,7 @@ namespace EventTicketBookingService
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IEventService, EventService>();
 
             var app = builder.Build();
 
@@ -28,7 +32,6 @@ namespace EventTicketBookingService
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
