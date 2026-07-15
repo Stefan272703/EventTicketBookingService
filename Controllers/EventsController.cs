@@ -26,8 +26,6 @@ namespace EventTicketBookingService.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             var eventbyId = _eventService.GetEventById(id);
             if(eventbyId == null)
             {
@@ -40,7 +38,10 @@ namespace EventTicketBookingService.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] Event my_event)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!TryValidateModel(my_event))
+            {
+                return BadRequest(ModelState);
+            }
 
             var new_event = _eventService.CreateEvent(my_event);
             return CreatedAtAction(nameof(GetById), new {id = new_event?.Id}, new_event);
@@ -48,7 +49,10 @@ namespace EventTicketBookingService.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Event my_event)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!TryValidateModel(my_event))
+            {
+                return BadRequest(ModelState);
+            }
 
             var existingEvent = _eventService.UpdateEvent(id, my_event);
             if (existingEvent == null)
