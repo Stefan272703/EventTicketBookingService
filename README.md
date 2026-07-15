@@ -1,4 +1,4 @@
-# EventTicketBookingService
+<img width="1434" height="686" alt="image" src="https://github.com/user-attachments/assets/12fcc4d6-f9f7-4bb2-9dfe-71d1385b7b35" /># EventTicketBookingService
 Разработка сервиса бронирования билетов на мероприятие
 
 Зависимости:
@@ -36,4 +36,51 @@
 <img width="1915" height="1025" alt="image" src="https://github.com/user-attachments/assets/c3a4639b-d908-409f-ae76-28e521849fc9" />
 
 ## Тест данных методов
-В браузере в swagger будут доступны 5 HTTP-методов, выполняющих тесты запросов
+В браузере в swagger будут доступны 5 HTTP-методов, выполняющих тесты запросов.
+Для выполнения запросов, необходимо выбрать один из методов, отображженных в swagger и нажать Try it out, после Execute для выполнения самого запроса.
+
+
+1. При вызове **GET /Events**. Получаем все мероприятия в формате JSON-объекта(Id, Title, Description, StartAt, EndAt).
+
+В случае если нет никаких мероприятий, то выведется пустое тело в виде "[]" (см. 1 скриншот). Иначе после добавления(POST смотреть во 2 пункте) или изменения(PUT смотреть в 4 пункте) будет отображены JSON-объекты(см. 2 скриншот)
+
+1 Скриншот
+<img width="1430" height="890" alt="image" src="https://github.com/user-attachments/assets/52c64510-5f71-4bec-96eb-b24cc81e8652" />
+2 Скриншот
+<img width="1430" height="878" alt="image" src="https://github.com/user-attachments/assets/2ae6adf9-0040-4f30-9043-5fee11746f0a" />
+
+2. при вызове **POST /Events**. Создаем мероприятия в теле запроса.
+Создается новый ID автоматически. Title должен быть заполнен, Description необязательное поле для заполнения. StartAt и EndAt в формате DateTime. EndAt должен быть позже StatAt.
+
+Ошибки:
+* ID обязательное для заполнения
+* Title обязательное для заполнения
+* StartAt обязательное для заполнения
+* EndAt обязательное для заполнения
+* Конец мероприятия должен быть позже начала мероприятия
+Пример POST-запроса
+<img width="1466" height="913" alt="image" src="https://github.com/user-attachments/assets/f23e8623-6cb4-4827-99c5-91b9aa78276d" />
+Пример ошибки POST-запроса
+<img width="1419" height="567" alt="image" src="https://github.com/user-attachments/assets/adce673f-1b88-4d33-b477-c68dd2ae8258" />
+
+3. При вызове **GET /Events/{id}**. Получаем мероприятие по ID. В случае неккоректного ID будет выведено сообщение "Не найдено событие по ID: {id}"
+Пример правильного ID
+<img width="1425" height="796" alt="image" src="https://github.com/user-attachments/assets/8c1ae10b-80b2-4cfd-ac81-2ab24348d3e4" />
+Пример несуществующего ID
+<img width="1415" height="854" alt="image" src="https://github.com/user-attachments/assets/7736a8c0-b5af-45fc-8a8a-ce5e0f2170f5" />
+
+4. При вызове **PUT /Events/{id}**. Изменяет мероприятие по ID и его телу запроса, ID не поменяется, если попробовать внести изменения в теле запроса. Title должен быть заполнен, Description необязательное поле для заполнения. StartAt и EndAt в формате DateTime. EndAt должен быть позже StatAt.
+Пример PUT-запроса
+<img width="1474" height="801" alt="image" src="https://github.com/user-attachments/assets/77f63213-6245-48c3-a8dd-1b7fe83a4869" />
+<img width="1403" height="745" alt="image" src="https://github.com/user-attachments/assets/fe5cb9e3-073b-4003-9823-b4988126b942" />
+
+5. При вызове **DELETE /Events/{id}**. Удаляет полностью мероприятие по ID.
+
+Пример при правильном ID
+<img width="1409" height="836" alt="image" src="https://github.com/user-attachments/assets/f31b0028-db4d-46f8-b56d-69df74c589f1" />
+Пример при несуществующем ID
+<img width="1432" height="861" alt="image" src="https://github.com/user-attachments/assets/9d769df8-b545-4c81-8e70-37361d5b38f7" />
+
+
+
+
