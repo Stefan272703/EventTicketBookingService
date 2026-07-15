@@ -1,5 +1,4 @@
-<img width="1434" height="686" alt="image" src="https://github.com/user-attachments/assets/12fcc4d6-f9f7-4bb2-9dfe-71d1385b7b35" /># EventTicketBookingService
-Разработка сервиса бронирования билетов на мероприятие
+# Разработка сервиса бронирования билетов на мероприятие
 
 Зависимости:
 - Visual Studio 2026
