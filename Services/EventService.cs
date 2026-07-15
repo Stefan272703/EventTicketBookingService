@@ -8,28 +8,26 @@ namespace EventTicketBookingService.Services
 {
     public class EventService: IEventService
     {
-        private static List<Event> _events = []; //[ new Event { Id = 1, Title="Сказка", Description = "LOL", StartAt = DateTime.Now, EndAt = DateTime.Now}];
+        private static List<EventDTO> _events = []; //[ new Event { Id = 1, Title="Сказка", Description = "LOL", StartAt = DateTime.Now, EndAt = DateTime.Now}];
 
         // Получить все события
-        public List<Event> GetAllEvents()
+        public List<EventDTO> GetAllEvents()
         {
             return _events;
         }
 
         // Получить событие по Id
-        public Event? GetEventById(int id)
+        public EventDTO? GetEventById(int id)
         {
             return _events?.FirstOrDefault(x => x.Id == id);
         }
 
         // Создать новое событие
-        public Event? CreateEvent([FromBody] Event my_event)
+        public EventDTO? CreateEvent(Event my_event)
         {
-
-
-            var new_event = new Event() 
+            var new_eventDTO = new EventDTO() 
             { 
-                Id = _events.Any() ? _events.Count() + 1 : 1,
+                Id = _events.Any() ? _events.FirstOrDefault().Id + 1 : 1,
                 Title = my_event.Title,                         // Название события
                 Description = my_event.Description,             // Описание события из тела запроса Event
                 StartAt = my_event.StartAt,
@@ -37,12 +35,12 @@ namespace EventTicketBookingService.Services
 
             };
 
-            _events?.Add(new_event);
-            return new_event;
+            _events?.Add(new_eventDTO);
+            return new_eventDTO;
         }
 
         // Обновить событие целиком
-        public Event UpdateEvent(int id, [FromBody] Event my_event)
+        public EventDTO UpdateEvent(int id, Event my_event)
         {
             var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             existingEvent?.Title = my_event.Title;
@@ -55,7 +53,7 @@ namespace EventTicketBookingService.Services
         }
 
         // Удалить событие
-        public Event DeleteEvent(int id)
+        public EventDTO DeleteEvent(int id)
         {
             var delEvent = _events.FirstOrDefault(x => x.Id == id);
             _events.Remove(delEvent);
