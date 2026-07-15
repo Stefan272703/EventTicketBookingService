@@ -5,10 +5,10 @@ namespace EventTicketBookingService.Interfaces
 {
     public interface IEventService
     {
-        public List<Event> GetAllEvents();
-        public Event? GetEventById(int id);
-        public Event? CreateEvent([FromBody] Event my_event /*string title, string description*/);
-        public Event UpdateEvent(int id, [FromBody] Event my_event);
-        public Event DeleteEvent(int id);
+        public List<EventDTO> GetAllEvents();
+        public EventDTO? GetEventById(int id);
+        public EventDTO? CreateEvent(Event my_event);
+        public EventDTO UpdateEvent(int id, Event my_event);
+        public EventDTO DeleteEvent(int id);
     }
 }
