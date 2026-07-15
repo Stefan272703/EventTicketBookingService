@@ -19,6 +19,7 @@ namespace EventTicketBookingService
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IEventService, EventService>();
 
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
