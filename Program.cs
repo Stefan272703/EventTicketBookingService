@@ -17,7 +17,7 @@ namespace EventTicketBookingService
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddSingleton<IEventService, EventService>();
 
 
             var app = builder.Build();
