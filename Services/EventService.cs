@@ -27,12 +27,11 @@ namespace EventTicketBookingService.Services
         {
             var new_eventDTO = new EventDTO() 
             { 
-                Id = _events.Any() ? _events.FirstOrDefault().Id + 1 : 1,
+                Id = _events.Any() ? _events.Max(x => x.Id) + 1 : 1,
                 Title = my_event.Title,                         // Название события
                 Description = my_event.Description,             // Описание события из тела запроса Event
                 StartAt = my_event.StartAt,
                 EndAt = my_event.EndAt,
-
             };
 
             _events?.Add(new_eventDTO);
