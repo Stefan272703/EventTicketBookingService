@@ -1,5 +1,6 @@
 
 using EventTicketBookingService.Interfaces;
+using EventTicketBookingService.Middlewares;
 using EventTicketBookingService.Services;
 
 namespace EventTicketBookingService
@@ -29,6 +30,8 @@ namespace EventTicketBookingService
                 app.MapSwagger();
                 app.MapSwaggerUI();
             }
+            
+            app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
