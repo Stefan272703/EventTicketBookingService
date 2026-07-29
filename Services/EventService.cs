@@ -8,7 +8,7 @@ namespace EventTicketBookingService.Services
 {
     public class EventService: IEventService
     {
-        private static List<EventDTO> _events = []; //[ new Event { Id = 1, Title="Сказка", Description = "LOL", StartAt = DateTime.Now, EndAt = DateTime.Now}];
+        private static List<EventDTO> _events = [];
 
         // Получить все события
         public List<EventDTO> GetAllEvents()
@@ -46,7 +46,6 @@ namespace EventTicketBookingService.Services
             existingEvent?.Description = my_event.Description;
             existingEvent?.StartAt = my_event.StartAt;
             existingEvent?.EndAt = my_event.EndAt;
-
 
             return existingEvent;
         }
