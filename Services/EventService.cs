@@ -23,19 +23,19 @@ namespace EventTicketBookingService.Services
         }
 
         // Создать новое событие
-        public EventDTO? CreateEvent(Event my_event)
+        public EventDTO? CreateEvent(Event createdEvent)
         {
-            var new_eventDTO = new EventDTO() 
+            var eventDTO = new EventDTO() 
             { 
                 Id = _events.Any() ? _events.Max(x => x.Id) + 1 : 1,
-                Title = my_event.Title,                         // Название события
-                Description = my_event.Description,             // Описание события из тела запроса Event
-                StartAt = my_event.StartAt,
-                EndAt = my_event.EndAt,
+                Title = createdEvent.Title,                         // Название события
+                Description = createdEvent.Description,             // Описание события из тела запроса Event
+                StartAt = createdEvent.StartAt,
+                EndAt = createdEvent.EndAt,
             };
 
-            _events?.Add(new_eventDTO);
-            return new_eventDTO;
+            _events?.Add(eventDTO);
+            return eventDTO;
         }
 
         // Обновить событие целиком
