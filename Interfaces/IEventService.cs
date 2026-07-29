@@ -7,8 +7,8 @@ namespace EventTicketBookingService.Interfaces
     {
         public List<EventDTO> GetAllEvents();
         public EventDTO? GetEventById(int id);
-        public EventDTO? CreateEvent(Event my_event);
-        public EventDTO UpdateEvent(int id, Event my_event);
+        public EventDTO? CreateEvent(Event createdEvent);
+        public EventDTO UpdateEvent(int id, Event createdEvent);
         public EventDTO DeleteEvent(int id);
     }
 }

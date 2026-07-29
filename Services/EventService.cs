@@ -39,13 +39,13 @@ namespace EventTicketBookingService.Services
         }
 
         // Обновить событие целиком
-        public EventDTO UpdateEvent(int id, Event my_event)
+        public EventDTO UpdateEvent(int id, Event createdEvent)
         {
             var existingEvent = _events.FirstOrDefault(x => x.Id == id);
-            existingEvent?.Title = my_event.Title;
-            existingEvent?.Description = my_event.Description;
-            existingEvent?.StartAt = my_event.StartAt;
-            existingEvent?.EndAt = my_event.EndAt;
+            existingEvent?.Title = createdEvent.Title;
+            existingEvent?.Description = createdEvent.Description;
+            existingEvent?.StartAt = createdEvent.StartAt;
+            existingEvent?.EndAt = createdEvent.EndAt;
 
             return existingEvent;
         }
