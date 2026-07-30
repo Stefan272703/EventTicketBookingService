@@ -11,7 +11,11 @@ namespace EventTicketBookingService.Services
         private static List<EventDTO> _events = [];
 
         // Получить все события
-        public List<EventDTO> GetAllEvents(string title, DateTime? from, DateTime? to)
+        public PaginatedResultDTO<EventDTO> GetAllEvents(string title, 
+            DateTime? from,
+            DateTime? to,
+            int page,
+            int pageSize)
         {
             // Проверка, что to передано по умолчанию, как минимальное значение
             // Если да, то присваиваем максимальное значение DateTime как по умолчанию
@@ -19,12 +23,43 @@ namespace EventTicketBookingService.Services
             {
                 to = DateTime.MaxValue;
             }
-                return _events.Where(t => t.Title.ToLower().Contains(title.ToLower()) &&
-                                     (t.StartAt.CompareTo(from) >= 0) && // Начало события не раньше указанного
-                                     t.EndAt.CompareTo(to) <= 0) // Конец события не позже указанного
-                                     .ToList();
+
+            // Отфильтрованный список событий по title, from и to
+            var filteredEvents = _events.Where(t => t.Title.ToLower().Contains(title.ToLower()) &&
+                                               t.StartAt.CompareTo(from) >= 0 && // Начало события не раньше указанного
+                                               t.EndAt.CompareTo(to) <= 0); // Конец события не позже указанного
+
+            // Пагинация событий с результатом
+            var paginatedEvents = GetEventsWithPagination(filteredEvents, page, pageSize);
+
+            return paginatedEvents;
         }
 
+        // Метод получения результата пагинации
+        private PaginatedResultDTO<EventDTO> GetEventsWithPagination(
+            IEnumerable<EventDTO> entryEvents,
+            int page,
+            int pageSize)
+        {
+            // пагинация фильтрованного списка событий
+            var items = entryEvents.Skip((page - 1) * pageSize).Take(pageSize);
+
+            // Общее количество событий (Не понятно, именно по фильтрованному списку или прям общую коллекцию???)
+            // int totalCount = entryEvents.Count();
+            int totalCount = _events.Count();
+            // Количество элементов на текущей странице
+            int pageSizeByIndex = items.Count();
+
+            PaginatedResultDTO<EventDTO> paginatedResultDTO = new PaginatedResultDTO<EventDTO> 
+            { 
+                TotalCount = totalCount,
+                Events = items,
+                PageIndex = page,
+                PageSizeByIndex = pageSizeByIndex
+            };
+
+            return paginatedResultDTO;
+        }
 
 
         // Получить событие по Id
