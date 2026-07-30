@@ -5,7 +5,7 @@ namespace EventTicketBookingService.Interfaces
 {
     public interface IEventService
     {
-        public List<EventDTO> GetAllEvents();
+        public List<EventDTO> GetAllEvents(string title, DateTime? from, DateTime? to);
         public EventDTO? GetEventById(int id);
         public EventDTO? CreateEvent(Event my_event);
         public EventDTO UpdateEvent(int id, Event my_event);
