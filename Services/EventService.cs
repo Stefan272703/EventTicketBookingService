@@ -11,10 +11,21 @@ namespace EventTicketBookingService.Services
         private static List<EventDTO> _events = [];
 
         // Получить все события
-        public List<EventDTO> GetAllEvents()
+        public List<EventDTO> GetAllEvents(string title, DateTime? from, DateTime? to)
         {
-            return _events;
+            // Проверка, что to передано по умолчанию, как минимальное значение
+            // Если да, то присваиваем максимальное значение DateTime как по умолчанию
+            if (to == DateTime.MinValue)
+            {
+                to = DateTime.MaxValue;
+            }
+                return _events.Where(t => t.Title.ToLower().Contains(title.ToLower()) &&
+                                     (t.StartAt.CompareTo(from) >= 0) && // Начало события не раньше указанного
+                                     t.EndAt.CompareTo(to) <= 0) // Конец события не позже указанного
+                                     .ToList();
         }
+
+
 
         // Получить событие по Id
         public EventDTO? GetEventById(int id)
