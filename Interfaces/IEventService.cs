@@ -5,7 +5,11 @@ namespace EventTicketBookingService.Interfaces
 {
     public interface IEventService
     {
-        public List<EventDTO> GetAllEvents(string title, DateTime? from, DateTime? to);
+        public PaginatedResultDTO<EventDTO> GetAllEvents(string title, 
+            DateTime? from,
+            DateTime? to,
+            int page,
+            int pageSize);
         public EventDTO? GetEventById(int id);
         public EventDTO? CreateEvent(Event createdEvent);
         public EventDTO UpdateEvent(int id, Event createdEvent);
