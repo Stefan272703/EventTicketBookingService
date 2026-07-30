@@ -17,11 +17,17 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] string title = "")
+        public IActionResult GetAll([FromQuery] DateTime from,
+            [FromQuery] DateTime to,
+            [FromQuery] string title = "",
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10
+            )
         {
-            var events = _eventService.GetAllEvents(title, from, to);
+            var events = _eventService.GetAllEvents(title, from, to, page, pageSize);
             return Ok(events);
         }
+
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
