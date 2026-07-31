@@ -2,6 +2,7 @@
 using EventTicketBookingService.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
 namespace EventTicketBookingService.Services
@@ -34,7 +35,7 @@ namespace EventTicketBookingService.Services
 
             return paginatedEvents;
         }
-
+            
         // Метод получения результата пагинации
         private PaginatedResultDTO<EventDTO> GetEventsWithPagination(
             IEnumerable<EventDTO> entryEvents,
@@ -44,9 +45,8 @@ namespace EventTicketBookingService.Services
             // пагинация фильтрованного списка событий
             var items = entryEvents.Skip((page - 1) * pageSize).Take(pageSize);
 
-            // Общее количество событий (Не понятно, именно по фильтрованному списку или прям общую коллекцию???)
-            // int totalCount = entryEvents.Count();
-            int totalCount = _events.Count();
+            // Общее количество событий
+            int totalCount = entryEvents.Count();
             // Количество элементов на текущей странице
             int pageSizeByIndex = items.Count();
 
@@ -71,8 +71,13 @@ namespace EventTicketBookingService.Services
         // Создать новое событие
         public EventDTO? CreateEvent(Event createdEvent)
         {
-            var eventDTO = new EventDTO() 
-            { 
+            if (string.IsNullOrWhiteSpace(createdEvent.Title))
+                throw new ValidationException("Title не может быть пустым");
+            if (createdEvent.StartAt >= createdEvent.EndAt)
+                throw new ValidationException("Конец события должен быть позже начала события");
+
+            var eventDTO = new EventDTO()
+            {   
                 Id = _events.Any() ? _events.Max(x => x.Id) + 1 : 1,
                 Title = createdEvent.Title,                         // Название события
                 Description = createdEvent.Description,             // Описание события из тела запроса Event
@@ -87,6 +92,12 @@ namespace EventTicketBookingService.Services
         // Обновить событие целиком
         public EventDTO UpdateEvent(int id, Event createdEvent)
         {
+            
+            if (string.IsNullOrWhiteSpace(createdEvent.Title))
+                throw new ValidationException("Title не может быть пустым");
+            if (createdEvent.StartAt >= createdEvent.EndAt)
+                throw new ValidationException("Конец события должен быть позже начала события");
+
             var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             existingEvent?.Title = createdEvent.Title;
             existingEvent?.Description = createdEvent.Description;
