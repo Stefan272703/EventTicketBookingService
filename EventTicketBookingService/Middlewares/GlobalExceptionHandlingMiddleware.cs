@@ -56,7 +56,7 @@ namespace EventTicketBookingService.Middlewares
             return ex switch
             {
                 ValidationException ve => StatusCodes.Status400BadRequest,
-                ResourceNotFoundException re => StatusCodes.Status200OK,
+                ResourceNotFoundException re => StatusCodes.Status404NotFound,
                 _ =>StatusCodes.Status500InternalServerError
 
             };
