@@ -8,7 +8,7 @@ namespace EventTicketBookingService.Services
 {
     public class EventService: IEventService
     {
-        private static List<EventDTO> _events = [];
+        private List<EventDTO> _events = [];
 
         // Получить все события
         public PaginatedResultDTO<EventDTO> GetAllEvents(string title, 
