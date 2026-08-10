@@ -1,4 +1,5 @@
-﻿using EventTicketBookingService.Interfaces;
+﻿using EventTicketBookingService.Exceptions;
+using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -63,11 +64,14 @@ namespace EventTicketBookingService.Services
             return paginatedResultDTO;
         }
 
-
         // Получить событие по Id
         public EventDTO? GetEventById(int id)
         {
-            return _events?.FirstOrDefault(x => x.Id == id);
+            var eventById =  _events?.FirstOrDefault(x => x.Id == id);
+            if (eventById == null)
+                throw new ResourceNotFoundException(eventById, "Не найден ресурс");
+
+            return eventById;
         }
 
         // Создать новое событие
@@ -94,13 +98,14 @@ namespace EventTicketBookingService.Services
         // Обновить событие целиком
         public EventDTO UpdateEvent(int id, Event createdEvent)
         {
-            
+            var existingEvent = _events.FirstOrDefault(x => x.Id == id);
+            if (existingEvent == null)
+                throw new ResourceNotFoundException(existingEvent, "Не найден ресурс");
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
                 throw new ValidationException("Title не может быть пустым");
             if (createdEvent.StartAt >= createdEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             existingEvent?.Title = createdEvent.Title;
             existingEvent?.Description = createdEvent.Description;
             existingEvent?.StartAt = createdEvent.StartAt;
@@ -113,6 +118,8 @@ namespace EventTicketBookingService.Services
         public EventDTO DeleteEvent(int id)
         {
             var delEvent = _events.FirstOrDefault(x => x.Id == id);
+            if (delEvent == null)
+                throw new ResourceNotFoundException(delEvent, "Не найден ресурс");
             _events.Remove(delEvent);
             return delEvent;
         }
