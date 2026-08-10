@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="EventTicketBookingService.csproj" />
+  <Project Path="EventService.Tests/EventService.Tests.csproj" Id="46a3ec4c-4ac2-465f-a2d1-a392b46aec50" />
+  <Project Path="EventTicketBookingService/EventTicketBookingService.csproj" />
 </Solution>

@@ -17,11 +17,17 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery] DateTime from,
+            [FromQuery] DateTime to,
+            [FromQuery] string title = "",
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10
+            )
         {
-            var events = _eventService.GetAllEvents();
+            var events = _eventService.GetAllEvents(title, from, to, page, pageSize);
             return Ok(events);
         }
+
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
@@ -36,25 +42,25 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Event my_event)
+        public IActionResult Create([FromBody] Event createdEvent)
         {
-            if (!TryValidateModel(my_event))
+            if (!TryValidateModel(createdEvent))
             {
                 return BadRequest(ModelState);
             }
 
-            var new_event = _eventService.CreateEvent(my_event);
-            return CreatedAtAction(nameof(GetById), new {id = new_event?.Id}, new_event);
+            var eventDTO = _eventService.CreateEvent(createdEvent);
+            return CreatedAtAction(nameof(GetById), new {id = eventDTO?.Id}, eventDTO);
         }
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Event my_event)
+        public IActionResult Update(int id, [FromBody] Event createdEvent)
         {
-            if (!TryValidateModel(my_event))
+            if (!TryValidateModel(createdEvent))
             {
                 return BadRequest(ModelState);
             }
 
-            var existingEvent = _eventService.UpdateEvent(id, my_event);
+            var existingEvent = _eventService.UpdateEvent(id, createdEvent);
             if (existingEvent == null)
             {
                 return NotFound($"Данного события не существует по id {id}");

@@ -1,5 +1,6 @@
 
 using EventTicketBookingService.Interfaces;
+using EventTicketBookingService.Middlewares;
 using EventTicketBookingService.Services;
 
 namespace EventTicketBookingService
@@ -17,7 +18,7 @@ namespace EventTicketBookingService
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddSingleton<IEventService, EventService>();
 
 
             var app = builder.Build();
@@ -29,6 +30,8 @@ namespace EventTicketBookingService
                 app.MapSwagger();
                 app.MapSwaggerUI();
             }
+            
+            app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 

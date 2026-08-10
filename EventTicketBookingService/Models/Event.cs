@@ -6,7 +6,6 @@ namespace EventTicketBookingService.Models
     [NotAfterStartAtTime]
     public class Event
     {
-        [Required(ErrorMessage = "ID обязательное для заполнения")]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Title обязательное для заполнения")]
