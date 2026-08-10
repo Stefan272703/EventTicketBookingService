@@ -17,8 +17,8 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] DateTime from,
-            [FromQuery] DateTime to,
+        public IActionResult GetAll([FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
             [FromQuery] string title = "",
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10

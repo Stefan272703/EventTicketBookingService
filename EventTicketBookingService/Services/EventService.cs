@@ -18,17 +18,19 @@ namespace EventTicketBookingService.Services
             int page,
             int pageSize)
         {
-            // Проверка, что to передано по умолчанию, как минимальное значение
-            // Если да, то присваиваем максимальное значение DateTime как по умолчанию
-            if (to == DateTime.MinValue)
+            IEnumerable<EventDTO> filteredEvents = _events;
+            if (!string.IsNullOrEmpty(title))
             {
-                to = DateTime.MaxValue;
+                filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
             }
-
-            // Отфильтрованный список событий по title, from и to
-            var filteredEvents = _events.Where(t => t.Title.ToLower().Contains(title.ToLower()) &&
-                                               t.StartAt.CompareTo(from) >= 0 && // Начало события не раньше указанного
-                                               t.EndAt.CompareTo(to) <= 0); // Конец события не позже указанного
+            if (from.HasValue)
+            {
+                filteredEvents = filteredEvents.Where(t => t.StartAt >= from.Value);
+            }
+            if (to.HasValue)
+            {
+                filteredEvents = filteredEvents.Where(t => t.EndAt <= to.Value);
+            }
 
             // Пагинация событий с результатом
             var paginatedEvents = GetEventsWithPagination(filteredEvents, page, pageSize);
