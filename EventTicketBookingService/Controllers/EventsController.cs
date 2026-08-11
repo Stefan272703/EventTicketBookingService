@@ -83,7 +83,7 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpPost("{id}/book")]
-        public IActionResult CreateBooking(int id)
+        public async Task<IActionResult> CreateBooking(int id)
         {
             var eventById = _eventService.GetEventById(id);
             if (eventById == null)
@@ -91,23 +91,9 @@ namespace EventTicketBookingService.Controllers
                 return NotFound($"Не найдено событие по ID: {id}");
             }
 
-            var booking = _bookingService.CreateBookingAsync(eventById.Id);
+            var booking = await _bookingService.CreateBookingAsync(eventById.Id);
 
-            //return Accepted(booking);
-            return AcceptedAtAction(nameof(GetBookingById), new { bookingId = booking?.Id}, booking);
-        }
-
-        [HttpGet("bookings/{bookingId}")]
-        public IActionResult GetBookingById(int bookingId)
-        {
-            var bookingById = _bookingService.GetBookingByIdAsync(bookingId);
-
-            if(bookingById == null)
-            {
-                return NotFound($"Не найдена бронь по Id: {bookingById}");
-
-            }
-            return Ok(bookingById);
+            return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id}, booking);
         }
     }
 }

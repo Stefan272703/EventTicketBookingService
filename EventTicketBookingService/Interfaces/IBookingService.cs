@@ -5,9 +5,9 @@ namespace EventTicketBookingService.Interfaces
     public interface IBookingService
     {
         // Создание брони для указанного события
-        public BookingResponse? CreateBookingAsync(int eventId);
+        public Task<BookingResponse>? CreateBookingAsync(int eventId);
 
         // Получение брони по идентификатору
-        public Booking? GetBookingByIdAsync(int bookingId);
+        public Task<Booking>? GetBookingByIdAsync(int bookingId);
     }
 }

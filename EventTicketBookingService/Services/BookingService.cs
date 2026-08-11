@@ -9,7 +9,7 @@ namespace EventTicketBookingService.Services
     {
         private List<Booking> _bookings = [];
 
-        public BookingResponse CreateBookingAsync(int eventId)
+        public async Task<BookingResponse> CreateBookingAsync(int eventId)
         {
             Booking booking = new Booking()
             {
@@ -34,13 +34,11 @@ namespace EventTicketBookingService.Services
             return response;
         }
 
-        public Booking? GetBookingByIdAsync(int bookingId)
+        public async Task<Booking>? GetBookingByIdAsync(int bookingId)
         {
             var existingBooking = _bookings.FirstOrDefault(x => x.Id == bookingId);
 
-            
-
-            return _bookings.FirstOrDefault(x => x.Id == bookingId);
+            return _bookings?.FirstOrDefault(x => x?.Id == bookingId);
         }
 
     }
