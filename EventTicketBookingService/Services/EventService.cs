@@ -69,7 +69,7 @@ namespace EventTicketBookingService.Services
         {
             var eventById =  _events?.FirstOrDefault(x => x.Id == id);
             if (eventById == null)
-                throw new ResourceNotFoundException(eventById, "Не найден ресурс");
+                throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {id}");
 
             return eventById;
         }
@@ -100,7 +100,7 @@ namespace EventTicketBookingService.Services
         {
             var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             if (existingEvent == null)
-                throw new ResourceNotFoundException(existingEvent, "Не найден ресурс");
+                throw new ResourceNotFoundException(existingEvent, $"Не найдено событие по ID: {id}");
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
                 throw new ValidationException("Title не может быть пустым");
             if (createdEvent.StartAt >= createdEvent.EndAt)
@@ -119,7 +119,7 @@ namespace EventTicketBookingService.Services
         {
             var delEvent = _events.FirstOrDefault(x => x.Id == id);
             if (delEvent == null)
-                throw new ResourceNotFoundException(delEvent, "Не найден ресурс");
+                throw new ResourceNotFoundException(delEvent, $"Не найдено событие по ID: {id}");
             _events.Remove(delEvent);
             return delEvent;
         }
