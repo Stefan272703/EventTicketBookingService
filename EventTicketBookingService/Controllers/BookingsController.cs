@@ -23,7 +23,6 @@ namespace EventTicketBookingService.Controllers
             if(bookingById == null)
             {
                 return NotFound($"Не найдена бронь по Id: {id}");
-
             }
 
             return Ok(bookingById);

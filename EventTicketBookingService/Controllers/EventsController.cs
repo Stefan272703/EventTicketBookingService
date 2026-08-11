@@ -11,12 +11,18 @@ namespace EventTicketBookingService.Controllers
 
         private readonly IEventService _eventService;
         private readonly IBookingService _bookingService;
+        private readonly IBookingTaskQueue _taskQueue;
+        private readonly ILogger<BookingsController> _logger;
 
         public EventsController(IEventService eventService,
-                                IBookingService bookingService)
+                                IBookingService bookingService,
+                                IBookingTaskQueue taskQueue,
+                                ILogger<BookingsController> logger)
         {
             _eventService = eventService;
             _bookingService = bookingService;
+            _taskQueue = taskQueue;
+            _logger = logger;
         }
 
         [HttpGet]

@@ -8,6 +8,11 @@ namespace EventTicketBookingService.Services
     public class BookingService: IBookingService
     {
         private List<Booking> _bookings = [];
+        private readonly IBookingTaskQueue _taskQueue;
+        public BookingService(IBookingTaskQueue taskQueue)
+        {
+            _taskQueue = taskQueue;
+        }
 
         public async Task<BookingResponse> CreateBookingAsync(int eventId)
         {
@@ -19,6 +24,8 @@ namespace EventTicketBookingService.Services
                 CreatedAt = DateTime.Now,
                 ProcessedAt = null,
             };
+
+            _taskQueue.Enqueue(booking);
 
             // Маппим в DTO тело ответа
             BookingResponse response = new BookingResponse()
@@ -40,6 +47,5 @@ namespace EventTicketBookingService.Services
 
             return _bookings?.FirstOrDefault(x => x?.Id == bookingId);
         }
-
     }
 }
