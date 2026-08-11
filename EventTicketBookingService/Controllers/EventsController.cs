@@ -6,14 +6,17 @@ namespace EventTicketBookingService.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EventsController: ControllerBase
+    public class EventsController : ControllerBase
     {
 
         private readonly IEventService _eventService;
+        private readonly IBookingService _bookingService;
 
-        public EventsController(IEventService eventService)
+        public EventsController(IEventService eventService,
+                                IBookingService bookingService)
         {
             _eventService = eventService;
+            _bookingService = bookingService;
         }
 
         [HttpGet]
@@ -33,7 +36,7 @@ namespace EventTicketBookingService.Controllers
         public IActionResult GetById(int id)
         {
             var eventbyId = _eventService.GetEventById(id);
-            if(eventbyId == null)
+            if (eventbyId == null)
             {
                 return NotFound($"Не найдено событие по ID: {id}");
             }
@@ -50,7 +53,7 @@ namespace EventTicketBookingService.Controllers
             }
 
             var eventDTO = _eventService.CreateEvent(createdEvent);
-            return CreatedAtAction(nameof(GetById), new {id = eventDTO?.Id}, eventDTO);
+            return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
         }
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Event createdEvent)
@@ -79,5 +82,32 @@ namespace EventTicketBookingService.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/book")]
+        public IActionResult CreateBooking(int id)
+        {
+            var eventById = _eventService.GetEventById(id);
+            if (eventById == null)
+            {
+                return NotFound($"Не найдено событие по ID: {id}");
+            }
+
+            var booking = _bookingService.CreateBookingAsync(eventById.Id);
+
+            //return Accepted(booking);
+            return AcceptedAtAction(nameof(GetBookingById), new { bookingId = booking?.Id}, booking);
+        }
+
+        [HttpGet("bookings/{bookingId}")]
+        public IActionResult GetBookingById(int bookingId)
+        {
+            var bookingById = _bookingService.GetBookingByIdAsync(bookingId);
+
+            if(bookingById == null)
+            {
+                return NotFound($"Не найдена бронь по Id: {bookingById}");
+
+            }
+            return Ok(bookingById);
+        }
     }
 }
