@@ -10,5 +10,8 @@ namespace EventTicketBookingService.Interfaces
         // Получение брони по идентификатору
         public Task<Booking>? GetBookingByIdAsync(int bookingId);
 
+        // Обновление брони
+        public Task UpdateBookingStatusAsync(int bookingId, BookingStatus status, CancellationToken cancellationToken);
+
     }
 }
