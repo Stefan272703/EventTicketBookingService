@@ -20,7 +20,7 @@ namespace EventTicketBookingService
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<IEventService, EventService>();
             builder.Services.AddSingleton<IBookingService, BookingService>();
-            builder.Services.AddSingleton<IBookingTaskQueue, InMemoryBookingTaskQueue>();
+            builder.Services.AddSingleton<IBookingTaskQueue, InMemoryBookingStore>();
             builder.Services.AddHostedService<BookingBackgroundService>();
 
 
