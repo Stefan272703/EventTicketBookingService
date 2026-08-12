@@ -1,3 +1,4 @@
+using EventTicketBookingService.Exceptions;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -85,15 +86,9 @@ namespace EventTicketBookingService.Controllers
         [HttpPost("{id}/book")]
         public async Task<IActionResult> CreateBooking(int id)
         {
-            var eventById = _eventService.GetEventById(id);
-            if (eventById == null)
-            {
-                return NotFound($"Не найдено событие по ID: {id}");
-            }
+            var booking = await _bookingService.CreateBookingAsync(id);
 
-            var booking = await _bookingService.CreateBookingAsync(eventById.Id);
-
-            return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id}, booking);
+            return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id }, booking);
         }
     }
 }
