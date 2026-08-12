@@ -1,3 +1,4 @@
+using EventTicketBookingService.Exceptions;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -6,19 +7,22 @@ namespace EventTicketBookingService.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EventsController: ControllerBase
+    public class EventsController : ControllerBase
     {
 
         private readonly IEventService _eventService;
+        private readonly IBookingService _bookingService;
 
-        public EventsController(IEventService eventService)
+        public EventsController(IEventService eventService,
+                                IBookingService bookingService)
         {
             _eventService = eventService;
+            _bookingService = bookingService;
         }
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] DateTime from,
-            [FromQuery] DateTime to,
+        public IActionResult GetAll([FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
             [FromQuery] string title = "",
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10
@@ -33,7 +37,7 @@ namespace EventTicketBookingService.Controllers
         public IActionResult GetById(int id)
         {
             var eventbyId = _eventService.GetEventById(id);
-            if(eventbyId == null)
+            if (eventbyId == null)
             {
                 return NotFound($"Не найдено событие по ID: {id}");
             }
@@ -50,7 +54,7 @@ namespace EventTicketBookingService.Controllers
             }
 
             var eventDTO = _eventService.CreateEvent(createdEvent);
-            return CreatedAtAction(nameof(GetById), new {id = eventDTO?.Id}, eventDTO);
+            return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
         }
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Event createdEvent)
@@ -79,5 +83,12 @@ namespace EventTicketBookingService.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/book")]
+        public async Task<IActionResult> CreateBooking(int id)
+        {
+            var booking = await _bookingService.CreateBookingAsync(id);
+
+            return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id }, booking);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using EventTicketBookingService.Interfaces;
+﻿using EventTicketBookingService.Exceptions;
+using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -18,17 +19,19 @@ namespace EventTicketBookingService.Services
             int page,
             int pageSize)
         {
-            // Проверка, что to передано по умолчанию, как минимальное значение
-            // Если да, то присваиваем максимальное значение DateTime как по умолчанию
-            if (to == DateTime.MinValue)
+            IEnumerable<EventDTO> filteredEvents = _events;
+            if (!string.IsNullOrEmpty(title))
             {
-                to = DateTime.MaxValue;
+                filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
             }
-
-            // Отфильтрованный список событий по title, from и to
-            var filteredEvents = _events.Where(t => t.Title.ToLower().Contains(title.ToLower()) &&
-                                               t.StartAt.CompareTo(from) >= 0 && // Начало события не раньше указанного
-                                               t.EndAt.CompareTo(to) <= 0); // Конец события не позже указанного
+            if (from.HasValue)
+            {
+                filteredEvents = filteredEvents.Where(t => t.StartAt >= from.Value);
+            }
+            if (to.HasValue)
+            {
+                filteredEvents = filteredEvents.Where(t => t.EndAt <= to.Value);
+            }
 
             // Пагинация событий с результатом
             var paginatedEvents = GetEventsWithPagination(filteredEvents, page, pageSize);
@@ -61,11 +64,14 @@ namespace EventTicketBookingService.Services
             return paginatedResultDTO;
         }
 
-
         // Получить событие по Id
         public EventDTO? GetEventById(int id)
         {
-            return _events?.FirstOrDefault(x => x.Id == id);
+            var eventById =  _events?.FirstOrDefault(x => x.Id == id);
+            if (eventById == null)
+                throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {id}");
+
+            return eventById;
         }
 
         // Создать новое событие
@@ -92,13 +98,14 @@ namespace EventTicketBookingService.Services
         // Обновить событие целиком
         public EventDTO UpdateEvent(int id, Event createdEvent)
         {
-            
+            var existingEvent = _events.FirstOrDefault(x => x.Id == id);
+            if (existingEvent == null)
+                throw new ResourceNotFoundException(existingEvent, $"Не найдено событие по ID: {id}");
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
                 throw new ValidationException("Title не может быть пустым");
             if (createdEvent.StartAt >= createdEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             existingEvent?.Title = createdEvent.Title;
             existingEvent?.Description = createdEvent.Description;
             existingEvent?.StartAt = createdEvent.StartAt;
@@ -111,6 +118,8 @@ namespace EventTicketBookingService.Services
         public EventDTO DeleteEvent(int id)
         {
             var delEvent = _events.FirstOrDefault(x => x.Id == id);
+            if (delEvent == null)
+                throw new ResourceNotFoundException(delEvent, $"Не найдено событие по ID: {id}");
             _events.Remove(delEvent);
             return delEvent;
         }

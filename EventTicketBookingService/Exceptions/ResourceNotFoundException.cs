@@ -6,9 +6,16 @@ namespace EventTicketBookingService.Exceptions
     {
         public EventDTO? EventDTO { get; set; }
 
+        // Хотел узнать, нужно ли добавлять BookingResponse в ResourceNotFoundException, как это правильно реализоать?
+        //public BookingResponse? BookingResponse { get; set; }
+
         public ResourceNotFoundException() 
         {
             
+        }
+        public ResourceNotFoundException(string message) : base(message)
+        {
+
         }
         public ResourceNotFoundException(EventDTO eventDTO, string message):base(message)
         {

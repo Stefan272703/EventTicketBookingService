@@ -1,4 +1,5 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Exceptions;
+using EventTicketBookingService.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventService.Tests
@@ -7,20 +8,18 @@ namespace EventService.Tests
     {
         // Получение несуществующего события
         [Fact]
-        public void GetEventById_NonExistingId_ReturnsNull()
+        public void GetEventById_NonExistingId_ThrowsResourceNotFoundException()
         {
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
-            // Act
-            var result = eventService.GetEventById(999);
 
-            // Assert
-            Assert.Null(result);
+            // Act && Assert
+            Assert.Throws<ResourceNotFoundException>(() => eventService.GetEventById(999));
         }
 
         // Обновление несуществующего события
         [Fact]
-        public void UpdateEvent_NonExistingId_ReturnsNull()
+        public void UpdateEvent_NonExistingId_ThrowsResourceNotFoundException()
         {
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
@@ -34,24 +33,18 @@ namespace EventService.Tests
                 EndAt = DateTime.Now.AddHours(1)
             };
 
-            // Act
-            var result = eventService.UpdateEvent(999, updateData);
-
-            // Assert
-            Assert.Null(result);
+            // Act && Assert
+            Assert.Throws<ResourceNotFoundException>(() => eventService.UpdateEvent(999, updateData));
         }
         // Удалание несуществующего события
         [Fact]
-        public void DeleteEvent_NonExistingId_ReturnsNull()
+        public void DeleteEvent_NonExistingId_ThrowsResourceNotFoundException()
         {
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            // Act
-            var result = eventService.DeleteEvent(999);
-
-            // Assert
-            Assert.Null(result);
+            // Act && Assert
+            Assert.Throws<ResourceNotFoundException>(() => eventService.DeleteEvent(999));
         }
 
         // Создание события с пустым названием

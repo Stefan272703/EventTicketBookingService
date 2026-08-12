@@ -1,4 +1,5 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Exceptions;
+using EventTicketBookingService.Models;
 
 namespace EventService.Tests
 {
@@ -57,7 +58,7 @@ namespace EventService.Tests
 
 
             // Act
-            var result = eventService.GetAllEvents("", DateTime.MinValue, DateTime.MinValue, 1, 10);
+            var result = eventService.GetAllEvents("", null, null, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -145,7 +146,7 @@ namespace EventService.Tests
         }
 
         [Fact]
-        public void DeleteEvent_ExistingId_RemovesEventAndReturnsDeletedDto()
+        public void DeleteEvent_ExistingId_RemovesEventAndThrowsResourceNotFoundDeletedDto()
         {
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService(); // экземплярный список
@@ -168,9 +169,9 @@ namespace EventService.Tests
             Assert.Equal(id, result.Id);
             Assert.Equal("Noname", result.Title);
 
-            // Проверяем, что событие действительно удалено
-            var deletedEvent = eventService.GetEventById(id);
-            Assert.Null(deletedEvent);
+            // Проверяем, что событие не найдено
+            // Act && Assert
+            Assert.Throws<ResourceNotFoundException>(() => eventService.GetEventById(id));
         }
     }
 }
