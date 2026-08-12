@@ -13,6 +13,10 @@ namespace EventTicketBookingService.Exceptions
         {
             
         }
+        public ResourceNotFoundException(string message) : base(message)
+        {
+
+        }
         public ResourceNotFoundException(EventDTO eventDTO, string message):base(message)
         {
             EventDTO = eventDTO;
