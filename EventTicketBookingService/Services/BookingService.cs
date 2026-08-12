@@ -9,13 +9,20 @@ namespace EventTicketBookingService.Services
     {
         private List<Booking> _bookings = [];
         private readonly IBookingTaskQueue _taskQueue;
-        public BookingService(IBookingTaskQueue taskQueue)
+        private readonly IEventService _eventService;
+        public BookingService(IBookingTaskQueue taskQueue,
+                              IEventService eventService)
         {
             _taskQueue = taskQueue;
+            _eventService = eventService;
         }
 
         public async Task<BookingResponse> CreateBookingAsync(int eventId)
         {
+            var eventById = _eventService.GetEventById(eventId);
+            if (eventById == null)
+                throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {eventId}");
+
             Booking booking = new Booking()
             {
                 Id = _bookings.Any() ? _bookings.Max(x => x.Id) + 1 : 1,
@@ -26,6 +33,7 @@ namespace EventTicketBookingService.Services
             };
 
             _taskQueue.Enqueue(booking);
+            _bookings.Add(booking);
 
             // Маппим в DTO тело ответа
             BookingResponse response = new BookingResponse()
@@ -36,16 +44,29 @@ namespace EventTicketBookingService.Services
                 CreatedAt = DateTime.Now
             };
 
-            _bookings.Add(booking);
-
             return response;
         }
 
         public async Task<Booking>? GetBookingByIdAsync(int bookingId)
         {
             var existingBooking = _bookings.FirstOrDefault(x => x.Id == bookingId);
+            if (existingBooking == null)
+                throw new ResourceNotFoundException($"Бронь с ID: {bookingId} не найдена");
+            return existingBooking;
+        }
 
-            return _bookings?.FirstOrDefault(x => x?.Id == bookingId);
+        public async Task UpdateBookingStatusAsync(int bookingId, BookingStatus status, CancellationToken cancellationToken)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            var booking = _bookings.FirstOrDefault(x => x.Id == bookingId);
+            
+            if(booking == null)
+                throw new ResourceNotFoundException($"Бронь с ID: {bookingId} не найдена");
+
+            booking.Status = status;
+            if(status == BookingStatus.Confirmed || status == BookingStatus.Rejected)
+                booking.ProcessedAt = DateTime.Now;
+
         }
     }
 }
