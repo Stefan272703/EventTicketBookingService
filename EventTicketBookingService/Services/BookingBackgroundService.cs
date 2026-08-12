@@ -6,12 +6,15 @@ namespace EventTicketBookingService.Services
     {
         private readonly ILogger<BookingBackgroundService> _logger;
         private readonly IBookingTaskQueue _taskQueue;
+        private readonly IBookingService _bookingService;
 
         public BookingBackgroundService(ILogger<BookingBackgroundService> logger,
-                                        IBookingTaskQueue taskQueue)
+                                        IBookingTaskQueue taskQueue,
+                                        IBookingService bookingService)
         {
             _logger = logger;
             _taskQueue = taskQueue;
+            _bookingService = bookingService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,13 +28,9 @@ namespace EventTicketBookingService.Services
                     if (_taskQueue.TryDequeue(out var task) && task.Status == Models.BookingStatus.Pending) 
                     {
                         _logger.LogInformation($"Проходит процесс над бронью с ID: {task.Id}. Подождить пару секунд.");
-                        await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
-
-                        task.ProcessedAt = DateTime.Now;
-                        task.Status = Models.BookingStatus.Confirmed;
+                        await _bookingService.UpdateBookingStatusAsync(task.Id, Models.BookingStatus.Confirmed, stoppingToken);
 
                         _logger.LogInformation($"Процесс над бронью с ID: {task.Id} завершен!");
-
                     }
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) 
