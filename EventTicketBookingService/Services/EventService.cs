@@ -3,6 +3,7 @@ using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
@@ -75,14 +76,14 @@ namespace EventTicketBookingService.Services
         }
 
         // Создать новое событие
-        public Event? CreateEvent(EventDTO createdEvent)
+        public async Task<EventInfo?>? CreateEventAsync(EventInfo createdEvent)
         {
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
                 throw new ValidationException("Title не может быть пустым");
             if (createdEvent.StartAt >= createdEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            var eventDTO = new Event()
+            var @event = new Event(createdEvent.TotalSeats.Value)
             {   
                 Id = _events.Any() ? _events.Max(x => x.Id) + 1 : 1,
                 Title = createdEvent.Title,                         // Название события
@@ -91,12 +92,24 @@ namespace EventTicketBookingService.Services
                 EndAt = createdEvent.EndAt,
             };
 
-            _events?.Add(eventDTO);
-            return eventDTO;
+            _events?.Add(@event);
+
+            var eventInfo = new EventInfo()
+            {
+                Id = @event.Id,
+                Title = @event.Title,                         // Название события
+                Description = @event.Description,             // Описание события из тела запроса Event
+                StartAt = @event.StartAt,
+                EndAt = @event.EndAt,
+                TotalSeats = @event.TotalSeats,
+                AvailableSeats = @event.AvailableSeats
+            };
+
+            return eventInfo;
         }
 
         // Обновить событие целиком
-        public Event UpdateEvent(int id, EventDTO createdEvent)
+        public Event UpdateEvent(int id, EventInfo createdEvent)
         {
             var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             if (existingEvent == null)

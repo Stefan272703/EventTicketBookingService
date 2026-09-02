@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace EventTicketBookingService.Models
 {
     [NotAfterStartAtTime]
-    public class EventDTO
+    public class EventInfo
     {
         public int Id { get; set; }
 
@@ -18,5 +18,10 @@ namespace EventTicketBookingService.Models
 
         [Required(ErrorMessage = "EndAt обязательное для заполнения")]
         public DateTime EndAt { get; set; }
+
+        [Required(ErrorMessage = "TotalSeats обязательное для заполнения")]
+        public int? TotalSeats { get; set; }
+
+        public int AvailableSeats { get; set; }
     }
 }

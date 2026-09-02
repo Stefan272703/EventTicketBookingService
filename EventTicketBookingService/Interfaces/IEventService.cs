@@ -11,8 +11,8 @@ namespace EventTicketBookingService.Interfaces
             int page,
             int pageSize);
         public Event? GetEventById(int id);
-        public Event? CreateEvent(EventDTO createdEvent);
-        public Event UpdateEvent(int id, EventDTO createdEvent);
+        public Task<EventInfo?>? CreateEventAsync(EventInfo createdEvent);
+        public Event UpdateEvent(int id, EventInfo createdEvent);
         public Event DeleteEvent(int id);
     }
 }
