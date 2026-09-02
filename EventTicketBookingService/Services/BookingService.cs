@@ -8,6 +8,7 @@ namespace EventTicketBookingService.Services
 {
     public class BookingService: IBookingService
     {
+        private readonly object _bookingLock = new();
         private ConcurrentDictionary<int, Booking> _bookings = [];
         private readonly IBookingTaskQueue _taskQueue;
         private readonly IEventService _eventService;
@@ -20,32 +21,41 @@ namespace EventTicketBookingService.Services
 
         public async Task<BookingResponse> CreateBookingAsync(int eventId)
         {
-            var eventById = _eventService.GetEventById(eventId);
-            if (eventById == null)
-                throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {eventId}");
-
-            Booking booking = new Booking()
+            lock (_bookingLock)
             {
-                Id = _bookings.Any() ? _bookings.Max(x => x.Key) + 1 : 1,
-                EventId = eventId,
-                Status = BookingStatus.Pending,
-                CreatedAt = DateTime.Now,
-                ProcessedAt = null,
-            };
+                var eventById = _eventService.GetEventById(eventId);
+                if (eventById == null)
+                    throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {eventId}");
 
-            _taskQueue.Enqueue(booking);
-            _bookings.TryAdd(booking.Id, booking);
+                if (eventById.TryReserveSeats())
+                {
+                    Booking booking = new Booking()
+                    {
+                        Id = _bookings.Any() ? _bookings.Max(x => x.Key) + 1 : 1,
+                        EventId = eventId,
+                        Status = BookingStatus.Pending,
+                        CreatedAt = DateTime.Now,
+                        ProcessedAt = null,
+                    };
 
-            // Маппим в DTO тело ответа
-            BookingResponse response = new BookingResponse()
-            {
-                Id = booking.Id,
-                EventId = booking.EventId,
-                Status = BookingStatus.Pending,
-                CreatedAt = DateTime.Now
-            };
+                    _taskQueue.Enqueue(booking);
+                    _bookings.TryAdd(booking.Id, booking);
 
-            return response;
+                    BookingResponse response = new BookingResponse()
+                    {
+                        Id = booking.Id,
+                        EventId = booking.EventId,
+                        Status = BookingStatus.Pending,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    return response;
+                }
+                else
+                {
+                    throw new NoAvailableSeatsException("No available seats for this event");
+                }
+            }
         }
 
         public async Task<Booking>? GetBookingByIdAsync(int bookingId)
