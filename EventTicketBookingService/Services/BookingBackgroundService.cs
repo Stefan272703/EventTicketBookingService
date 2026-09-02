@@ -27,8 +27,15 @@ namespace EventTicketBookingService.Services
                 {
                     if (_taskQueue.TryDequeue(out var task) && task.Status == Models.BookingStatus.Pending) 
                     {
+
+                        // Исключаем из рандома статус Pending
+                        var valuesBookingStatus = Enum.GetValues<Models.BookingStatus>().Where(v => v != Models.BookingStatus.Pending).ToArray();
+                        Random random = new Random();
+                        Models.BookingStatus status = (Models.BookingStatus)valuesBookingStatus?.GetValue(random.Next(valuesBookingStatus.Length));
+
+
                         _logger.LogInformation($"Проходит процесс над бронью с ID: {task.Id}. Подождить пару секунд.");
-                        await _bookingService.UpdateBookingStatusAsync(task.Id, Models.BookingStatus.Confirmed, stoppingToken);
+                        await _bookingService.UpdateBookingStatusAsync(task.Id, status, stoppingToken);
 
                         _logger.LogInformation($"Процесс над бронью с ID: {task.Id} завершен!");
                     }
