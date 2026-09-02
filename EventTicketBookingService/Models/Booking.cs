@@ -19,7 +19,6 @@ namespace EventTicketBookingService.Models
         public DateTime CreatedAt { get; set; }
 
         // Дата и время обработки брони
-        [Required(ErrorMessage = "ProcessedAt обязательное для заполнения")]
         public DateTime? ProcessedAt { get; set; } = null;
     }
 }
