@@ -10,16 +10,16 @@ namespace EventTicketBookingService.Services
 {
     public class EventService: IEventService
     {
-        private List<EventDTO> _events = [];
+        private List<Event> _events = [];
 
         // Получить все события
-        public PaginatedResultDTO<EventDTO> GetAllEvents(string title, 
+        public PaginatedResultDTO<Event> GetAllEvents(string title, 
             DateTime? from,
             DateTime? to,
             int page,
             int pageSize)
         {
-            IEnumerable<EventDTO> filteredEvents = _events;
+            IEnumerable<Event> filteredEvents = _events;
             if (!string.IsNullOrEmpty(title))
             {
                 filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
@@ -40,8 +40,8 @@ namespace EventTicketBookingService.Services
         }
             
         // Метод получения результата пагинации
-        private PaginatedResultDTO<EventDTO> GetEventsWithPagination(
-            IEnumerable<EventDTO> entryEvents,
+        private PaginatedResultDTO<Event> GetEventsWithPagination(
+            IEnumerable<Event> entryEvents,
             int page,
             int pageSize)
         {
@@ -53,7 +53,7 @@ namespace EventTicketBookingService.Services
             // Количество элементов на текущей странице
             int pageSizeByIndex = items.Count();
 
-            PaginatedResultDTO<EventDTO> paginatedResultDTO = new PaginatedResultDTO<EventDTO> 
+            PaginatedResultDTO<Event> paginatedResultDTO = new PaginatedResultDTO<Event> 
             { 
                 TotalCount = totalCount,
                 Events = items,
@@ -65,7 +65,7 @@ namespace EventTicketBookingService.Services
         }
 
         // Получить событие по Id
-        public EventDTO? GetEventById(int id)
+        public Event? GetEventById(int id)
         {
             var eventById =  _events?.FirstOrDefault(x => x.Id == id);
             if (eventById == null)
@@ -75,14 +75,14 @@ namespace EventTicketBookingService.Services
         }
 
         // Создать новое событие
-        public EventDTO? CreateEvent(Event createdEvent)
+        public Event? CreateEvent(EventDTO createdEvent)
         {
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
                 throw new ValidationException("Title не может быть пустым");
             if (createdEvent.StartAt >= createdEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            var eventDTO = new EventDTO()
+            var eventDTO = new Event()
             {   
                 Id = _events.Any() ? _events.Max(x => x.Id) + 1 : 1,
                 Title = createdEvent.Title,                         // Название события
@@ -96,7 +96,7 @@ namespace EventTicketBookingService.Services
         }
 
         // Обновить событие целиком
-        public EventDTO UpdateEvent(int id, Event createdEvent)
+        public Event UpdateEvent(int id, EventDTO createdEvent)
         {
             var existingEvent = _events.FirstOrDefault(x => x.Id == id);
             if (existingEvent == null)
@@ -115,7 +115,7 @@ namespace EventTicketBookingService.Services
         }
 
         // Удалить событие
-        public EventDTO DeleteEvent(int id)
+        public Event DeleteEvent(int id)
         {
             var delEvent = _events.FirstOrDefault(x => x.Id == id);
             if (delEvent == null)

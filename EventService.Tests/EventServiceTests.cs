@@ -12,7 +12,7 @@ namespace EventService.Tests
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            var testEvent = new Event()
+            var testEvent = new EventDTO()
             {
                 Id = 1,
                 Title = "Белоснежка",
@@ -40,7 +40,7 @@ namespace EventService.Tests
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            eventService.CreateEvent(new Event
+            eventService.CreateEvent(new EventDTO
             {
                 Title = "Белоснежка",
                 Description = "Сказка",
@@ -48,7 +48,7 @@ namespace EventService.Tests
                 EndAt = DateTime.Now.AddHours(2)
             });
 
-            eventService.CreateEvent(new Event
+            eventService.CreateEvent(new EventDTO
             {
                 Title = "Король и шут",
                 Description = "Панк-рок",
@@ -72,7 +72,7 @@ namespace EventService.Tests
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            var expectedEvent = new Event
+            var expectedEvent = new EventDTO
             {
                 Title = "Белоснежка",
                 Description = "Сказка",
@@ -81,7 +81,7 @@ namespace EventService.Tests
             };
             eventService.CreateEvent(expectedEvent);
 
-            eventService.CreateEvent(new Event
+            eventService.CreateEvent(new EventDTO
             {
                 Title = "Король и шут",
                 Description = "Панк-рок",
@@ -109,7 +109,7 @@ namespace EventService.Tests
             var eventService = new EventTicketBookingService.Services.EventService(); // экземплярный список
 
             // Исходное событие
-            var originalEvent = new Event
+            var originalEvent = new EventDTO
             {
                 Title = "Белоснежка",
                 Description = "Сказка",
@@ -120,7 +120,7 @@ namespace EventService.Tests
             int id = created.Id;
 
             // Новые данные
-            var updatedData = new Event
+            var updatedData = new EventDTO
             {
                 Title = "Белоснежка часть 2",
                 Description = "Фентези",
@@ -152,7 +152,7 @@ namespace EventService.Tests
             var eventService = new EventTicketBookingService.Services.EventService(); // экземплярный список
 
             // Создаём событие
-            var created = eventService.CreateEvent(new Event
+            var created = eventService.CreateEvent(new EventDTO
             {
                 Title = "Noname",
                 Description = "No Description",

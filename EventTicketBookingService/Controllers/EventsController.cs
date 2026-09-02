@@ -46,7 +46,7 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Event createdEvent)
+        public IActionResult Create([FromBody] EventDTO createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {
@@ -57,7 +57,7 @@ namespace EventTicketBookingService.Controllers
             return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
         }
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Event createdEvent)
+        public IActionResult Update(int id, [FromBody] EventDTO createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {

@@ -12,7 +12,7 @@ namespace EventService.Tests
             var eventService = new EventTicketBookingService.Services.EventService();
             for (int i = 1; i <= 5; i++)
             {
-                eventService.CreateEvent(new Event
+                eventService.CreateEvent(new EventDTO
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
@@ -44,7 +44,7 @@ namespace EventService.Tests
             var eventService = new EventTicketBookingService.Services.EventService();
             for (int i = 1; i <= 5; i++)
             {
-                eventService.CreateEvent(new Event
+                eventService.CreateEvent(new EventDTO
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
@@ -78,7 +78,7 @@ namespace EventService.Tests
             var eventService = new EventTicketBookingService.Services.EventService();
             for (int i = 1; i <= 5; i++)
             {
-                eventService.CreateEvent(new Event
+                eventService.CreateEvent(new EventDTO
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),

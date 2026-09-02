@@ -7,7 +7,7 @@ namespace EventTicketBookingService.Attributes
     {
         public override bool IsValid(object? value)
         {
-            if(value is Event my_event)
+            if(value is EventDTO my_event)
             {
                 if(my_event.EndAt <= my_event.StartAt)
                 {

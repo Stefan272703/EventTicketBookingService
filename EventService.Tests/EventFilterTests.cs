@@ -12,9 +12,9 @@ namespace EventService.Tests
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            eventService.CreateEvent(new Event { Title = "Белоснежка", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(1)});
-            eventService.CreateEvent(new Event { Title = "Король и шут", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(2)});
-            eventService.CreateEvent(new Event { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3)});
+            eventService.CreateEvent(new EventDTO { Title = "Белоснежка", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(1)});
+            eventService.CreateEvent(new EventDTO { Title = "Король и шут", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(2)});
+            eventService.CreateEvent(new EventDTO { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3)});
 
             // Act (Фильтрация по названию)
             var result = eventService.GetAllEvents("бел", DateTime.MinValue, DateTime.MaxValue, 1, 10);
@@ -36,9 +36,9 @@ namespace EventService.Tests
             var past = now.AddDays(-1);
             var future = now.AddDays(1);
 
-            eventService.CreateEvent(new Event { Title = "Past", StartAt = past, EndAt = past.AddHours(1) });
-            eventService.CreateEvent(new Event { Title = "Now", StartAt = now, EndAt = now.AddHours(1) });
-            eventService.CreateEvent(new Event { Title = "Future", StartAt = future, EndAt = future.AddHours(1) });
+            eventService.CreateEvent(new EventDTO { Title = "Past", StartAt = past, EndAt = past.AddHours(1) });
+            eventService.CreateEvent(new EventDTO { Title = "Now", StartAt = now, EndAt = now.AddHours(1) });
+            eventService.CreateEvent(new EventDTO { Title = "Future", StartAt = future, EndAt = future.AddHours(1) });
 
             // Act – ищем события с StartAt >= now
             var result = eventService.GetAllEvents("", now, DateTime.MaxValue, 1, 10);
@@ -60,9 +60,9 @@ namespace EventService.Tests
             var earlier = now.AddHours(-2);
             var later = now.AddHours(2);
 
-            eventService.CreateEvent(new Event { Title = "Earlier", StartAt = earlier, EndAt = earlier.AddHours(1) }); // закончится до now
-            eventService.CreateEvent(new Event { Title = "Now", StartAt = now, EndAt = now.AddHours(1) }); // закончится после now
-            eventService.CreateEvent(new Event { Title = "Later", StartAt = later, EndAt = later.AddHours(1) }); // закончится после now
+            eventService.CreateEvent(new EventDTO { Title = "Earlier", StartAt = earlier, EndAt = earlier.AddHours(1) }); // закончится до now
+            eventService.CreateEvent(new EventDTO { Title = "Now", StartAt = now, EndAt = now.AddHours(1) }); // закончится после now
+            eventService.CreateEvent(new EventDTO { Title = "Later", StartAt = later, EndAt = later.AddHours(1) }); // закончится после now
 
             // Act – ищем события с EndAt <= now
             var result = eventService.GetAllEvents("", DateTime.MinValue, now, 1, 10);
@@ -85,9 +85,9 @@ namespace EventService.Tests
             var date3 = new DateTime(2026, 7, 31, 14, 0, 0);
             var date4 = new DateTime(2026, 7, 31, 16, 0, 0);
 
-            eventService.CreateEvent(new Event { Title = "A", StartAt = date1, EndAt = date1.AddHours(1) }); // внутри
-            eventService.CreateEvent(new Event { Title = "B", StartAt = date2, EndAt = date2.AddHours(1) }); // внутри (граница)
-            eventService.CreateEvent(new Event { Title = "C", StartAt = date4, EndAt = date4.AddHours(1) }); // за пределами
+            eventService.CreateEvent(new EventDTO { Title = "A", StartAt = date1, EndAt = date1.AddHours(1) }); // внутри
+            eventService.CreateEvent(new EventDTO { Title = "B", StartAt = date2, EndAt = date2.AddHours(1) }); // внутри (граница)
+            eventService.CreateEvent(new EventDTO { Title = "C", StartAt = date4, EndAt = date4.AddHours(1) }); // за пределами
 
             // Act – диапазон [date1, date3]
             var result = eventService.GetAllEvents("", date1, date3, 1, 10);

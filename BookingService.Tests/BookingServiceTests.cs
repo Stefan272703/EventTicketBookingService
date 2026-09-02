@@ -26,7 +26,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
-            var eventDto = new EventDTO { Id = eventId };
+            var eventDto = new Event { Id = eventId };
             _eventServiceMock.Setup(x =>x.GetEventById(eventId)).Returns(eventDto);
 
             // Act
@@ -44,7 +44,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
-            var eventDto = new EventDTO { Id = eventId };
+            var eventDto = new Event { Id = eventId };
             _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns(eventDto);
 
 
@@ -65,7 +65,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
-            var eventDto = new EventDTO { Id = eventId };
+            var eventDto = new Event { Id = eventId };
             _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns(eventDto);
 
             var created = await _bookingService.CreateBookingAsync(eventId);
@@ -86,7 +86,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
-            var eventDto = new EventDTO { Id = eventId };
+            var eventDto = new Event { Id = eventId };
             _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns(eventDto);
 
             var created = await _bookingService.CreateBookingAsync(eventId);

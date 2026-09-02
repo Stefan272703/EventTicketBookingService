@@ -25,7 +25,7 @@ namespace EventService.Tests
             var eventService = new EventTicketBookingService.Services.EventService();
 
 
-            var updateData = new Event
+            var updateData = new EventDTO
             {
                 Title = "New Title",
                 Description = "New Desc",
@@ -54,7 +54,7 @@ namespace EventService.Tests
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            var invalidEvent = new Event
+            var invalidEvent = new EventDTO
             {
                 Title = "",                     // пустое название
                 Description = "Desc",
@@ -73,7 +73,7 @@ namespace EventService.Tests
             // Arrange
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            var invalidEvent = new Event
+            var invalidEvent = new EventDTO
             {
                 Title = "Invalid dates",
                 Description = "Desc",
@@ -92,7 +92,7 @@ namespace EventService.Tests
             // Arrange – сначала создаём корректное событие
             var eventService = new EventTicketBookingService.Services.EventService();
 
-            var validEvent = new Event
+            var validEvent = new EventDTO
             {
                 Title = "Valid",
                 Description = "Desc",
@@ -103,7 +103,7 @@ namespace EventService.Tests
             int id = created.Id;
 
             // Подготавливаем обновление с некорректными датами
-            var invalidUpdate = new Event
+            var invalidUpdate = new EventDTO
             {
                 Title = "Updated",
                 Description = "Updated desc",

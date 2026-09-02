@@ -28,7 +28,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 999;
-            _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns((EventDTO ?)null);
+            _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns((Event ?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId));
@@ -42,7 +42,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
-            _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns((EventDTO?)null);
+            _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns((Event?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId));
@@ -56,7 +56,7 @@ namespace BookingService.Tests
         {
             // Arrange
             const int invalidId = 999;
-            _eventServiceMock.Setup(x => x.GetEventById(invalidId)).Returns((EventDTO?)null);
+            _eventServiceMock.Setup(x => x.GetEventById(invalidId)).Returns((Event?)null);
             
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.GetBookingByIdAsync(invalidId));
