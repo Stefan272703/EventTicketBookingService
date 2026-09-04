@@ -78,7 +78,6 @@ namespace BookingService.Tests
 
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.GetBookingByIdAsync(invalidId));
-
         }
     }
 }

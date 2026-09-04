@@ -24,11 +24,13 @@ namespace EventTicketBookingService.Models
         public void Confirm()
         {
             Status = BookingStatus.Confirmed;
+            ProcessedAt = DateTime.Now;
         }
 
         public void Reject()
         {
             Status = BookingStatus.Rejected;
+            ProcessedAt = DateTime.Now;
         }
     }
 }

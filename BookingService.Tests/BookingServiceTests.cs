@@ -27,7 +27,7 @@ namespace BookingService.Tests
             // Arrange
             const int eventId = 1;
             var eventDto = new Event { Id = eventId };
-            _eventStoreMock.Setup(x =>x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
+            _eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
                            .Returns((int id, out Event? ev) =>
                            {
                                ev = new Event(5) { Id = id };

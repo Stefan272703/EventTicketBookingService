@@ -39,17 +39,21 @@ namespace EventTicketBookingService.Services
                     Random random = new Random();
                     int delayTime = random.Next(minDelay, maxDelay + 1);
                     await Task.Delay(delayTime, stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
 
-                    await _processingSemaphore.WaitAsync();
+                await _processingSemaphore.WaitAsync();
+
+                try
+                {
 
                     var pendingBookings = _bookingStore.GetPending().ToList();
                     var tasks = pendingBookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
                     
                     await Task.WhenAll(tasks);
-                }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) 
-                {
-                    break;
                 }
                 catch(Exception ex)
                 {
