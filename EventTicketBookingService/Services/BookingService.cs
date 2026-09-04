@@ -23,7 +23,12 @@ namespace EventTicketBookingService.Services
         {
             lock (_bookingLock)
             {
-                if (_eventStore.TryGetEventById(eventId, out var @event) && @event.TryReserveSeats())
+                if (!_eventStore.TryGetEventById(eventId, out var @event))
+                {
+                    throw new ResourceNotFoundException($"Не удалось создать бронь к несуществующему событию с ID: {eventId}");
+                }
+
+                if (@event.TryReserveSeats())
                 {
                     Booking booking = new Booking()
                     {
@@ -47,34 +52,8 @@ namespace EventTicketBookingService.Services
 
                     return response;
                 }
-                else if (_eventStore.TryGetEventById(eventId, out var eventWithoutAvailableSeats) && !eventWithoutAvailableSeats.TryReserveSeats())
-                {
-                    throw new NoAvailableSeatsException("No available seats for this event");
-                }
-                else
-                {
-                    Booking booking = new Booking()
-                    {
-                        Id = _bookings.Any() ? _bookings.Max(x => x.Key) + 1 : 1,
-                        EventId = eventId,
-                        Status = BookingStatus.Pending,
-                        CreatedAt = DateTime.Now,
-                        ProcessedAt = null,
-                    };
 
-                    _taskQueue.Enqueue(booking);
-                    _bookings.TryAdd(booking.Id, booking);
-
-                    BookingResponse response = new BookingResponse()
-                    {
-                        Id = booking.Id,
-                        EventId = booking.EventId,
-                        Status = BookingStatus.Pending,
-                        CreatedAt = DateTime.Now
-                    };
-
-                    return response;
-                }
+                throw new NoAvailableSeatsException("No available seats for this event");
             }
         }
 
