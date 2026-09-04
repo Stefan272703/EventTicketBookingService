@@ -12,6 +12,5 @@ namespace EventTicketBookingService.Interfaces
 
         // Обновление брони
         public Task UpdateBookingStatusAsync(int bookingId, BookingStatus status, CancellationToken cancellationToken);
-
     }
 }

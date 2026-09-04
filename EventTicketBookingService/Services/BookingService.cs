@@ -6,28 +6,24 @@ using System.ComponentModel.Design;
 
 namespace EventTicketBookingService.Services
 {
-    public class BookingService: IBookingService
+    public class BookingService : IBookingService
     {
         private readonly object _bookingLock = new();
         private ConcurrentDictionary<int, Booking> _bookings = [];
         private readonly IBookingTaskQueue _taskQueue;
-        private readonly IEventService _eventService;
+        private readonly IEventStore _eventStore;
         public BookingService(IBookingTaskQueue taskQueue,
-                              IEventService eventService)
+                              IEventStore eventStore)
         {
             _taskQueue = taskQueue;
-            _eventService = eventService;
+            _eventStore = eventStore;
         }
 
         public async Task<BookingResponse> CreateBookingAsync(int eventId)
         {
             lock (_bookingLock)
             {
-                var eventById = _eventService.GetEventById(eventId);
-                if (eventById == null)
-                    throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {eventId}");
-
-                if (eventById.TryReserveSeats())
+                if (_eventStore.TryGetEventById(eventId, out var @event) && @event.TryReserveSeats())
                 {
                     Booking booking = new Booking()
                     {
@@ -51,9 +47,33 @@ namespace EventTicketBookingService.Services
 
                     return response;
                 }
-                else
+                else if (_eventStore.TryGetEventById(eventId, out var eventWithoutAvailableSeats) && !eventWithoutAvailableSeats.TryReserveSeats())
                 {
                     throw new NoAvailableSeatsException("No available seats for this event");
+                }
+                else
+                {
+                    Booking booking = new Booking()
+                    {
+                        Id = _bookings.Any() ? _bookings.Max(x => x.Key) + 1 : 1,
+                        EventId = eventId,
+                        Status = BookingStatus.Pending,
+                        CreatedAt = DateTime.Now,
+                        ProcessedAt = null,
+                    };
+
+                    _taskQueue.Enqueue(booking);
+                    _bookings.TryAdd(booking.Id, booking);
+
+                    BookingResponse response = new BookingResponse()
+                    {
+                        Id = booking.Id,
+                        EventId = booking.EventId,
+                        Status = BookingStatus.Pending,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    return response;
                 }
             }
         }
@@ -70,14 +90,14 @@ namespace EventTicketBookingService.Services
         {
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
             var booking = _bookings.FirstOrDefault(x => x.Key == bookingId);
-            
-            if(booking.Value == null)
+
+            if (booking.Value == null)
                 throw new ResourceNotFoundException($"Бронь с ID: {bookingId} не найдена");
 
             booking.Value.Status = status;
-            if(status == BookingStatus.Confirmed || status == BookingStatus.Rejected)
+            if (status == BookingStatus.Confirmed || status == BookingStatus.Rejected)
                 booking.Value.ProcessedAt = DateTime.Now;
-
         }
+
     }
 }

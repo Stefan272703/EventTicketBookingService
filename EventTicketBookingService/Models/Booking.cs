@@ -20,5 +20,15 @@ namespace EventTicketBookingService.Models
 
         // Дата и время обработки брони
         public DateTime? ProcessedAt { get; set; } = null;
+
+        public void Confirm()
+        {
+            Status = BookingStatus.Confirmed;
+        }
+
+        public void Reject()
+        {
+            Status = BookingStatus.Rejected;
+        }
     }
 }

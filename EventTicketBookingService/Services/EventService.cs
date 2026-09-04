@@ -12,6 +12,11 @@ namespace EventTicketBookingService.Services
     public class EventService: IEventService
     {
         private List<Event> _events = [];
+        private readonly IEventStore _eventStore;
+        public EventService(IEventStore eventStore)
+        {
+            _eventStore = eventStore;
+        }
 
         // Получить все события
         public PaginatedResultDTO<Event> GetAllEvents(string title, 
@@ -93,6 +98,7 @@ namespace EventTicketBookingService.Services
             };
 
             _events?.Add(@event);
+            _eventStore?.AddEvent(@event);
 
             var eventInfo = new EventInfo()
             {
@@ -134,6 +140,7 @@ namespace EventTicketBookingService.Services
             if (delEvent == null)
                 throw new ResourceNotFoundException(delEvent, $"Не найдено событие по ID: {id}");
             _events.Remove(delEvent);
+            _eventStore.RemoveEvent(delEvent);
             return delEvent;
         }
 
