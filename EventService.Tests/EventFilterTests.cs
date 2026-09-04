@@ -1,23 +1,32 @@
 ﻿
+using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using Moq;
 
 namespace EventService.Tests
 {
     public class EventFilterTests
     {
+        private readonly Mock<IEventStore> _eventStoreMock;
+        private readonly EventTicketBookingService.Services.EventService _eventService;
+
+        public EventFilterTests()
+        {
+            _eventStoreMock = new Mock<IEventStore>();
+            _eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+        }
+
         // Фильтрация событий по названию
         [Fact]
-        public void GetAllEvents_FilterByTitle_ReturnsEventsWithMatchingSubstring()
+        public async Task GetAllEvents_FilterByTitle_ReturnsEventsWithMatchingSubstring()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
-
-            eventService.CreateEvent(new EventDTO { Title = "Белоснежка", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(1)});
-            eventService.CreateEvent(new EventDTO { Title = "Король и шут", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(2)});
-            eventService.CreateEvent(new EventDTO { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3)});
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Белоснежка", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(1), TotalSeats = 100});
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Король и шут", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(2), TotalSeats = 200});
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3), TotalSeats = 250});
 
             // Act (Фильтрация по названию)
-            var result = eventService.GetAllEvents("бел", DateTime.MinValue, DateTime.MaxValue, 1, 10);
+            var result = _eventService.GetAllEvents("бел", DateTime.MinValue, DateTime.MaxValue, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -28,20 +37,19 @@ namespace EventService.Tests
 
         // Фильтрация по StartAt
         [Fact]
-        public void GetAllEvents_FilterByStartAt_ReturnsEventsStartingAfterOrAtDate()
+        public async Task GetAllEvents_FilterByStartAt_ReturnsEventsStartingAfterOrAtDate()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
             var now = DateTime.Now;
             var past = now.AddDays(-1);
             var future = now.AddDays(1);
 
-            eventService.CreateEvent(new EventDTO { Title = "Past", StartAt = past, EndAt = past.AddHours(1) });
-            eventService.CreateEvent(new EventDTO { Title = "Now", StartAt = now, EndAt = now.AddHours(1) });
-            eventService.CreateEvent(new EventDTO { Title = "Future", StartAt = future, EndAt = future.AddHours(1) });
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Past", StartAt = past, EndAt = past.AddHours(1), TotalSeats = 100});
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Now", StartAt = now, EndAt = now.AddHours(1), TotalSeats=200});
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Future", StartAt = future, EndAt = future.AddHours(1), TotalSeats= 250 });
 
             // Act – ищем события с StartAt >= now
-            var result = eventService.GetAllEvents("", now, DateTime.MaxValue, 1, 10);
+            var result = _eventService.GetAllEvents("", now, DateTime.MaxValue, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -52,20 +60,19 @@ namespace EventService.Tests
 
         // Фильтрация по EndAt
         [Fact]
-        public void GetAllEvents_FilterByEndAt_ReturnsEventsEndingBeforeOrAtDate()
+        public async Task GetAllEvents_FilterByEndAt_ReturnsEventsEndingBeforeOrAtDate()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
             var now = DateTime.Now;
             var earlier = now.AddHours(-2);
             var later = now.AddHours(2);
 
-            eventService.CreateEvent(new EventDTO { Title = "Earlier", StartAt = earlier, EndAt = earlier.AddHours(1) }); // закончится до now
-            eventService.CreateEvent(new EventDTO { Title = "Now", StartAt = now, EndAt = now.AddHours(1) }); // закончится после now
-            eventService.CreateEvent(new EventDTO { Title = "Later", StartAt = later, EndAt = later.AddHours(1) }); // закончится после now
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Earlier", StartAt = earlier, EndAt = earlier.AddHours(1), TotalSeats=100 }); // закончится до now
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Now", StartAt = now, EndAt = now.AddHours(1), TotalSeats=200 }); // закончится после now
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Later", StartAt = later, EndAt = later.AddHours(1), TotalSeats=250 }); // закончится после now
 
             // Act – ищем события с EndAt <= now
-            var result = eventService.GetAllEvents("", DateTime.MinValue, now, 1, 10);
+            var result = _eventService.GetAllEvents("", DateTime.MinValue, now, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -76,21 +83,20 @@ namespace EventService.Tests
 
         // Комбинированная фильтрация (диапазон)
         [Fact]
-        public void GetAllEvents_FilterByDateRange_ReturnsEventsWithinRange()
+        public async Task GetAllEvents_FilterByDateRange_ReturnsEventsWithinRange()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
             var date1 = new DateTime(2026, 7, 31, 10, 0, 0);
             var date2 = new DateTime(2026, 7, 31, 12, 0, 0);
             var date3 = new DateTime(2026, 7, 31, 14, 0, 0);
             var date4 = new DateTime(2026, 7, 31, 16, 0, 0);
 
-            eventService.CreateEvent(new EventDTO { Title = "A", StartAt = date1, EndAt = date1.AddHours(1) }); // внутри
-            eventService.CreateEvent(new EventDTO { Title = "B", StartAt = date2, EndAt = date2.AddHours(1) }); // внутри (граница)
-            eventService.CreateEvent(new EventDTO { Title = "C", StartAt = date4, EndAt = date4.AddHours(1) }); // за пределами
+            await _eventService.CreateEventAsync(new EventInfo { Title = "A", StartAt = date1, EndAt = date1.AddHours(1), TotalSeats = 100 }); // внутри
+            await _eventService.CreateEventAsync(new EventInfo { Title = "B", StartAt = date2, EndAt = date2.AddHours(1), TotalSeats = 200 }); // внутри (граница)
+            await _eventService.CreateEventAsync(new EventInfo { Title = "C", StartAt = date4, EndAt = date4.AddHours(1), TotalSeats = 250 }); // за пределами
 
             // Act – диапазон [date1, date3]
-            var result = eventService.GetAllEvents("", date1, date3, 1, 10);
+            var result = _eventService.GetAllEvents("", date1, date3, 1, 10);
 
             // Assert
             Assert.NotNull(result);

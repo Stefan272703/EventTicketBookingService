@@ -1,27 +1,38 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Interfaces;
+using EventTicketBookingService.Models;
+using Moq;
 
 namespace EventService.Tests
 {
     public class EventPaginationTests
     {
+        private readonly Mock<IEventStore> _eventStoreMock;
+        private readonly EventTicketBookingService.Services.EventService _eventService;
+
+        public EventPaginationTests()
+        {
+            _eventStoreMock = new Mock<IEventStore>();
+            _eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+        }
+
         // Первая страница (page=1, pageSize=2)
         [Fact]
-        public void GetAllEvents_Pagination_FirstPage_ReturnsFirstTwoEvents()
+        public async Task GetAllEvents_Pagination_FirstPage_ReturnsFirstTwoEvents()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
             for (int i = 1; i <= 5; i++)
             {
-                eventService.CreateEvent(new EventDTO
+                await _eventService.CreateEventAsync(new EventInfo
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
-                    EndAt = DateTime.Now.AddHours(i + 1)
+                    EndAt = DateTime.Now.AddHours(i + 1),
+                    TotalSeats= 100,
                 });
             }
 
             // Act
-            var result = eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 1, 2);
+            var result = _eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 1, 2);
 
             // Assert
             Assert.NotNull(result);
@@ -38,22 +49,22 @@ namespace EventService.Tests
 
         // Вторая страница(page = 2, pageSize = 2)
         [Fact]
-        public void GetAllEvents_Pagination_SecondPage_ReturnsNextTwoEvents()
+        public async Task GetAllEvents_Pagination_SecondPage_ReturnsNextTwoEvents()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
             for (int i = 1; i <= 5; i++)
             {
-                eventService.CreateEvent(new EventDTO
+                await _eventService.CreateEventAsync(new EventInfo
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
-                    EndAt = DateTime.Now.AddHours(i + 1)
+                    EndAt = DateTime.Now.AddHours(i + 1),
+                    TotalSeats = 100
                 });
             }
 
             // Act
-            var result = eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 2, 2);
+            var result = _eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 2, 2);
 
             // Assert
             Assert.NotNull(result);
@@ -72,22 +83,22 @@ namespace EventService.Tests
         // Последняя страница (остаток меньше pageSize)
         // При 5 элементах и pageSize = 2, последняя страница – это page = 3.
         [Fact]
-        public void GetAllEvents_Pagination_LastPage_ReturnsRemainingEvents()
+        public async Task GetAllEvents_Pagination_LastPage_ReturnsRemainingEvents()
         {
             // Arrange
-            var eventService = new EventTicketBookingService.Services.EventService();
             for (int i = 1; i <= 5; i++)
             {
-                eventService.CreateEvent(new EventDTO
+                await _eventService.CreateEventAsync(new EventInfo
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
-                    EndAt = DateTime.Now.AddHours(i + 1)
+                    EndAt = DateTime.Now.AddHours(i + 1),
+                    TotalSeats = 100
                 });
             }
 
             // Act
-            var result = eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 3, 2);
+            var result = _eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 3, 2);
 
             // Assert
             Assert.NotNull(result);
