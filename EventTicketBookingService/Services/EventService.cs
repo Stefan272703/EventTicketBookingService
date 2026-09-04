@@ -13,6 +13,7 @@ namespace EventTicketBookingService.Services
     {
         private List<Event> _events = [];
         private readonly IEventStore _eventStore;
+
         public EventService(IEventStore eventStore)
         {
             _eventStore = eventStore;

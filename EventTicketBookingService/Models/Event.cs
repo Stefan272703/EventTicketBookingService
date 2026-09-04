@@ -49,7 +49,6 @@ namespace EventTicketBookingService.Models
             return true;
         }
 
-        // TODO: Добавить возможность для освобождения мест
         public void ReleaseSeats(int count = 1)
         {
             AvailableSeats += count;
