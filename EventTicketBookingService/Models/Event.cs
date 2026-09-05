@@ -17,7 +17,13 @@ namespace EventTicketBookingService.Models
 
         public int TotalSeats { get; set; }
 
-        public int AvailableSeats { get; private set; }
+        public int AvailableSeats 
+        { 
+            get => _availableSeats;
+            private set => _availableSeats = value;
+        }
+
+        private int _availableSeats;
 
         public Event()
         {
@@ -31,7 +37,7 @@ namespace EventTicketBookingService.Models
                 throw new ValidationException("Общее количество мест должно быть положительнмы");
             }
             TotalSeats = totalSeats;
-            AvailableSeats = totalSeats; // При создании равно TotalSeats
+            _availableSeats = totalSeats; // При создании равно TotalSeats
         }
 
         public bool TryReserveSeats(int count = 1)
@@ -40,18 +46,25 @@ namespace EventTicketBookingService.Models
             {
                 return false;
             }
-            if(AvailableSeats < count)
-            {
-                return false;
-            }
 
-            AvailableSeats -= count;
+            int current, updated;
+            do
+            {
+                current = count;
+                if (current < count)
+                {
+                    return false;
+                }
+                updated = current - 1;
+
+            } while (Interlocked.CompareExchange(ref _availableSeats, updated, current) != current);
+
             return true;
         }
 
         public void ReleaseSeats(int count = 1)
         {
-            AvailableSeats += count;
+            Interlocked.Add(ref _availableSeats, count);
         }
     }
 }
