@@ -1,6 +1,7 @@
 
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Middlewares;
+using EventTicketBookingService.Models;
 using EventTicketBookingService.Services;
 
 namespace EventTicketBookingService
@@ -21,6 +22,7 @@ namespace EventTicketBookingService
             builder.Services.AddSingleton<IEventService, EventService>();
             builder.Services.AddSingleton<IBookingService, BookingService>();
             builder.Services.AddSingleton<IBookingTaskQueue, InMemoryBookingStore>();
+            builder.Services.AddSingleton<IEventStore, InMemoryEventStore>();
             builder.Services.AddHostedService<BookingBackgroundService>();
 
 

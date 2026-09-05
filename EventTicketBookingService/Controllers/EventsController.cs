@@ -46,18 +46,18 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Event createdEvent)
+        public async Task<IActionResult> Create([FromBody] EventInfo createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {
                 return BadRequest(ModelState);
             }
 
-            var eventDTO = _eventService.CreateEvent(createdEvent);
+            var eventDTO = await _eventService.CreateEventAsync(createdEvent);
             return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
         }
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Event createdEvent)
+        public IActionResult Update(int id, [FromBody] EventInfo createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {

@@ -19,7 +19,18 @@ namespace EventTicketBookingService.Models
         public DateTime CreatedAt { get; set; }
 
         // Дата и время обработки брони
-        [Required(ErrorMessage = "ProcessedAt обязательное для заполнения")]
         public DateTime? ProcessedAt { get; set; } = null;
+
+        public void Confirm()
+        {
+            Status = BookingStatus.Confirmed;
+            ProcessedAt = DateTime.Now;
+        }
+
+        public void Reject()
+        {
+            Status = BookingStatus.Rejected;
+            ProcessedAt = DateTime.Now;
+        }
     }
 }
