@@ -50,12 +50,12 @@ namespace EventTicketBookingService.Models
             int current, updated;
             do
             {
-                current = count;
+                current = _availableSeats;
                 if (current < count)
                 {
                     return false;
                 }
-                updated = current - 1;
+                updated = current - count;
 
             } while (Interlocked.CompareExchange(ref _availableSeats, updated, current) != current);
 
