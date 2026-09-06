@@ -49,7 +49,6 @@ namespace EventTicketBookingService.Services
 
                 try
                 {
-
                     var pendingBookings = _bookingStore.GetPending().ToList();
                     var tasks = pendingBookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
                     
@@ -69,50 +68,50 @@ namespace EventTicketBookingService.Services
 
         private async Task<Booking> ProcessBookingAsync(Booking booking, CancellationToken stoppingToken)
         {
-            if (_bookingStore.TryDequeue(out var task) && task?.Status == BookingStatus.Pending)
+            if (booking?.Status == BookingStatus.Pending)
             {             
-                _logger.LogInformation($"Проходит процесс над бронью с ID: {task.Id}. Подождите пару секунд.");
+                _logger.LogInformation($"Проходит процесс над бронью с ID: {booking.Id}. Подождите пару секунд.");
                 try
                 {
-                    if (_eventStore.TryGetEventById(task.EventId, out var @event))
+                    if (_eventStore.TryGetEventById(booking.EventId, out var @event))
                     {
                         booking.Confirm();
                         _bookingStore.Update(booking);
-                        await _bookingService.UpdateBookingStatusAsync(task.Id, booking.Status, stoppingToken);
-                        _logger.LogInformation($"Процесс над бронью с ID: {task.Id} завершен успешно!");
+                        await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
+                        _logger.LogInformation($"Процесс над бронью с ID: {booking.Id} завершен успешно!");
                         return booking;
                     }
                     else
                     {
                         booking.Reject();
                         _bookingStore.Update(booking);
-                        await _bookingService.UpdateBookingStatusAsync(task.Id, booking.Status, stoppingToken);
-                        _logger.LogWarning($"Не обработана бронь с ID {task.Id} из-за отсуствия события по ID: {task.EventId}.");
+                        await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
+                        _logger.LogWarning($"Не обработана бронь с ID {booking.Id} из-за отсуствия события по ID: {booking.EventId}.");
                         return booking;
                     }
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
-                    _logger.LogWarning($"Обработка брони ID: {task.Id} прервана из-за отмены");
-                    if(_eventStore.TryGetEventById(task.EventId, out var @event))
+                    _logger.LogWarning($"Обработка брони ID: {booking.Id} прервана из-за отмены");
+                    if(_eventStore.TryGetEventById(booking.EventId, out var @event))
                     {
                         booking.Reject();
                         @event?.ReleaseSeats();
                         _bookingStore.Update(booking);
-                        await _bookingService.UpdateBookingStatusAsync(task.Id, booking.Status, stoppingToken);
+                        await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
                     }
                     
                     throw;
                 }
                 catch (Exception)
                 {
-                    if (_eventStore.TryGetEventById(task.EventId, out var @event))
+                    if (_eventStore.TryGetEventById(booking.EventId, out var @event))
                     {
                         booking.Reject();
                         @event?.ReleaseSeats();
                         _bookingStore.Update(booking);
-                        await _bookingService.UpdateBookingStatusAsync(task.Id, booking.Status, stoppingToken);
-                        _logger.LogError($"Непредвиденная ошибка обработки брони, {task.EventId}. Вовзращаем место.");
+                        await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
+                        _logger.LogError($"Непредвиденная ошибка обработки брони, {booking.EventId}. Вовзращаем место.");
                     }
                 }
             }
