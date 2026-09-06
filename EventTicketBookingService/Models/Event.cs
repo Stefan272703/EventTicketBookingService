@@ -29,7 +29,7 @@ namespace EventTicketBookingService.Models
         {
             if(totalSeats <= 0)
             {
-                throw new ValidationException("Общее количество мест должно быть положительнмы");
+                throw new ValidationException("Общее количество мест должно быть положительным");
             }
             TotalSeats = totalSeats;
             _availableSeats = totalSeats; // При создании равно TotalSeats

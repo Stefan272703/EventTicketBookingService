@@ -12,7 +12,7 @@ namespace EventTicketBookingService.Services
         private readonly IBookingTaskQueue _bookingStore;
         private readonly IBookingService _bookingService;
         private readonly IEventStore _eventStore; 
-        // Заедержки времени от и до для случайной времени внешнего вызова(выраженное в мс)
+        // Задержки времени от и до для случайного времени внешнего вызова(выраженное в мс)
         private readonly int minDelay = 1000; 
         private readonly int maxDelay = 5000;
 
@@ -86,7 +86,7 @@ namespace EventTicketBookingService.Services
                         booking.Reject();
                         _bookingStore.Update(booking);
                         await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
-                        _logger.LogWarning($"Не обработана бронь с ID {booking.Id} из-за отсуствия события по ID: {booking.EventId}.");
+                        _logger.LogWarning($"Не обработана бронь с ID {booking.Id} из-за отсутствия события по ID: {booking.EventId}.");
                         return booking;
                     }
                 }
