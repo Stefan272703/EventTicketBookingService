@@ -7,7 +7,7 @@ namespace EventTicketBookingService.Services
 {
     public class BookingBackgroundService: BackgroundService
     {
-        private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
+        private readonly SemaphoreSlim _processingSemaphore = new(1, Environment.ProcessorCount);
         private readonly ILogger<BookingBackgroundService> _logger;
         private readonly IBookingTaskQueue _bookingStore;
         private readonly IBookingService _bookingService;
