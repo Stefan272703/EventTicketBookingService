@@ -21,6 +21,7 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAll([FromQuery] DateTime? from,
             [FromQuery] DateTime? to,
             [FromQuery] string title = "",
@@ -34,6 +35,7 @@ namespace EventTicketBookingService.Controllers
 
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(int id)
         {
             var eventbyId = _eventService.GetEventById(id);
@@ -46,18 +48,22 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Event createdEvent)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] EventInfo createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {
                 return BadRequest(ModelState);
             }
 
-            var eventDTO = _eventService.CreateEvent(createdEvent);
+            var eventDTO = await _eventService.CreateEventAsync(createdEvent);
             return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
         }
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Event createdEvent)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult Update(int id, [FromBody] EventInfo createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {
@@ -73,6 +79,8 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public IActionResult Delete(int id)
         {
             var delEvent = _eventService.DeleteEvent(id);
@@ -84,6 +92,8 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpPost("{id}/book")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateBooking(int id)
         {
             var booking = await _bookingService.CreateBookingAsync(id);

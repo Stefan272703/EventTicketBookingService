@@ -3,20 +3,63 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventTicketBookingService.Models
 {
-    [NotAfterStartAtTime]
     public class Event
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Title обязательное для заполнения")]
         public string? Title { get; set; }
 
         public string? Description { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "StartAt обязательное для заполнения")]
         public DateTime StartAt { get; set; }
 
-        [Required(ErrorMessage = "EndAt обязательное для заполнения")]
         public DateTime EndAt { get; set; }
+
+        public int TotalSeats { get; set; }
+
+        public int AvailableSeats
+        {
+            get => _availableSeats;
+            private set => _availableSeats = value;
+        }
+
+        private int _availableSeats;
+
+        public Event(int totalSeats)
+        {
+            if (totalSeats <= 0)
+            {
+                throw new ValidationException("Общее количество мест должно быть положительным");
+            }
+            TotalSeats = totalSeats;
+            _availableSeats = totalSeats; // При создании равно TotalSeats
+        }
+
+        public bool TryReserveSeats(int count = 1)
+        {
+            if (count <= 0)
+            {
+                return false;
+            }
+
+            int current, updated;
+            do
+            {
+                current = _availableSeats;
+                if (current < count)
+                {
+                    return false;
+                }
+                updated = current - count;
+
+            } while (Interlocked.CompareExchange(ref _availableSeats, updated, current) != current);
+
+            return true;
+        }
+
+        public void ReleaseSeats(int count = 1)
+        {
+            Interlocked.Add(ref _availableSeats, count);
+        }
     }
 }
