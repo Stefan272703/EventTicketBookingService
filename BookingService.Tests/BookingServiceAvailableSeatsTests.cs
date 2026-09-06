@@ -67,7 +67,7 @@ namespace BookingService.Tests
             var results = new List<BookingResponse>();
 
             // Act
-            for(int i = 0; i < totalSeats; i++)
+            for (int i = 0; i < totalSeats; i++)
             {
                 var response = await _bookingService.CreateBookingAsync(eventId);
                 results.Add(response);

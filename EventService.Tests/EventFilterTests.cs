@@ -21,9 +21,9 @@ namespace EventService.Tests
         public async Task GetAllEvents_FilterByTitle_ReturnsEventsWithMatchingSubstring()
         {
             // Arrange
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Белоснежка", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(1), TotalSeats = 100});
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Король и шут", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(2), TotalSeats = 200});
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3), TotalSeats = 250});
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Белоснежка", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(1), TotalSeats = 100 });
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Король и шут", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(2), TotalSeats = 200 });
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3), TotalSeats = 250 });
 
             // Act (Фильтрация по названию)
             var result = _eventService.GetAllEvents("бел", DateTime.MinValue, DateTime.MaxValue, 1, 10);
@@ -44,9 +44,9 @@ namespace EventService.Tests
             var past = now.AddDays(-1);
             var future = now.AddDays(1);
 
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Past", StartAt = past, EndAt = past.AddHours(1), TotalSeats = 100});
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Now", StartAt = now, EndAt = now.AddHours(1), TotalSeats=200});
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Future", StartAt = future, EndAt = future.AddHours(1), TotalSeats= 250 });
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Past", StartAt = past, EndAt = past.AddHours(1), TotalSeats = 100 });
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Now", StartAt = now, EndAt = now.AddHours(1), TotalSeats = 200 });
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Future", StartAt = future, EndAt = future.AddHours(1), TotalSeats = 250 });
 
             // Act – ищем события с StartAt >= now
             var result = _eventService.GetAllEvents("", now, DateTime.MaxValue, 1, 10);
@@ -67,9 +67,9 @@ namespace EventService.Tests
             var earlier = now.AddHours(-2);
             var later = now.AddHours(2);
 
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Earlier", StartAt = earlier, EndAt = earlier.AddHours(1), TotalSeats=100 }); // закончится до now
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Now", StartAt = now, EndAt = now.AddHours(1), TotalSeats=200 }); // закончится после now
-            await _eventService.CreateEventAsync(new EventInfo { Title = "Later", StartAt = later, EndAt = later.AddHours(1), TotalSeats=250 }); // закончится после now
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Earlier", StartAt = earlier, EndAt = earlier.AddHours(1), TotalSeats = 100 }); // закончится до now
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Now", StartAt = now, EndAt = now.AddHours(1), TotalSeats = 200 }); // закончится после now
+            await _eventService.CreateEventAsync(new EventInfo { Title = "Later", StartAt = later, EndAt = later.AddHours(1), TotalSeats = 250 }); // закончится после now
 
             // Act – ищем события с EndAt <= now
             var result = _eventService.GetAllEvents("", DateTime.MinValue, now, 1, 10);

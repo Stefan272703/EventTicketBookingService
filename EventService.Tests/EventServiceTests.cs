@@ -54,7 +54,7 @@ namespace EventService.Tests
                 Description = "Сказка",
                 StartAt = DateTime.Now,
                 EndAt = DateTime.Now.AddHours(2),
-                TotalSeats=100
+                TotalSeats = 100
             });
 
             await _eventService?.CreateEventAsync(new EventInfo
@@ -96,7 +96,7 @@ namespace EventService.Tests
                 Description = "Панк-рок",
                 StartAt = DateTime.Now,
                 EndAt = DateTime.Now.AddHours(3),
-                TotalSeats=100
+                TotalSeats = 100
             });
 
 

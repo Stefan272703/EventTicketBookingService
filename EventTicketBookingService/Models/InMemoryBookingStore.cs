@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace EventTicketBookingService.Models
 {
-    public class InMemoryBookingStore: IBookingTaskQueue
+    public class InMemoryBookingStore : IBookingTaskQueue
     {
         private readonly ConcurrentQueue<int> _queue = new();
 

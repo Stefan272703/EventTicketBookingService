@@ -35,7 +35,7 @@ namespace EventTicketBookingService
                 app.MapSwagger();
                 app.MapSwaggerUI();
             }
-            
+
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();

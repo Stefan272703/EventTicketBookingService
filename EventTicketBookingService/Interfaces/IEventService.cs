@@ -5,7 +5,7 @@ namespace EventTicketBookingService.Interfaces
 {
     public interface IEventService
     {
-        public PaginatedResultDTO<Event> GetAllEvents(string title, 
+        public PaginatedResultDTO<Event> GetAllEvents(string title,
             DateTime? from,
             DateTime? to,
             int page,

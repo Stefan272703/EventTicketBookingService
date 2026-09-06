@@ -54,7 +54,7 @@ namespace BookingService.Tests
                     throw ex!;
                 }
                 return (Success: true, Exception: null);
-            },TaskContinuationOptions.ExecuteSynchronously)));
+            }, TaskContinuationOptions.ExecuteSynchronously)));
 
             // Assert
             var successful = results.Count(r => r.Success);

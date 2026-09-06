@@ -17,8 +17,8 @@ namespace EventTicketBookingService.Models
 
         public int TotalSeats { get; set; }
 
-        public int AvailableSeats 
-        { 
+        public int AvailableSeats
+        {
             get => _availableSeats;
             private set => _availableSeats = value;
         }
@@ -27,7 +27,7 @@ namespace EventTicketBookingService.Models
 
         public Event(int totalSeats)
         {
-            if(totalSeats <= 0)
+            if (totalSeats <= 0)
             {
                 throw new ValidationException("Общее количество мест должно быть положительным");
             }
@@ -37,7 +37,7 @@ namespace EventTicketBookingService.Models
 
         public bool TryReserveSeats(int count = 1)
         {
-            if(count <= 0)
+            if (count <= 0)
             {
                 return false;
             }

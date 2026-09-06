@@ -90,7 +90,7 @@ namespace EventTicketBookingService.Controllers
             }
             return NoContent();
         }
-        
+
         [HttpPost("{id}/book")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

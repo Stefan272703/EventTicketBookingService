@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace EventTicketBookingService.Models
 {
-    public class InMemoryEventStore: IEventStore
+    public class InMemoryEventStore : IEventStore
     {
         private readonly ConcurrentDictionary<int, Event> _eventStore = new();
 
@@ -22,7 +22,7 @@ namespace EventTicketBookingService.Models
         {
             _eventStore.TryAdd(@event.Id, @event);
         }
-        public void RemoveEvent(Event @event) 
+        public void RemoveEvent(Event @event)
         {
             _eventStore.TryRemove(@event.Id, out _);
 

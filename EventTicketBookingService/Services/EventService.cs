@@ -9,7 +9,7 @@ using System.Globalization;
 
 namespace EventTicketBookingService.Services
 {
-    public class EventService: IEventService
+    public class EventService : IEventService
     {
         private List<Event> _events = [];
         private readonly IEventStore _eventStore;
@@ -20,7 +20,7 @@ namespace EventTicketBookingService.Services
         }
 
         // Получить все события
-        public PaginatedResultDTO<Event> GetAllEvents(string title, 
+        public PaginatedResultDTO<Event> GetAllEvents(string title,
             DateTime? from,
             DateTime? to,
             int page,
@@ -45,7 +45,7 @@ namespace EventTicketBookingService.Services
 
             return paginatedEvents;
         }
-            
+
         // Метод получения результата пагинации
         private PaginatedResultDTO<Event> GetEventsWithPagination(
             IEnumerable<Event> entryEvents,
@@ -60,8 +60,8 @@ namespace EventTicketBookingService.Services
             // Количество элементов на текущей странице
             int pageSizeByIndex = items.Count();
 
-            PaginatedResultDTO<Event> paginatedResultDTO = new PaginatedResultDTO<Event> 
-            { 
+            PaginatedResultDTO<Event> paginatedResultDTO = new PaginatedResultDTO<Event>
+            {
                 TotalCount = totalCount,
                 Events = items,
                 PageIndex = page,
@@ -74,7 +74,7 @@ namespace EventTicketBookingService.Services
         // Получить событие по Id
         public Event? GetEventById(int id)
         {
-            var eventById =  _events?.FirstOrDefault(x => x.Id == id);
+            var eventById = _events?.FirstOrDefault(x => x.Id == id);
             if (eventById == null)
                 throw new ResourceNotFoundException(eventById, $"Не найдено событие по ID: {id}");
 
@@ -90,7 +90,7 @@ namespace EventTicketBookingService.Services
                 throw new ValidationException("Конец события должен быть позже начала события");
 
             var @event = new Event(createdEvent.TotalSeats.Value)
-            {   
+            {
                 Id = _events.Any() ? _events.Max(x => x.Id) + 1 : 1,
                 Title = createdEvent.Title,                         // Название события
                 Description = createdEvent.Description,             // Описание события из тела запроса Event

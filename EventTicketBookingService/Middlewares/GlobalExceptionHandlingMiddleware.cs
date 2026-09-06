@@ -19,7 +19,7 @@ namespace EventTicketBookingService.Middlewares
             {
                 await _next(httpContext);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 await HandleException(httpContext, ex);
             }
@@ -62,7 +62,7 @@ namespace EventTicketBookingService.Middlewares
                 ValidationException ve => StatusCodes.Status400BadRequest,
                 ResourceNotFoundException re => StatusCodes.Status404NotFound,
                 NoAvailableSeatsException nase => StatusCodes.Status409Conflict,
-                _ =>StatusCodes.Status500InternalServerError
+                _ => StatusCodes.Status500InternalServerError
 
             };
         }

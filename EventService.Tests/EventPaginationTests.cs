@@ -27,7 +27,7 @@ namespace EventService.Tests
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
                     EndAt = DateTime.Now.AddHours(i + 1),
-                    TotalSeats= 100,
+                    TotalSeats = 100
                 });
             }
 

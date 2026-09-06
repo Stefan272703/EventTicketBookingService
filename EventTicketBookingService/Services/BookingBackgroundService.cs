@@ -5,15 +5,16 @@ using System.Net.NetworkInformation;
 
 namespace EventTicketBookingService.Services
 {
-    public class BookingBackgroundService: BackgroundService
+    public class BookingBackgroundService : BackgroundService
     {
         private readonly SemaphoreSlim _processingSemaphore = new(1, Environment.ProcessorCount);
         private readonly ILogger<BookingBackgroundService> _logger;
         private readonly IBookingTaskQueue _bookingStore;
         private readonly IBookingService _bookingService;
-        private readonly IEventStore _eventStore; 
+        private readonly IEventStore _eventStore;
+
         // Задержки времени от и до для случайного времени внешнего вызова(выраженное в мс)
-        private readonly int minDelay = 1000; 
+        private readonly int minDelay = 1000;
         private readonly int maxDelay = 5000;
 
         public BookingBackgroundService(ILogger<BookingBackgroundService> logger,
@@ -51,10 +52,10 @@ namespace EventTicketBookingService.Services
                 {
                     var pendingBookings = _bookingStore.GetPending().ToList();
                     var tasks = pendingBookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
-                    
+
                     await Task.WhenAll(tasks);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "ошибка при получении данных о брони");
                 }
@@ -69,7 +70,7 @@ namespace EventTicketBookingService.Services
         private async Task<Booking> ProcessBookingAsync(Booking booking, CancellationToken stoppingToken)
         {
             if (booking?.Status == BookingStatus.Pending)
-            {             
+            {
                 _logger.LogInformation($"Проходит процесс над бронью с ID: {booking.Id}. Подождите пару секунд.");
                 try
                 {
@@ -93,14 +94,14 @@ namespace EventTicketBookingService.Services
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
                     _logger.LogWarning($"Обработка брони ID: {booking.Id} прервана из-за отмены");
-                    if(_eventStore.TryGetEventById(booking.EventId, out var @event))
+                    if (_eventStore.TryGetEventById(booking.EventId, out var @event))
                     {
                         booking.Reject();
                         @event?.ReleaseSeats();
                         _bookingStore.Update(booking);
                         await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
                     }
-                    
+
                     throw;
                 }
                 catch (Exception)

@@ -32,7 +32,6 @@ namespace BookingService.Tests
                                ev = new Event(5) { Id = id };
                                return true;
                            });
-            
             // Act
             var result = await _bookingService.CreateBookingAsync(eventId);
 
@@ -88,8 +87,8 @@ namespace BookingService.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(result.Id, created.Id);
-            Assert.Equal(result.EventId, eventId);
-            Assert.Equal(result.Status, BookingStatus.Pending);
+            Assert.Equal(eventId, result.EventId);
+            Assert.Equal(BookingStatus.Pending, result.Status);
         }
 
         // Получение брони отражает изменение статуса (после Confirm/Reject).
