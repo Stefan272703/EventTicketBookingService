@@ -38,13 +38,17 @@ namespace EventTicketBookingService.Middlewares
             }
 
             var statusCode = MapStatusCode(ex);
+            var title = MapTitle(ex);
             httpContext.Response.StatusCode = statusCode;
             httpContext.Response.ContentType = "application/json";
 
-            var error = new ProblemDetails
+            var error = new Microsoft.AspNetCore.Mvc.ProblemDetails
             {
+                Title = title,
                 Status = statusCode,
-                Detail = ex.Message
+                Detail = ex.Message,
+                Type = "Ссылка на url документации",
+                Instance = httpContext.Request.Path
             };
 
             await httpContext.Response.WriteAsJsonAsync(error);
@@ -63,5 +67,16 @@ namespace EventTicketBookingService.Middlewares
             };
         }
 
+        private string MapTitle(Exception ex)
+        {
+            return ex switch
+            {
+                ValidationException ve => "Bad Request",
+                ResourceNotFoundException re => "Not Found",
+                NoAvailableSeatsException nase => "Conflict",
+                _ => "Internal Server Error"
+
+            };
+        }
     }
 }
