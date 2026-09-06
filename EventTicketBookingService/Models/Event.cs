@@ -25,11 +25,6 @@ namespace EventTicketBookingService.Models
 
         private int _availableSeats;
 
-        public Event()
-        {
-
-        }
-
         public Event(int totalSeats)
         {
             if(totalSeats <= 0)
