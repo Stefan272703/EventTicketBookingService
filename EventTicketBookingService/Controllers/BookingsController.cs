@@ -16,11 +16,13 @@ namespace EventTicketBookingService.Controllers
         }
 
         [HttpGet("{id}", Name = nameof(GetBookingById))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetBookingById(int id)
         {
             var bookingById = await _bookingService.GetBookingByIdAsync(id);
 
-            if(bookingById == null)
+            if (bookingById == null)
             {
                 return NotFound($"Не найдена бронь по Id: {id}");
             }

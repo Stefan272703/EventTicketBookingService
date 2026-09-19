@@ -11,15 +11,15 @@ namespace BookingService.Tests
     public class NegativeBookingServiceTests
     {
         private readonly Mock<IBookingTaskQueue> _taskStoreMock;
-        private readonly Mock<IEventService> _eventServiceMock;
+        private readonly Mock<IEventStore> _eventStoreMock;
         private readonly EventTicketBookingService.Services.BookingService _bookingService;
 
         public NegativeBookingServiceTests()
         {
             _taskStoreMock = new Mock<IBookingTaskQueue>();
-            _eventServiceMock = new Mock<IEventService>();
+            _eventStoreMock = new Mock<IEventStore>();
             _bookingService = new EventTicketBookingService.Services.BookingService(_taskStoreMock.Object,
-                                                                               _eventServiceMock.Object);
+                                                                                    _eventStoreMock.Object);
         }
 
         // Создание брони для несуществующего события;
@@ -28,7 +28,13 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 999;
-            _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns((EventDTO ?)null);
+
+            _eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
+               .Returns((int id, out Event? ev) =>
+               {
+                   ev = new Event(5) { Id = id };
+                   return false;
+               });
 
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId));
@@ -42,7 +48,13 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
-            _eventServiceMock.Setup(x => x.GetEventById(eventId)).Returns((EventDTO?)null);
+
+            _eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
+               .Returns((int id, out Event? ev) =>
+               {
+                   ev = new Event(5) { Id = id };
+                   return false;
+               });
 
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId));
@@ -56,11 +68,16 @@ namespace BookingService.Tests
         {
             // Arrange
             const int invalidId = 999;
-            _eventServiceMock.Setup(x => x.GetEventById(invalidId)).Returns((EventDTO?)null);
-            
+
+            _eventStoreMock.Setup(x => x.TryGetEventById(invalidId, out It.Ref<Event?>.IsAny))
+               .Returns((int id, out Event? ev) =>
+               {
+                   ev = new Event(5) { Id = id };
+                   return true;
+               });
+
             // Act & Assert
             await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.GetBookingByIdAsync(invalidId));
-
         }
     }
 }
