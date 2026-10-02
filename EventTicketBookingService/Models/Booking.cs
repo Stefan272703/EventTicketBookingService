@@ -21,6 +21,9 @@ namespace EventTicketBookingService.Models
         // Дата и время обработки брони
         public DateTime? ProcessedAt { get; set; } = null;
 
+        // Навигационное свойство
+        Event? Event { get; set; }
+
         public void Confirm()
         {
             Status = BookingStatus.Confirmed;

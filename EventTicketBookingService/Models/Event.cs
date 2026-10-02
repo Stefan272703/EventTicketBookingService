@@ -21,6 +21,13 @@ namespace EventTicketBookingService.Models
 
         private int _availableSeats;
 
+        public List<Booking> Bookings { get; set; }
+
+        private Event()
+        {
+            Title = null!;
+        }
+
         public Event(int totalSeats)
         {
             if (totalSeats <= 0)
