@@ -47,7 +47,7 @@ namespace EventTicketBookingService.Middlewares
                 Title = title,
                 Status = statusCode,
                 Detail = ex.Message,
-                Type = "Ссылка на url документации",
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4",
                 Instance = httpContext.Request.Path
             };
 
