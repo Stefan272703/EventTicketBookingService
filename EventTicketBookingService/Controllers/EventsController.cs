@@ -36,6 +36,7 @@ namespace EventTicketBookingService.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetById(int id)
         {
             var eventbyId = _eventService.GetEventById(id);
@@ -63,6 +64,7 @@ namespace EventTicketBookingService.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Update(int id, [FromBody] EventInfo createdEvent)
         {
             if (!TryValidateModel(createdEvent))
@@ -94,6 +96,7 @@ namespace EventTicketBookingService.Controllers
         [HttpPost("{id}/book")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreateBooking(int id)
         {
             var booking = await _bookingService.CreateBookingAsync(id);
