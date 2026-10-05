@@ -22,7 +22,7 @@ namespace EventTicketBookingService.Models
         public DateTime? ProcessedAt { get; set; } = null;
 
         // Навигационное свойство
-        Event? Event { get; set; }
+        public Event? Event { get; set; }
 
         public void Confirm()
         {
