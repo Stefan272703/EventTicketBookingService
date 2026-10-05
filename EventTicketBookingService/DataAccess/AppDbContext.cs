@@ -5,8 +5,8 @@ namespace EventTicketBookingService.DataAccess
 {
     public class AppDbContext : DbContext
     {
-        DbSet<Event> Events => Set<Event>();
-        DbSet<Booking> Bookings => Set<Booking>();
+        public DbSet<Event> Events => Set<Event>();
+        public DbSet<Booking> Bookings => Set<Booking>();
 
         public AppDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
         {

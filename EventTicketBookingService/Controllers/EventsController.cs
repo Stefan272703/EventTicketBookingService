@@ -22,14 +22,14 @@ namespace EventTicketBookingService.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] DateTime? from,
+        public async Task<IActionResult> GetAll([FromQuery] DateTime? from,
             [FromQuery] DateTime? to,
             [FromQuery] string title = "",
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10
             )
         {
-            var events = _eventService.GetAllEvents(title, from, to, page, pageSize);
+            var events = await _eventService.GetAllEventsAsync(title, from, to, page, pageSize);
             return Ok(events);
         }
 
@@ -37,9 +37,9 @@ namespace EventTicketBookingService.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var eventbyId = _eventService.GetEventById(id);
+            var eventbyId = await _eventService.GetEventByIdAsync(id);
             if (eventbyId == null)
             {
                 return NotFound($"Не найдено событие по ID: {id}");
@@ -65,14 +65,14 @@ namespace EventTicketBookingService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Update(int id, [FromBody] EventInfo createdEvent)
+        public async Task<IActionResult> Update(int id, [FromBody] EventInfo createdEvent)
         {
             if (!TryValidateModel(createdEvent))
             {
                 return BadRequest(ModelState);
             }
 
-            var existingEvent = _eventService.UpdateEvent(id, createdEvent);
+            var existingEvent = _eventService.UpdateEventAsync(id, createdEvent);
             if (existingEvent == null)
             {
                 return NotFound($"Данного события не существует по id {id}");
@@ -83,9 +83,9 @@ namespace EventTicketBookingService.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var delEvent = _eventService.DeleteEvent(id);
+            var delEvent = await _eventService.DeleteEventAsync(id);
             if (delEvent == null)
             {
                 return NotFound($"Данного события не существует по id {id}");
