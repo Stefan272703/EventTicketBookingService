@@ -11,6 +11,6 @@ namespace EventTicketBookingService.Interfaces
         public Task<Booking>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default);
 
         // Обновление брони
-        public Task UpdateBookingStatusAsync(int bookingId, BookingStatus status, CancellationToken cancellationToken = default);
+        //public Task UpdateBookingStatusAsync(int bookingId, BookingStatus status, CancellationToken cancellationToken = default);
     }
 }
