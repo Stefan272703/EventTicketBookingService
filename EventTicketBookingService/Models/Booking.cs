@@ -24,6 +24,11 @@ namespace EventTicketBookingService.Models
         // Навигационное свойство
         public Event? Event { get; set; }
 
+        public Booking()
+        {
+
+        }
+
         public void Confirm()
         {
             Status = BookingStatus.Confirmed;

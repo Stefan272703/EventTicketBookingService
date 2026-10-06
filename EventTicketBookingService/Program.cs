@@ -19,10 +19,10 @@ namespace EventTicketBookingService
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddSingleton<IEventService, EventService>();
-            builder.Services.AddSingleton<IBookingService, BookingService>();
-            builder.Services.AddSingleton<IBookingTaskQueue, InMemoryBookingStore>();
-            builder.Services.AddSingleton<IEventStore, InMemoryEventStore>();
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            //builder.Services.AddSingleton<IBookingTaskQueue, InMemoryBookingStore>();
+            //builder.Services.AddSingleton<IEventStore, InMemoryEventStore>();
             builder.Services.AddHostedService<BookingBackgroundService>();
 
 
