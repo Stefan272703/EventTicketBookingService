@@ -1,18 +1,31 @@
-﻿using EventTicketBookingService.Interfaces;
+﻿using EventTicketBookingService.DataAccess;
+using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace EventService.Tests
 {
     public class EventPaginationTests
     {
-        private readonly Mock<IEventStore> _eventStoreMock;
-        private readonly EventTicketBookingService.Services.EventService _eventService;
+        //private readonly Mock<IEventStore> _eventStoreMock;
+        private readonly IEventService _eventService;
+        private readonly ServiceProvider _serviceProvider;
+        private readonly IServiceScope _scope;
 
         public EventPaginationTests()
         {
-            _eventStoreMock = new Mock<IEventStore>();
-            _eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+            //_eventStoreMock = new Mock<IEventStore>();
+            var dbName = Guid.NewGuid().ToString();
+            var services = new ServiceCollection();
+            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
+            services.AddScoped<IEventService, EventTicketBookingService.Services.EventService>();
+
+            _serviceProvider = services.BuildServiceProvider();
+            _scope = _serviceProvider.CreateScope();
+            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
+            //_eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
         }
 
         // Первая страница (page=1, pageSize=2)
@@ -22,7 +35,7 @@ namespace EventService.Tests
             // Arrange
             for (int i = 1; i <= 5; i++)
             {
-                await _eventService.CreateEventAsync(new EventInfo
+                await _eventService?.CreateEventAsync(new EventInfo
                 {
                     Title = $"Event {i}",
                     StartAt = DateTime.Now.AddHours(i),
@@ -32,7 +45,7 @@ namespace EventService.Tests
             }
 
             // Act
-            var result = _eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 1, 2);
+            var result = await _eventService.GetAllEventsAsync("", DateTime.MinValue, DateTime.MaxValue, 1, 2);
 
             // Assert
             Assert.NotNull(result);
@@ -64,7 +77,7 @@ namespace EventService.Tests
             }
 
             // Act
-            var result = _eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 2, 2);
+            var result = await _eventService.GetAllEventsAsync("", DateTime.MinValue, DateTime.MaxValue, 2, 2);
 
             // Assert
             Assert.NotNull(result);
@@ -98,7 +111,7 @@ namespace EventService.Tests
             }
 
             // Act
-            var result = _eventService.GetAllEvents("", DateTime.MinValue, DateTime.MaxValue, 3, 2);
+            var result = await _eventService.GetAllEventsAsync("", DateTime.MinValue, DateTime.MaxValue, 3, 2);
 
             // Assert
             Assert.NotNull(result);

@@ -1,19 +1,37 @@
-﻿
+﻿using EventTicketBookingService.DataAccess;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace EventService.Tests
 {
-    public class EventFilterTests
+    public class EventFilterTests : IDisposable
     {
-        private readonly Mock<IEventStore> _eventStoreMock;
-        private readonly EventTicketBookingService.Services.EventService _eventService;
+        //private readonly Mock<IEventStore> _eventStoreMock;
+        private readonly IEventService _eventService;
+        private readonly ServiceProvider _serviceProvider;
+        private readonly IServiceScope _scope;
 
         public EventFilterTests()
         {
-            _eventStoreMock = new Mock<IEventStore>();
-            _eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+            //_eventStoreMock = new Mock<IEventStore>();
+            var dbName = Guid.NewGuid().ToString();
+            var services = new ServiceCollection();
+            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
+            services.AddScoped<IEventService, EventTicketBookingService.Services.EventService>();
+
+            _serviceProvider = services.BuildServiceProvider();
+            _scope = _serviceProvider.CreateScope();
+            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
+            //_eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+        }
+
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _serviceProvider.Dispose();
         }
 
         // Фильтрация событий по названию
@@ -26,7 +44,7 @@ namespace EventService.Tests
             await _eventService.CreateEventAsync(new EventInfo { Title = "Белое солнце пустыни", StartAt = DateTime.Now, EndAt = DateTime.Now.AddHours(3), TotalSeats = 250 });
 
             // Act (Фильтрация по названию)
-            var result = _eventService.GetAllEvents("бел", DateTime.MinValue, DateTime.MaxValue, 1, 10);
+            var result = await _eventService.GetAllEventsAsync("бел", DateTime.MinValue, DateTime.MaxValue, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -49,7 +67,7 @@ namespace EventService.Tests
             await _eventService.CreateEventAsync(new EventInfo { Title = "Future", StartAt = future, EndAt = future.AddHours(1), TotalSeats = 250 });
 
             // Act – ищем события с StartAt >= now
-            var result = _eventService.GetAllEvents("", now, DateTime.MaxValue, 1, 10);
+            var result = await _eventService.GetAllEventsAsync("", now, DateTime.MaxValue, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -72,7 +90,7 @@ namespace EventService.Tests
             await _eventService.CreateEventAsync(new EventInfo { Title = "Later", StartAt = later, EndAt = later.AddHours(1), TotalSeats = 250 }); // закончится после now
 
             // Act – ищем события с EndAt <= now
-            var result = _eventService.GetAllEvents("", DateTime.MinValue, now, 1, 10);
+            var result = await _eventService.GetAllEventsAsync("", DateTime.MinValue, now, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -96,7 +114,7 @@ namespace EventService.Tests
             await _eventService.CreateEventAsync(new EventInfo { Title = "C", StartAt = date4, EndAt = date4.AddHours(1), TotalSeats = 250 }); // за пределами
 
             // Act – диапазон [date1, date3]
-            var result = _eventService.GetAllEvents("", date1, date3, 1, 10);
+            var result = await _eventService.GetAllEventsAsync("", date1, date3, 1, 10);
 
             // Assert
             Assert.NotNull(result);
