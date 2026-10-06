@@ -64,7 +64,6 @@ namespace EventTicketBookingService.Services
 
         public async Task<Booking>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default)
         {
-            //var existingBooking = _bookings.FirstOrDefault(x => x.Key == bookingId);
             var existingBooking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken);
             if (existingBooking == null)
                 throw new ResourceNotFoundException($"Бронь с ID: {bookingId} не найдена");
