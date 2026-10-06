@@ -33,7 +33,6 @@ namespace EventTicketBookingService.DataAccess.Configurations
             // ProcessedAt обязателен
             builder.Property(b => b.ProcessedAt)
                 .HasColumnName("processed_at");
-                //.IsRequired();
 
             // Один-ко-многим
             // У одного события может быть много броней, но у брони только одно событие.

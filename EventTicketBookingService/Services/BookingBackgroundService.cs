@@ -75,8 +75,6 @@ namespace EventTicketBookingService.Services
 
         private async Task<Booking> ProcessBookingAsync(int bookingId, CancellationToken stoppingToken)
         {
-            //if (bookingId?.Status == BookingStatus.Pending)
-            //{
             _logger.LogInformation($"Проходит процесс над бронью с ID: {bookingId/*bookingId.Id*/}. Подождите пару секунд.");
             try
             {
@@ -86,25 +84,25 @@ namespace EventTicketBookingService.Services
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, stoppingToken);
-                if(booking == null || booking.Status != BookingStatus.Pending)
+                if (booking == null || booking.Status != BookingStatus.Pending)
                 {
                     return null;
                 }
 
-                var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId/*.EventId*/, stoppingToken);
+                var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId, stoppingToken);
 
                 if (@event != null)
                 {
                     booking.Confirm();
                     await context.SaveChangesAsync(stoppingToken);
-                    _logger.LogInformation($"Процесс над бронью с ID: {booking.Id/*bookingId.Id*/} завершен успешно!");
+                    _logger.LogInformation($"Процесс над бронью с ID: {booking.Id} завершен успешно!");
                     return booking;
                 }
                 else
                 {
                     booking.Reject();
                     await context.SaveChangesAsync(stoppingToken);
-                    _logger.LogWarning($"Не обработана бронь с ID {booking.Id/*bookingId.Id*/} из-за отсутствия события по ID: {booking.EventId/*bookingId.EventId*/}.");
+                    _logger.LogWarning($"Не обработана бронь с ID {booking.Id} из-за отсутствия события по ID: {booking.EventId}.");
                     return booking;
                 }
             }

@@ -25,8 +25,6 @@ namespace EventTicketBookingService
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
-            //builder.Services.AddSingleton<IBookingTaskQueue, InMemoryBookingStore>();
-            //builder.Services.AddSingleton<IEventStore, InMemoryEventStore>();
             builder.Services.AddHostedService<BookingBackgroundService>();
 
             var app = builder.Build();

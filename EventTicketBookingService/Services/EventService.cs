@@ -108,21 +108,7 @@ namespace EventTicketBookingService.Services
             await _context.Events.AddAsync(@event, cancellationToken);
             // Обновляем данные в БД
             await _context.SaveChangesAsync(cancellationToken);
-            //_events?.Add(@event);
-            //_eventStore?.AddEvent(@event);
             return ToInfo(@event);
-            //var eventInfo = new EventInfo()
-            //{
-            //    Id = @event.Id,
-            //    Title = @event.Title,                         // Название события
-            //    Description = @event.Description,             // Описание события из тела запроса Event
-            //    StartAt = @event.StartAt,
-            //    EndAt = @event.EndAt,
-            //    TotalSeats = @event.TotalSeats,
-            //    AvailableSeats = @event.AvailableSeats
-            //};
-
-            //return eventInfo;
         }
 
         // Обновить событие целиком
