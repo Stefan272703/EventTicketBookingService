@@ -12,9 +12,6 @@ namespace EventTicketBookingService.Services
         private readonly SemaphoreSlim _processingSemaphore = new(1, Environment.ProcessorCount);
         private readonly ILogger<BookingBackgroundService> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
-        //private readonly IBookingTaskQueue _bookingStore;
-        //private readonly IBookingService _bookingService;
-        //private readonly IEventStore _eventStore;
 
         // Задержки времени от и до для случайного времени внешнего вызова(выраженное в мс)
         private readonly int minDelay = 1000;
@@ -23,15 +20,9 @@ namespace EventTicketBookingService.Services
         public BookingBackgroundService(ILogger<BookingBackgroundService> logger,
             IServiceScopeFactory ScopeFactory
             )
-                                        //IBookingTaskQueue taskQueue,
-                                        //IBookingService bookingService,
-                                        //IEventStore eventStore)
         {
             _logger = logger;
             _scopeFactory = ScopeFactory;
-            //_bookingStore = taskQueue;
-            //_bookingService = bookingService;
-            //_eventStore = eventStore;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -52,23 +43,21 @@ namespace EventTicketBookingService.Services
                     break;
                 }
 
-                await _processingSemaphore.WaitAsync();
+                await _processingSemaphore.WaitAsync(stoppingToken);
 
                 try
                 {
-                    List<Booking> pendingBookings;
+                    List<int> pendingBookingsIds;
 
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                        pendingBookings = await context.Bookings
+                        pendingBookingsIds = await context.Bookings
                             .Where(b => b.Status == BookingStatus.Pending)
-                            //.Select(b => b.Id)
+                            .Select(b => b.Id)
                             .ToListAsync(stoppingToken);
                     }
-
-                        //var pendingBookings = _bookingStore.GetPending().ToList();
-                    var tasks = pendingBookings.Select(booking => ProcessBookingAsync(booking, stoppingToken));
+                    var tasks = pendingBookingsIds.Select(bookingId => ProcessBookingAsync(bookingId, stoppingToken));
 
                     await Task.WhenAll(tasks);
                 }
@@ -84,87 +73,78 @@ namespace EventTicketBookingService.Services
             _logger.LogInformation("Фоновый сервис брони остановлен.");
         }
 
-        private async Task<Booking> ProcessBookingAsync(Booking booking, CancellationToken stoppingToken)
+        private async Task<Booking> ProcessBookingAsync(int bookingId, CancellationToken stoppingToken)
         {
-            if (booking?.Status == BookingStatus.Pending)
+            //if (bookingId?.Status == BookingStatus.Pending)
+            //{
+            _logger.LogInformation($"Проходит процесс над бронью с ID: {bookingId/*bookingId.Id*/}. Подождите пару секунд.");
+            try
             {
-                _logger.LogInformation($"Проходит процесс над бронью с ID: {booking.Id}. Подождите пару секунд.");
-                try
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, stoppingToken);
+                if(booking == null || booking.Status != BookingStatus.Pending)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
-
-                    using var scope = _scopeFactory.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                    var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.Id, stoppingToken);
-                    if(@event != null)
-                    {
-                        booking.Confirm();
-                        await context.SaveChangesAsync(stoppingToken);
-                        _logger.LogInformation($"Процесс над бронью с ID: {booking.Id} завершен успешно!");
-                        return booking;
-                    }
-                    else
-                    {
-                        booking.Reject();
-                        await context.SaveChangesAsync(stoppingToken);
-                        _logger.LogWarning($"Не обработана бронь с ID {booking.Id} из-за отсутствия события по ID: {booking.EventId}.");
-                    }
-                    //if (_eventStore.TryGetEventById(booking.EventId, out var @event))
-                    //{
-                    //    booking.Confirm();
-                    //    _bookingStore.Update(booking);
-                    //    await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
-                    //    _logger.LogInformation($"Процесс над бронью с ID: {booking.Id} завершен успешно!");
-                    //    return booking;
-                    //}
-                    //else
-                    //{
-                    //    booking.Reject();
-                    //    _bookingStore.Update(booking);
-                    //    await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
-                    //    _logger.LogWarning($"Не обработана бронь с ID {booking.Id} из-за отсутствия события по ID: {booking.EventId}.");
-                    //    return booking;
-                    //}
+                    return null;
                 }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+
+                var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId/*.EventId*/, stoppingToken);
+
+                if (@event != null)
                 {
-                    _logger.LogWarning($"Обработка брони ID: {booking.Id} прервана из-за отмены");
-
-                    using var scope = _scopeFactory.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                    var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.Id, stoppingToken);
-                    if (@event != null)
-                    {
-                        booking.Reject();
-                        @event?.ReleaseSeats();
-                        await context.SaveChangesAsync(stoppingToken);
-                        //_bookingStore.Update(booking);
-                        //await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
-                    }
-
-                    throw;
+                    booking.Confirm();
+                    await context.SaveChangesAsync(stoppingToken);
+                    _logger.LogInformation($"Процесс над бронью с ID: {booking.Id/*bookingId.Id*/} завершен успешно!");
+                    return booking;
                 }
-                catch (Exception)
+                else
                 {
-                    using var scope = _scopeFactory.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                    var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.Id, stoppingToken);
-
-                    if (@event != null)
-                    {
-                        booking.Reject();
-                        @event?.ReleaseSeats();
-                        await context.SaveChangesAsync(stoppingToken);
-                        //_bookingStore.Update(booking);
-                        //await _bookingService.UpdateBookingStatusAsync(booking.Id, booking.Status, stoppingToken);
-                        _logger.LogError($"Непредвиденная ошибка обработки брони, {booking.EventId}. Вовзращаем место.");
-                    }
+                    booking.Reject();
+                    await context.SaveChangesAsync(stoppingToken);
+                    _logger.LogWarning($"Не обработана бронь с ID {booking.Id/*bookingId.Id*/} из-за отсутствия события по ID: {booking.EventId/*bookingId.EventId*/}.");
+                    return booking;
                 }
             }
-            return booking;
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogWarning($"Обработка брони ID: {bookingId} прервана из-за отмены");
+
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, stoppingToken);
+
+                var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId, stoppingToken);
+                if (@event != null)
+                {
+                    booking.Reject();
+                    @event?.ReleaseSeats();
+                    await context.SaveChangesAsync(stoppingToken);
+                }
+
+                throw;
+            }
+            catch (Exception)
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, stoppingToken);
+
+                var @event = await context.Events.FirstOrDefaultAsync(e => e.Id == booking.EventId, stoppingToken);
+
+                if (@event != null)
+                {
+                    booking.Reject();
+                    @event?.ReleaseSeats();
+                    await context.SaveChangesAsync(stoppingToken);
+                    _logger.LogError($"Непредвиденная ошибка обработки брони, {booking.EventId}. Вовзращаем место.");
+                }
+                return booking;
+            }
         }
     }
 }

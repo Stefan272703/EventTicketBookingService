@@ -19,7 +19,7 @@ namespace EventTicketBookingService.Models
         public DateTime CreatedAt { get; set; }
 
         // Дата и время обработки брони
-        public DateTime? ProcessedAt { get; set; } = null;
+        public DateTime? ProcessedAt { get; set; }
 
         // Навигационное свойство
         public Event? Event { get; set; }
@@ -32,13 +32,13 @@ namespace EventTicketBookingService.Models
         public void Confirm()
         {
             Status = BookingStatus.Confirmed;
-            ProcessedAt = DateTime.Now;
+            ProcessedAt = DateTime.UtcNow;
         }
 
         public void Reject()
         {
             Status = BookingStatus.Rejected;
-            ProcessedAt = DateTime.Now;
+            ProcessedAt = DateTime.UtcNow;
         }
     }
 }

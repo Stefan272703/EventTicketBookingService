@@ -72,7 +72,7 @@ namespace EventTicketBookingService.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingEvent = _eventService.UpdateEventAsync(id, createdEvent);
+            var existingEvent = await _eventService.UpdateEventAsync(id, createdEvent);
             if (existingEvent == null)
             {
                 return NotFound($"Данного события не существует по id {id}");

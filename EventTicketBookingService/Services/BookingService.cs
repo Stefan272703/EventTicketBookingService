@@ -48,10 +48,11 @@ namespace EventTicketBookingService.Services
                 {
                     Booking booking = new Booking()
                     {
-                        Id = _bookings.Any() ? _bookings.Max(x => x.Key) + 1 : 1,
+                        //Id = _bookings.Any() ? _bookings.Max(x => x.Key) + 1 : 1,
+                        Id = await _context.Bookings.AnyAsync(cancellationToken) ? _context.Bookings.Max(x => x.Id) + 1 : 1,
                         EventId = eventId,
                         Status = BookingStatus.Pending,
-                        CreatedAt = DateTime.Now,
+                        CreatedAt = DateTime.UtcNow,
                         ProcessedAt = null,
                     };
 
@@ -65,7 +66,7 @@ namespace EventTicketBookingService.Services
                         Id = booking.Id,
                         EventId = booking.EventId,
                         Status = BookingStatus.Pending,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = DateTime.UtcNow
                     };
 
                     return response;
