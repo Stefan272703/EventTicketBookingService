@@ -10,7 +10,7 @@ namespace EventTicketBookingService.Services
 {
     public class BookingService : IBookingService
     {
-        private readonly SemaphoreSlim _bookingLock = new(1, 1);
+        private static readonly SemaphoreSlim _bookingLock = new(1, 1);
         private ConcurrentDictionary<int, Booking> _bookings = [];
         private readonly AppDbContext _context;
         public BookingService(AppDbContext appDbContext)
@@ -34,7 +34,8 @@ namespace EventTicketBookingService.Services
                 {
                     Booking booking = new Booking()
                     {
-                        Id = await _context.Bookings.AnyAsync(cancellationToken) ? _context.Bookings.Max(x => x.Id) + 1 : 1,
+                        // ToDo: Сомнительное место, так как несколько раз используется контекст
+                        Id = await _context.Bookings.AnyAsync(cancellationToken) ? await _context.Bookings.MaxAsync(x => x.Id, cancellationToken) + 1 : 1,
                         EventId = eventId,
                         Status = BookingStatus.Pending,
                         CreatedAt = DateTime.UtcNow,

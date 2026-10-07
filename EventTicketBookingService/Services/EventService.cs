@@ -97,7 +97,7 @@ namespace EventTicketBookingService.Services
             var @event = new Event(createdEvent.TotalSeats.Value)
             {
                 // ToDo: Исправить момент, когда вызываем несколько раз БД
-                Id = await _context.Events.AnyAsync(cancellationToken) ? _context.Events.Max(x => x.Id) + 1 : 1,
+                Id = await _context.Events.AnyAsync(cancellationToken) ? await _context.Events.MaxAsync(x => x.Id, cancellationToken) + 1 : 1,
                 Title = createdEvent.Title,                         // Название события
                 Description = createdEvent.Description,             // Описание события из тела запроса Event
                 StartAt = createdEvent.StartAt,
