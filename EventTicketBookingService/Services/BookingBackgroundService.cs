@@ -75,7 +75,7 @@ namespace EventTicketBookingService.Services
 
         private async Task<Booking> ProcessBookingAsync(int bookingId, CancellationToken stoppingToken)
         {
-            _logger.LogInformation($"Проходит процесс над бронью с ID: {bookingId/*bookingId.Id*/}. Подождите пару секунд.");
+            _logger.LogInformation($"Проходит процесс над бронью с ID: {bookingId}. Подождите пару секунд.");
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);

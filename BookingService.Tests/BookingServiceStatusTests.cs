@@ -19,11 +19,6 @@ namespace BookingService.Tests
 
         public BookingServiceStatusTests()
         {
-            //_taskStoreMock = new Mock<IBookingTaskQueue>();
-            //_eventStoreMock = new Mock<IEventStore>();
-            //_bookingService = new EventTicketBookingService.Services.BookingService(_taskStoreMock.Object,
-            //                                                                        _eventStoreMock.Object);
-
             var dbName = Guid.NewGuid().ToString();
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>(options =>
@@ -58,7 +53,6 @@ namespace BookingService.Tests
 
         private async Task<Event> GetEventAsync(int eventId)
         {
-            //using var scope = _serviceProvider.CreateScope();
             var context = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var @event = await context.Events.FirstAsync(e => e.Id == eventId);
             return @event;
@@ -111,22 +105,10 @@ namespace BookingService.Tests
         {
             // Arrange
             int eventId = await CreateTestEventAsync(1);
-            //var eventInfo = await _eventService.GetEventByIdAsync(eventId);
-            //var eventEntity = new Event(1) { Id = eventId };
-            //Booking? createdBooking = null;
-
-            //_eventStoreMock
-            //    .Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //    .Returns((int id, out Event? ev) =>
-            //    {
-            //        ev = eventEntity;
-            //        return true;
-            //    });
 
             // Act - создаём бронь (занимаем последнее место)
             var response = await _bookingService.CreateBookingAsync(eventId);
             var @event = await GetEventAsync(eventId);
-            //var eventInfo = await _eventService.GetEventByIdAsync(eventId);
 
             Assert.Equal(0, /*eventEntity*/@event.AvailableSeats);
 
@@ -138,7 +120,6 @@ namespace BookingService.Tests
             };
             booking.Reject();
             @event.ReleaseSeats();
-            //eventEntity.ReleaseSeats(); // освобождаем место
 
             // После освобождения должно стать 1 свободное место
             Assert.Equal(1, @event.AvailableSeats);
@@ -147,7 +128,6 @@ namespace BookingService.Tests
             var newResponse = await _bookingService.CreateBookingAsync(eventId);
             Assert.NotNull(newResponse);
             Assert.Equal(0, @event.AvailableSeats); // снова занято
-            //_taskStoreMock.Verify(x => x.Enqueue(It.IsAny<Booking>()), Times.Exactly(2));
         }
     }
 }

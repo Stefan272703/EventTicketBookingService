@@ -18,11 +18,6 @@ namespace BookingService.Tests
 
         public BookingServiceTests()
         {
-            //_taskStoreMock = new Mock<IBookingTaskQueue>();
-            //_eventStoreMock = new Mock<IEventStore>();
-            //_bookingService = new EventTicketBookingService.Services.BookingService(_taskStoreMock.Object,
-            //                                                                        _eventStoreMock.Object);
-
             var dbName = Guid.NewGuid().ToString();
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>(options =>
@@ -62,20 +57,12 @@ namespace BookingService.Tests
             // Arrange
             var eventId = await CreateTestEventAsync();
 
-            //const int eventId = 1;
-            //_eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //               .Returns((int id, out Event? ev) =>
-            //               {
-            //                   ev = new Event(5) { Id = id };
-            //                   return true;
-            //               });
             // Act
             var result = await _bookingService.CreateBookingAsync(eventId);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(BookingStatus.Pending, result.Status);
-            //_taskStoreMock.Verify(x => x.Enqueue(It.IsAny<Booking>()), Times.Once);
         }
 
         // Создание нескольких броней для одного события — все создаются с уникальными Id
@@ -84,14 +71,6 @@ namespace BookingService.Tests
         {
             // Arrange
             var eventId = await CreateTestEventAsync();
-            //const int eventId = 1;
-            //_eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //   .Returns((int id, out Event? ev) =>
-            //   {
-            //       ev = new Event(5) { Id = id };
-            //       return true;
-            //   });
-
 
             // Act
             var booking1 = await _bookingService.CreateBookingAsync(eventId);
@@ -110,13 +89,6 @@ namespace BookingService.Tests
         {
             // Arrange
             var eventId = await CreateTestEventAsync();
-            //const int eventId = 1;
-            //_eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //   .Returns((int id, out Event? ev) =>
-            //   {
-            //       ev = new Event(5) { Id = id };
-            //       return true;
-            //   });
 
             var created = await _bookingService.CreateBookingAsync(eventId);
 
@@ -136,13 +108,6 @@ namespace BookingService.Tests
         {
             // Arrange
             var eventId = await CreateTestEventAsync();
-            //const int eventId = 1;
-            //_eventStoreMock.Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //   .Returns((int id, out Event? ev) =>
-            //   {
-            //       ev = new Event(5) { Id = id };
-            //       return true;
-            //   });
 
             var created = await _bookingService.CreateBookingAsync(eventId);
             var booking = await _bookingService.GetBookingByIdAsync(created.Id);
@@ -150,8 +115,6 @@ namespace BookingService.Tests
             var bookingId = created.Id;
 
             // Act
-            //await _bookingService.UpdateBookingStatusAsync(bookingId, BookingStatus.Confirmed, CancellationToken.None);
-
             var updated = await _bookingService.GetBookingByIdAsync(bookingId);
 
             // Assert

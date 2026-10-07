@@ -20,11 +20,6 @@ namespace BookingService.Tests
 
         public BookingServiceConcurrencyTests()
         {
-            //_taskStoreMock = new Mock<IBookingTaskQueue>();
-            //_eventStoreMock = new Mock<IEventStore>();
-            //_bookingService = new EventTicketBookingService.Services.BookingService(_taskStoreMock.Object,
-            //                                                                        _eventStoreMock.Object);
-
             var dbName = Guid.NewGuid().ToString();
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>(options =>
@@ -57,32 +52,13 @@ namespace BookingService.Tests
             return created.Id;
         }
 
-        private async Task<Event> GetEventAsync(int eventId)
-        {
-            //using var scope = _serviceProvider.CreateScope();
-            var context = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var @event = await context.Events.FirstAsync(e => e.Id == eventId);
-            return @event;
-        }
-
         [Fact]
         public async Task ConcurrentBooking_Overbooking_Exactly5SuccessAnd15Failures()
         {
-            //int eventId = 1;
             int totalSeats = 5;
             int requests = 20;
 
-            //var eventEntity = new Event(totalSeats) { Id = eventId };
             var eventId = await CreateTestEventAsync(totalSeats);
-            //var @event = await GetEventAsync(eventId);
-
-            //_eventStoreMock
-            //    .Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //    .Returns((int id, out Event? ev) =>
-            //    {
-            //        ev = eventEntity;
-            //        return true;
-            //    });
 
             // Act - запускаем параллельные запросы
             var tasks = Enumerable.Range(0, requests)
@@ -102,54 +78,20 @@ namespace BookingService.Tests
                     }
                 }
                 ));
-                //.ToList();
-            //.Select(_ => _bookingService.CreateBookingAsync(@event.Id))
-            //.ToList();
 
             var results = await Task.WhenAll(tasks);
             var successCount = results.Count(r => r);
             Assert.Equal(totalSeats, successCount);
-            //var results = await Task.WhenAll(tasks.Select(t => t.ContinueWith(tr =>
-            //{
-            //    if (tr.IsFaulted)
-            //    {
-            //        var ex = tr.Exception?.InnerException;
-            //        if (ex is NoAvailableSeatsException)
-            //            return (Success: false, Exception: ex);
-            //        throw ex!;
-            //    }
-            //    return (Success: true, Exception: null);
-            //}, TaskContinuationOptions.ExecuteSynchronously)));
-
-            // Assert
-            //var successful = results.Count(r => r.Success);
-            //var failures = results.Count(r => r.Exception is NoAvailableSeatsException);
-
-            //Assert.Equal(totalSeats, successful);
-            //Assert.Equal(requests - totalSeats, failures);
-            //Assert.Equal(0, @event.AvailableSeats);
-
-            //_taskStoreMock.Verify(x => x.Enqueue(It.IsAny<Booking>()), Times.Exactly(totalSeats));
         }
 
         [Fact]
         public async Task ConcurrentBooking_UniqueIdsGuaranteed()
         {
             // Arrange
-            //const int eventId = 1;
             const int totalSeats = 10;
             const int requests = 10;
             var eventId = await CreateTestEventAsync(totalSeats);
             var bookingIds = new System.Collections.Concurrent.ConcurrentBag<int>();
-            //var eventEntity = new Event(totalSeats) { Id = eventId };
-
-            //_eventStoreMock
-            //    .Setup(x => x.TryGetEventById(eventId, out It.Ref<Event?>.IsAny))
-            //    .Returns((int id, out Event? ev) =>
-            //    {
-            //        ev = eventEntity;
-            //        return true;
-            //    });
 
             // Act - запускаем 10 параллельных запросов
             var tasks = Enumerable.Range(0, requests)
@@ -160,18 +102,11 @@ namespace BookingService.Tests
                     var booking = await bookingService.CreateBookingAsync(eventId);
                     bookingIds.Add(booking.Id);
                 }));
-                //.Select(_ => _bookingService.CreateBookingAsync(eventId))
-                //.ToList();
 
             await Task.WhenAll(tasks);
 
             // Assert
-            //var ids = responses.Select(r => r.Id).ToList();
-            //Assert.Equal(totalSeats, ids.Count);
             Assert.Equal(totalSeats, bookingIds.Distinct().Count()); // все уникальны
-
-            //_taskStoreMock.Verify(x => x.Enqueue(It.IsAny<Booking>()), Times.Exactly(totalSeats));
         }
-
     }
 }

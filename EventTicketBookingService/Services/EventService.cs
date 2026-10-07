@@ -13,14 +13,11 @@ namespace EventTicketBookingService.Services
 {
     public class EventService : IEventService
     {
-        //private List<Event> _events = [];
-        //private readonly IEventStore _eventStore;
         private readonly AppDbContext _context;
 
-        public EventService(AppDbContext appDbContext)//IEventStore eventStore)
+        public EventService(AppDbContext appDbContext)
         {
             _context = appDbContext;
-            //_eventStore = eventStore;
         }
 
         // Получить все события
@@ -79,7 +76,7 @@ namespace EventTicketBookingService.Services
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            var eventById = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken); //_events?.FirstOrDefault(x => x.Id == id);
+            var eventById = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (eventById == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
 

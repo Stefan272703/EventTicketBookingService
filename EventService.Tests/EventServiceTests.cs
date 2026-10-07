@@ -10,14 +10,12 @@ namespace EventService.Tests
 {
     public class EventServiceTests : IDisposable
     {
-        //private readonly Mock<IEventStore> _eventStoreMock;
         private readonly IEventService _eventService;
         private readonly ServiceProvider _serviceProvider;
         private readonly IServiceScope _scope;
 
         public EventServiceTests()
         {
-            //_eventStoreMock = new Mock<IEventStore>();
             var dbName = Guid.NewGuid().ToString();
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
@@ -26,7 +24,6 @@ namespace EventService.Tests
             _serviceProvider = services.BuildServiceProvider();
             _scope = _serviceProvider.CreateScope();
             _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
-            //_eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
         }
 
         public void Dispose()
