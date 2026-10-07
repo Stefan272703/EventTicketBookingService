@@ -17,13 +17,16 @@ namespace EventTicketBookingService.Models
 
         public int TotalSeats { get; set; }
 
-        public int AvailableSeats
-        {
-            get => _availableSeats;
-            private set => _availableSeats = value;
-        }
+        public int AvailableSeats => _availableSeats;
 
         private int _availableSeats;
+
+        public List<Booking> Bookings { get; set; }
+
+        private Event()
+        {
+            Title = null!;
+        }
 
         public Event(int totalSeats)
         {

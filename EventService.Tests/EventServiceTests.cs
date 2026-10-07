@@ -1,19 +1,35 @@
-﻿using EventTicketBookingService.Exceptions;
+﻿using EventTicketBookingService.DataAccess;
+using EventTicketBookingService.Exceptions;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace EventService.Tests
 {
-    public class EventServiceTests
+    public class EventServiceTests : IDisposable
     {
-        private readonly Mock<IEventStore> _eventStoreMock;
-        private readonly EventTicketBookingService.Services.EventService _eventService;
+        private readonly IEventService _eventService;
+        private readonly ServiceProvider _serviceProvider;
+        private readonly IServiceScope _scope;
 
         public EventServiceTests()
         {
-            _eventStoreMock = new Mock<IEventStore>();
-            _eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+            var dbName = Guid.NewGuid().ToString();
+            var services = new ServiceCollection();
+            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
+            services.AddScoped<IEventService, EventTicketBookingService.Services.EventService>();
+
+            _serviceProvider = services.BuildServiceProvider();
+            _scope = _serviceProvider.CreateScope();
+            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
+        }
+
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _serviceProvider.Dispose();
         }
 
         // Метод теста создания события при валидных данных
@@ -68,7 +84,7 @@ namespace EventService.Tests
 
 
             // Act
-            var result = _eventService.GetAllEvents("", null, null, 1, 10);
+            var result = await _eventService.GetAllEventsAsync("", null, null, 1, 10);
 
             // Assert
             Assert.NotNull(result);
@@ -101,7 +117,7 @@ namespace EventService.Tests
 
 
             // Act
-            var result = _eventService.GetEventById(1);
+            var result = await _eventService.GetEventByIdAsync(1);
 
             // Assert
             Assert.NotNull(result);
@@ -140,7 +156,7 @@ namespace EventService.Tests
             };
 
             // Act
-            var result = _eventService.UpdateEvent(id, updatedData);
+            var result = await _eventService.UpdateEventAsync(id, updatedData);
 
             // Assert
             Assert.NotNull(result);
@@ -151,7 +167,7 @@ namespace EventService.Tests
             Assert.Equal(updatedData.EndAt, result.EndAt);
 
             // Дополнительно проверка, что в in-memory все сохранилось
-            var savedEvent = _eventService.GetEventById(id);
+            var savedEvent = await _eventService.GetEventByIdAsync(id);
             Assert.NotNull(savedEvent);
             Assert.Equal(updatedData.Title, savedEvent.Title);
         }
@@ -172,7 +188,7 @@ namespace EventService.Tests
             int id = created.Id;
 
             // Act
-            var result = _eventService.DeleteEvent(id);
+            var result = await _eventService.DeleteEventAsync(id);
 
             // Assert
             Assert.NotNull(result);
@@ -181,7 +197,7 @@ namespace EventService.Tests
 
             // Проверяем, что событие не найдено
             // Act && Assert
-            Assert.Throws<ResourceNotFoundException>(() => _eventService.GetEventById(id));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(() => _eventService.GetEventByIdAsync(id));
         }
     }
 }

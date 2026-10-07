@@ -1,6 +1,9 @@
-﻿using EventTicketBookingService.Exceptions;
+﻿using EventTicketBookingService.DataAccess;
+using EventTicketBookingService.Exceptions;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,26 +11,33 @@ namespace EventService.Tests
 {
     public class EventNegativeTests
     {
-        private readonly Mock<IEventStore> _eventStoreMock;
-        private readonly EventTicketBookingService.Services.EventService _eventService;
+        private readonly IEventService _eventService;
+        private readonly ServiceProvider _serviceProvider;
+        private readonly IServiceScope _scope;
 
         public EventNegativeTests()
         {
-            _eventStoreMock = new Mock<IEventStore>();
-            _eventService = new EventTicketBookingService.Services.EventService(_eventStoreMock.Object);
+            var dbName = Guid.NewGuid().ToString();
+            var services = new ServiceCollection();
+            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
+            services.AddScoped<IEventService, EventTicketBookingService.Services.EventService>();
+
+            _serviceProvider = services.BuildServiceProvider();
+            _scope = _serviceProvider.CreateScope();
+            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
         }
 
         // Получение несуществующего события
         [Fact]
-        public void GetEventById_NonExistingId_ThrowsResourceNotFoundException()
+        public async Task GetEventById_NonExistingId_ThrowsResourceNotFoundException()
         {
             // Act && Assert
-            Assert.Throws<ResourceNotFoundException>(() => _eventService.GetEventById(999));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _eventService.GetEventByIdAsync(999));
         }
 
         // Обновление несуществующего события
         [Fact]
-        public void UpdateEvent_NonExistingId_ThrowsResourceNotFoundException()
+        public async Task UpdateEvent_NonExistingId_ThrowsResourceNotFoundException()
         {
             // Arrange
             var updateData = new EventInfo
@@ -39,14 +49,14 @@ namespace EventService.Tests
             };
 
             // Act && Assert
-            Assert.Throws<ResourceNotFoundException>(() => _eventService.UpdateEvent(999, updateData));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _eventService.UpdateEventAsync(999, updateData));
         }
         // Удалание несуществующего события
         [Fact]
-        public void DeleteEvent_NonExistingId_ThrowsResourceNotFoundException()
+        public async Task DeleteEvent_NonExistingId_ThrowsResourceNotFoundException()
         {
             // Act && Assert
-            Assert.Throws<ResourceNotFoundException>(() => _eventService.DeleteEvent(999));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _eventService.DeleteEventAsync(999));
         }
 
         // Создание события с пустым названием
@@ -63,7 +73,7 @@ namespace EventService.Tests
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<ValidationException>(() => _eventService.CreateEventAsync(invalidEvent));
+            await Assert.ThrowsAsync<ValidationException>(async () => await _eventService.CreateEventAsync(invalidEvent));
         }
 
         // Создание события с EndAt раньше StartAt
@@ -80,7 +90,7 @@ namespace EventService.Tests
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<ValidationException>(() => _eventService.CreateEventAsync(invalidEvent));
+            await Assert.ThrowsAsync<ValidationException>(async () => await _eventService.CreateEventAsync(invalidEvent));
         }
 
         // Обновление события с некорректными датами 
@@ -96,7 +106,7 @@ namespace EventService.Tests
                 EndAt = DateTime.Now.AddHours(1),
                 TotalSeats = 1
             };
-            var created = await _eventService.CreateEventAsync(validEvent);
+            var created = await _eventService?.CreateEventAsync(validEvent);
             int id = created.Id;
 
             // Подготавливаем обновление с некорректными датами
@@ -109,7 +119,7 @@ namespace EventService.Tests
             };
 
             // Act & Assert
-            Assert.Throws<ValidationException>(() => _eventService.UpdateEvent(id, invalidUpdate));
+            await Assert.ThrowsAsync<ValidationException>(async () => await _eventService.UpdateEventAsync(id, invalidUpdate));
         }
 
     }
