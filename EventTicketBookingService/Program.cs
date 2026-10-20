@@ -3,6 +3,8 @@ using EventTicketBookingService.DataAccess;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Middlewares;
 using EventTicketBookingService.Models;
+using EventTicketBookingService.Repository;
+using EventTicketBookingService.Repository.Interface;
 using EventTicketBookingService.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +28,7 @@ namespace EventTicketBookingService
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddHostedService<BookingBackgroundService>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
 
             var app = builder.Build();
 

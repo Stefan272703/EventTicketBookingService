@@ -2,6 +2,7 @@
 using EventTicketBookingService.Exceptions;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using EventTicketBookingService.Repository.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +15,13 @@ namespace EventTicketBookingService.Services
     public class EventService : IEventService
     {
         private readonly AppDbContext _context;
+        private readonly IEventRepository _eventRepository;
 
-        public EventService(AppDbContext appDbContext)
+        public EventService(AppDbContext appDbContext,
+                            IEventRepository eventRepository)
         {
             _context = appDbContext;
+            _eventRepository = eventRepository;
         }
 
         // Получить все события
@@ -28,50 +32,59 @@ namespace EventTicketBookingService.Services
             int pageSize,
             CancellationToken cancellationToken = default)
         {
-            var filteredEvents = _context.Events.AsQueryable();
-            if (!string.IsNullOrEmpty(title))
-            {
-                filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
-            }
-            if (from.HasValue)
-            {
-                filteredEvents = filteredEvents.Where(t => t.StartAt >= from.Value);
-            }
-            if (to.HasValue)
-            {
-                filteredEvents = filteredEvents.Where(t => t.EndAt <= to.Value);
-            }
+            var (items, totalCount) = await _eventRepository.GetFilteredEvents(title, from, to, page, pageSize, cancellationToken);
 
-            // Пагинация событий с результатом
-            var paginatedEvents = await GetEventsWithPagination(filteredEvents, page, pageSize, cancellationToken);
-
-            return paginatedEvents;
-        }
-
-        // Метод получения результата пагинации
-        private async Task<PaginatedResultDTO<EventInfo>> GetEventsWithPagination(
-            IQueryable<Event> entryEvents,
-            int page,
-            int pageSize,
-            CancellationToken cancellationToken = default)
-        {
-            // Общее количество событий
-            int totalCount = await entryEvents.CountAsync(cancellationToken);
-            // пагинация фильтрованного списка событий
-            var items = await entryEvents.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
-            // Количество элементов на текущей странице
-            int pageSizeByIndex = items.Count();
-
-            var paginatedResultDTO = new PaginatedResultDTO<EventInfo>
+            return new PaginatedResultDTO<EventInfo>()
             {
                 TotalCount = totalCount,
                 Events = items.Select(ToInfo).ToArray(),
                 PageIndex = page,
-                PageSizeByIndex = pageSizeByIndex
+                PageSizeByIndex = items.Count
             };
+            //var filteredEvents = _context.Events.AsQueryable();
+            //if (!string.IsNullOrEmpty(title))
+            //{
+            //    filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
+            //}
+            //if (from.HasValue)
+            //{
+            //    filteredEvents = filteredEvents.Where(t => t.StartAt >= from.Value);
+            //}
+            //if (to.HasValue)
+            //{
+            //    filteredEvents = filteredEvents.Where(t => t.EndAt <= to.Value);
+            //}
 
-            return paginatedResultDTO;
+            //// Пагинация событий с результатом
+            //var paginatedEvents = await GetEventsWithPagination(filteredEvents, page, pageSize, cancellationToken);
+
+            //return paginatedEvents;
         }
+
+        //// Метод получения результата пагинации
+        //private async Task<PaginatedResultDTO<EventInfo>> GetEventsWithPagination(
+        //    IQueryable<Event> entryEvents,
+        //    int page,
+        //    int pageSize,
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    // Общее количество событий
+        //    int totalCount = await entryEvents.CountAsync(cancellationToken);
+        //    // пагинация фильтрованного списка событий
+        //    var items = await entryEvents.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+        //    // Количество элементов на текущей странице
+        //    int pageSizeByIndex = items.Count();
+
+        //    var paginatedResultDTO = new PaginatedResultDTO<EventInfo>
+        //    {
+        //        TotalCount = totalCount,
+        //        Events = items.Select(ToInfo).ToArray(),
+        //        PageIndex = page,
+        //        PageSizeByIndex = pageSizeByIndex
+        //    };
+
+        //    return paginatedResultDTO;
+        //}
 
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
