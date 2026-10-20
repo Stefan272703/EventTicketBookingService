@@ -16,10 +16,12 @@ namespace EventTicketBookingService.Services
         private readonly IEventRepository _eventRepository;
         //private readonly AppDbContext _context;
         public BookingService(//AppDbContext appDbContext,
-                              IBookingRepository bookingRepository)
+                              IBookingRepository bookingRepository,
+                              IEventRepository eventRepository)
         {
             //_context = appDbContext;
             _bookingRepository = bookingRepository;
+            _eventRepository = eventRepository;
         }
 
         public async Task<BookingResponse> CreateBookingAsync(int eventId, CancellationToken cancellationToken = default)

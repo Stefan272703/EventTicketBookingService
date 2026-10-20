@@ -23,6 +23,14 @@ namespace EventTicketBookingService.Repository
             return _context.Bookings.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
+        public Task<List<int>> GetBookingPendingIdsAsync(CancellationToken cancellationToken)
+        {
+            return _context.Bookings
+                    .Where(b => b.Status == BookingStatus.Pending)
+                    .Select(b => b.Id).
+                    ToListAsync(cancellationToken);
+        }
+
         public async Task<int> GetNextIdAsync(CancellationToken cancellationToken = default)
         {
             if (!await _context.Bookings.AnyAsync(cancellationToken))
