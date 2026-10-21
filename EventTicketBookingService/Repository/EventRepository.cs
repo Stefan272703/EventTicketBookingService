@@ -72,7 +72,7 @@ namespace EventTicketBookingService.Repository
             // Общее количество событий
             int totalCount = await filteredEvents.CountAsync(cancellationToken);
             // пагинация фильтрованного списка событий
-            var items = await filteredEvents.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+            var items = await filteredEvents.OrderBy(i => i.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
             // Количество элементов на текущей странице
             int pageSizeByIndex = items.Count();
 
