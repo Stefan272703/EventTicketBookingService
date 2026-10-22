@@ -3,6 +3,8 @@ using EventTicketBookingService.DataAccess;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Middlewares;
 using EventTicketBookingService.Models;
+using EventTicketBookingService.Repository;
+using EventTicketBookingService.Repository.Interface;
 using EventTicketBookingService.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,13 +28,15 @@ namespace EventTicketBookingService
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddHostedService<BookingBackgroundService>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.EnsureCreated();
+                db.Database.Migrate();
             }
 
             // Configure the HTTP request pipeline.

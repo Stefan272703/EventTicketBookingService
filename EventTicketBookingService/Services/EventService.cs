@@ -2,6 +2,7 @@
 using EventTicketBookingService.Exceptions;
 using EventTicketBookingService.Interfaces;
 using EventTicketBookingService.Models;
+using EventTicketBookingService.Repository.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,14 @@ namespace EventTicketBookingService.Services
 {
     public class EventService : IEventService
     {
-        private readonly AppDbContext _context;
+        //private readonly AppDbContext _context;
+        private readonly IEventRepository _eventRepository;
 
-        public EventService(AppDbContext appDbContext)
+        public EventService(//AppDbContext appDbContext,
+                            IEventRepository eventRepository)
         {
-            _context = appDbContext;
+            //_context = appDbContext;
+            _eventRepository = eventRepository;
         }
 
         // Получить все события
@@ -28,55 +32,64 @@ namespace EventTicketBookingService.Services
             int pageSize,
             CancellationToken cancellationToken = default)
         {
-            var filteredEvents = _context.Events.AsQueryable();
-            if (!string.IsNullOrEmpty(title))
-            {
-                filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
-            }
-            if (from.HasValue)
-            {
-                filteredEvents = filteredEvents.Where(t => t.StartAt >= from.Value);
-            }
-            if (to.HasValue)
-            {
-                filteredEvents = filteredEvents.Where(t => t.EndAt <= to.Value);
-            }
+            var (items, totalCount) = await _eventRepository.GetFilteredEvents(title, from, to, page, pageSize, cancellationToken);
 
-            // Пагинация событий с результатом
-            var paginatedEvents = await GetEventsWithPagination(filteredEvents, page, pageSize, cancellationToken);
-
-            return paginatedEvents;
-        }
-
-        // Метод получения результата пагинации
-        private async Task<PaginatedResultDTO<EventInfo>> GetEventsWithPagination(
-            IQueryable<Event> entryEvents,
-            int page,
-            int pageSize,
-            CancellationToken cancellationToken = default)
-        {
-            // Общее количество событий
-            int totalCount = await entryEvents.CountAsync(cancellationToken);
-            // пагинация фильтрованного списка событий
-            var items = await entryEvents.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
-            // Количество элементов на текущей странице
-            int pageSizeByIndex = items.Count();
-
-            var paginatedResultDTO = new PaginatedResultDTO<EventInfo>
+            return new PaginatedResultDTO<EventInfo>()
             {
                 TotalCount = totalCount,
                 Events = items.Select(ToInfo).ToArray(),
                 PageIndex = page,
-                PageSizeByIndex = pageSizeByIndex
+                PageSizeByIndex = items.Count
             };
+            //var filteredEvents = _context.Events.AsQueryable();
+            //if (!string.IsNullOrEmpty(title))
+            //{
+            //    filteredEvents = filteredEvents.Where(t => t.Title.ToLower().Contains(title.ToLower()));
+            //}
+            //if (from.HasValue)
+            //{
+            //    filteredEvents = filteredEvents.Where(t => t.StartAt >= from.Value);
+            //}
+            //if (to.HasValue)
+            //{
+            //    filteredEvents = filteredEvents.Where(t => t.EndAt <= to.Value);
+            //}
 
-            return paginatedResultDTO;
+            //// Пагинация событий с результатом
+            //var paginatedEvents = await GetEventsWithPagination(filteredEvents, page, pageSize, cancellationToken);
+
+            //return paginatedEvents;
         }
+
+        //// Метод получения результата пагинации
+        //private async Task<PaginatedResultDTO<EventInfo>> GetEventsWithPagination(
+        //    IQueryable<Event> entryEvents,
+        //    int page,
+        //    int pageSize,
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    // Общее количество событий
+        //    int totalCount = await entryEvents.CountAsync(cancellationToken);
+        //    // пагинация фильтрованного списка событий
+        //    var items = await entryEvents.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+        //    // Количество элементов на текущей странице
+        //    int pageSizeByIndex = items.Count();
+
+        //    var paginatedResultDTO = new PaginatedResultDTO<EventInfo>
+        //    {
+        //        TotalCount = totalCount,
+        //        Events = items.Select(ToInfo).ToArray(),
+        //        PageIndex = page,
+        //        PageSizeByIndex = pageSizeByIndex
+        //    };
+
+        //    return paginatedResultDTO;
+        //}
 
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            var eventById = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var eventById = await _eventRepository.GetEventByIdAsync(id, cancellationToken);//_context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (eventById == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
 
@@ -94,7 +107,7 @@ namespace EventTicketBookingService.Services
             var @event = new Event(createdEvent.TotalSeats.Value)
             {
                 // ToDo: Исправить момент, когда вызываем несколько раз БД
-                Id = await _context.Events.AnyAsync(cancellationToken) ? await _context.Events.MaxAsync(x => x.Id, cancellationToken) + 1 : 1,
+                Id = await _eventRepository.GetNextIdAsync(cancellationToken),
                 Title = createdEvent.Title,                         // Название события
                 Description = createdEvent.Description,             // Описание события из тела запроса Event
                 StartAt = createdEvent.StartAt,
@@ -102,16 +115,16 @@ namespace EventTicketBookingService.Services
             };
 
             // Добаляем событие
-            await _context.Events.AddAsync(@event, cancellationToken);
+            await _eventRepository.AddEventAsync(@event, cancellationToken);//_context.Events.AddAsync(@event, cancellationToken);
             // Обновляем данные в БД
-            await _context.SaveChangesAsync(cancellationToken);
+            await _eventRepository.SaveChangesAsync(cancellationToken);
             return ToInfo(@event);
         }
 
         // Обновить событие целиком
         public async Task<Event> UpdateEventAsync(int id, EventInfo createdEvent, CancellationToken cancellationToken = default)
         {
-            var existingEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var existingEvent = await _eventRepository.GetEventByIdAsync(id, cancellationToken);//_context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (existingEvent == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
@@ -119,13 +132,10 @@ namespace EventTicketBookingService.Services
             if (createdEvent.StartAt >= createdEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            existingEvent?.Title = createdEvent.Title;
-            existingEvent?.Description = createdEvent.Description;
-            existingEvent?.StartAt = createdEvent.StartAt;
-            existingEvent?.EndAt = createdEvent.EndAt;
+            var updatedEvent = await _eventRepository.UpdateEventByIdAsync(id, createdEvent, cancellationToken);
 
             // Обновляем в БД значения
-            await _context.SaveChangesAsync(cancellationToken);
+            await _eventRepository.SaveChangesAsync(cancellationToken);
 
             return existingEvent;
         }
@@ -133,15 +143,12 @@ namespace EventTicketBookingService.Services
         // Удалить событие
         public async Task<Event> DeleteEventAsync(int id, CancellationToken cancellationToken = default)
         {
-            var delEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var delEvent = await _eventRepository.RemoveEventByIdAsync(id, cancellationToken);//_context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (delEvent == null)
                 throw new ResourceNotFoundException(delEvent, $"Не найдено событие по ID: {id}");
             
-            // Удаляем событие
-            _context.Events.Remove(delEvent);
             // Обновляем в БД значение
-            await _context.SaveChangesAsync(cancellationToken);
-            //_eventStore.RemoveEvent(delEvent);
+            await _eventRepository.SaveChangesAsync(cancellationToken);
             return delEvent;
         }
 
