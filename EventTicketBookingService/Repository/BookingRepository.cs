@@ -8,7 +8,7 @@ namespace EventTicketBookingService.Repository
     public class BookingRepository : IBookingRepository
     {
         private readonly AppDbContext _context;
-        public BookingRepository(AppDbContext context) 
+        public BookingRepository(AppDbContext context)
         {
             _context = context;
         }

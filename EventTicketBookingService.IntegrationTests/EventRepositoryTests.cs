@@ -195,7 +195,7 @@ namespace EventTicketBookingService.IntegrationTests
         [Fact]
         public async Task GetFilteredEvents_EmptyTable_ReturnsEmpty()
         {
-            var (items, total) = await _eventRepo.GetFilteredEvents(null, null, null,page : 1, pageSize: 10);
+            var (items, total) = await _eventRepo.GetFilteredEvents(null, null, null, page: 1, pageSize: 10);
 
             Assert.Equal(0, total);
             Assert.Empty(items);

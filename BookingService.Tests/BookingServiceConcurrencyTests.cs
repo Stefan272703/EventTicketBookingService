@@ -37,6 +37,7 @@ namespace BookingService.Tests
             _bookingService = _scope.ServiceProvider.GetRequiredService<IBookingService>();
         }
 
+        [Fact]
         public void Dispose()
         {
             _scope.Dispose();
@@ -69,7 +70,7 @@ namespace BookingService.Tests
                 .Select(_ => Task.Run(async () =>
                 {
                     using var scope = _serviceProvider.CreateScope();
-                    
+
                     var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
                     try
                     {
