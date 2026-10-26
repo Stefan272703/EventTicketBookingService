@@ -145,7 +145,7 @@ namespace EventTicketBookingService.Services
         {
             var delEvent = await _eventRepository.RemoveEventByIdAsync(id, cancellationToken);//_context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             if (delEvent == null)
-                throw new ResourceNotFoundException(delEvent, $"Не найдено событие по ID: {id}");
+                throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
 
             // Обновляем в БД значение
             await _eventRepository.SaveChangesAsync(cancellationToken);
