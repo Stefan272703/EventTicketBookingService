@@ -37,7 +37,6 @@ namespace BookingService.Tests
             _bookingService = _scope.ServiceProvider.GetRequiredService<IBookingService>();
         }
 
-        [Fact]
         public void Dispose()
         {
             _scope.Dispose();
