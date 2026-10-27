@@ -1,8 +1,8 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EventTicketBookingService.DataAccess.Configurations
+namespace EventTicketBookingService.Infrastructure.DataAccess.Configurations
 {
     public class BookingConfiguration : IEntityTypeConfiguration<Booking>
     {

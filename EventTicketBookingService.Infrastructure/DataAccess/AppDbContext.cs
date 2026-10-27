@@ -1,7 +1,7 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventTicketBookingService.DataAccess
+namespace EventTicketBookingService.Infrastructure.DataAccess
 {
     public class AppDbContext : DbContext
     {

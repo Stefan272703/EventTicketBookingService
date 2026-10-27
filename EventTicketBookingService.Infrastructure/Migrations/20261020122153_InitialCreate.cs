@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EventTicketBookingService.Migrations
+namespace EventTicketBookingService.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

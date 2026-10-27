@@ -1,25 +1,23 @@
-﻿using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Exceptions;
-using EventTicketBookingService.Interfaces;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository.Interface;
+﻿using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Domain.Exceptions;
+using EventTicketBookingService.Application.Interfaces;
+using EventTicketBookingService.Application.DTO;
+using EventTicketBookingService.Application.Repository.Interface;
+using EventTicketBookingService.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.ComponentModel.Design;
 
-namespace EventTicketBookingService.Services
+namespace EventTicketBookingService.Infrastructure.Services
 {
     public class BookingService : IBookingService
     {
         private static readonly SemaphoreSlim _bookingLock = new(1, 1);
         private readonly IBookingRepository _bookingRepository;
         private readonly IEventRepository _eventRepository;
-        //private readonly AppDbContext _context;
-        public BookingService(//AppDbContext appDbContext,
-                              IBookingRepository bookingRepository,
+        public BookingService(IBookingRepository bookingRepository,
                               IEventRepository eventRepository)
         {
-            //_context = appDbContext;
             _bookingRepository = bookingRepository;
             _eventRepository = eventRepository;
         }
@@ -41,16 +39,12 @@ namespace EventTicketBookingService.Services
                     Booking booking = new Booking()
                     {
                         // ToDo: Сомнительное место, так как несколько раз используется контекст
-                        //Id = await  /*_context.Bookings.AnyAsync(cancellationToken)*/ ? await _context.Bookings.MaxAsync(x => x.Id, cancellationToken) + 1 : 1,
                         Id = await _bookingRepository.GetNextIdAsync(cancellationToken),
                         EventId = eventId,
                         Status = BookingStatus.Pending,
                         CreatedAt = DateTime.UtcNow,
                         ProcessedAt = null,
                     };
-
-                    //await _context.Bookings.AddAsync(booking, cancellationToken);
-                    //await _context.SaveChangesAsync(cancellationToken);
 
                     await _bookingRepository.AddBookingAsync(booking, cancellationToken);
                     await _bookingRepository.SaveChangesAsync(cancellationToken);
@@ -75,7 +69,7 @@ namespace EventTicketBookingService.Services
 
         public async Task<Booking>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default)
         {
-            var existingBooking = await _bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);//_context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken);
+            var existingBooking = await _bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (existingBooking == null)
                 throw new ResourceNotFoundException($"Бронь с ID: {bookingId} не найдена");
             return existingBooking;
