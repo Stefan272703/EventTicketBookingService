@@ -21,7 +21,7 @@ namespace EventTicketBookingService.Models
 
         private int _availableSeats;
 
-        public List<Booking> Bookings { get; set; }
+        public List<Booking> Bookings { get; set; } = new List<Booking>();
 
         private Event()
         {
