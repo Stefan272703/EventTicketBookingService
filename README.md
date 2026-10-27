@@ -21,7 +21,24 @@
 7. Получить бронь по его ID (HTTP GET /Bookings/{id})
 
 ## Установка и запуск контейнера docker
-Данный контейнер(docker-compose_.yml) лежит в папке проекта EventTicketBookingService. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты настроены в **appsettings.json**.
+Данный контейнер(docker-compose_.yml) лежит в папке проекта EventTicketBookingService. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты настраиваются в **переменных окружениях и захватывает appsettings.json**.
+
+В docker-файле есть переменные 
+```
+${POSTGRES_USER} - имя пользователя БД,
+${POSTGRES_PASSWORD} - Пароль к БД,
+${POSTGRES_DB} - название БД
+```
+
+Чтобы их задать надо ввести значения в командной строке (Примечание: введя данные, значения сохранятся в контейнере, но если сделать docker compose -f docker-compose_.eml down -v, то данные сотрутся и может произойти ошибка подключения к БД при повторном запуске)
+
+Пример ввода данных в командной строке (должны вводиться данные в папке где находится docker-compose_.yml):
+```
+PowerShell(Windows)
+$env:POSTGRES_USER="postgres"
+$env:POSTGRES_PASSWORD="postgres"
+$env:POSTGRES_DB="eventapi"
+```
 
 Чтобы запустить данный контейнер, надо перейти в папку, в которой лежит данный файл и запустить команду
 ```
@@ -30,6 +47,24 @@ docker compose -f docker-compose_.yml up -d
 # Предупреждение! Если ввести команду снизу, то все данные с БД будут потеряны, применять в крайнем случае
 docker compose -f docker-compose_.yml down -v
 ```
+
+# Переменная для самого приложения ASP.NET Core
+Чтобы приложение подхватило переменные окружения, есть 2 способа:
+1. В Windows нажать WIN+R и набрать sysdm.cpl, далее Дополнительно -> Переменные среды -> Переменные среды пользователя для "Имя пользователя" -> создать
+
+  В Имя переменной: задать ```ConnectionStrings__DefaultConnection```
+  
+  В значение переменной передать вместо POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB значения(без кавычек), которые передавали в docker-файл: ```Host=localhost;Port=5435;Database=*POSTGRES_DB*;Username=*POSTGRES_USER*;Password=*POSTGRES_PASSWORD*```
+
+  <img width="1015" height="592" alt="image" src="https://github.com/user-attachments/assets/f8450502-a5bc-4f8c-9b68-f52ec51cb9eb" />
+
+  Затем применить все
+
+2. Через PowerShell(Windows)
+  ```$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5435;Database="Своя БД";Username="user";Password="пароль""```
+
+  Однако данные хранятся в текущей сессии и запускать можно только через dotnet run(подробнее в пункте **Сборка и запуск сервиса во 2 пункте**)
+
 Чтобы проверить, что работает контейнер можно зайти в Docker Desktop и посмотреть,что запущен eventticketbookingservice
 <img width="1263" height="705" alt="image" src="https://github.com/user-attachments/assets/ebcabe1d-13ba-44a8-a9ff-fa7d4b852325" />
 
