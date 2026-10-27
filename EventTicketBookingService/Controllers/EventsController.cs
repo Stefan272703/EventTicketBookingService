@@ -1,6 +1,5 @@
-using EventTicketBookingService.Exceptions;
-using EventTicketBookingService.Interfaces;
-using EventTicketBookingService.Models;
+using EventTicketBookingService.Application.Interfaces;
+using EventTicketBookingService.Application.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventTicketBookingService.Controllers

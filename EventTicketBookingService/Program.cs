@@ -1,11 +1,9 @@
-
-using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Interfaces;
+using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Middlewares;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository;
-using EventTicketBookingService.Repository.Interface;
-using EventTicketBookingService.Services;
+using EventTicketBookingService.Infrastructure.Repository;
+using EventTicketBookingService.Application.Repository.Interface;
+using EventTicketBookingService.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventTicketBookingService

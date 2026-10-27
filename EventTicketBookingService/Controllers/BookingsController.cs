@@ -1,5 +1,4 @@
-using EventTicketBookingService.Interfaces;
-using EventTicketBookingService.Models;
+using EventTicketBookingService.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventTicketBookingService.Controllers
