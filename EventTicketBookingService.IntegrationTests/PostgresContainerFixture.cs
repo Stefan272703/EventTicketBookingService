@@ -13,9 +13,7 @@ namespace EventTicketBookingService.IntegrationTests
     {
         private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
             .WithImage("postgres:16-alpine")
-            .WithDatabase("eventapi_test")
-            .WithUsername("postgres")
-            .WithPassword("postgres")
+            .WithDatabase("eventapi")
             .Build();
 
         public async Task InitializeAsync() => await _container.StartAsync();
@@ -28,7 +26,6 @@ namespace EventTicketBookingService.IntegrationTests
                 .UseNpgsql(_container.GetConnectionString())
                 .Options;
             var context = new AppDbContext(options);
-            //context.Database.Migrate();
             return context;
         }
 
