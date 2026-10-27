@@ -1,4 +1,4 @@
-﻿namespace EventTicketBookingService.Exceptions
+﻿namespace EventTicketBookingService.Domain.Exceptions
 {
     public class NoAvailableSeatsException : Exception
     {

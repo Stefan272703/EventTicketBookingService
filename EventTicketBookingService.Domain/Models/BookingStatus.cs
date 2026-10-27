@@ -1,4 +1,4 @@
-﻿namespace EventTicketBookingService.Models
+﻿namespace EventTicketBookingService.Domain.Models
 {
     public enum BookingStatus
     {

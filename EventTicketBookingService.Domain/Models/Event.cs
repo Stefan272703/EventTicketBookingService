@@ -1,7 +1,7 @@
-﻿using EventTicketBookingService.Attributes;
+﻿//using EventTicketBookingService.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace EventTicketBookingService.Models
+namespace EventTicketBookingService.Domain.Models
 {
     public class Event
     {

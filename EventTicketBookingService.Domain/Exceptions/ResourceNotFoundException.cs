@@ -1,6 +1,6 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Domain.Models;
 
-namespace EventTicketBookingService.Exceptions
+namespace EventTicketBookingService.Domain.Exceptions
 {
     public class ResourceNotFoundException : Exception
     {
