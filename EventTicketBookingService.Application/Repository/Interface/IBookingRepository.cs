@@ -1,6 +1,6 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Domain.Models;
 
-namespace EventTicketBookingService.Repository.Interface
+namespace EventTicketBookingService.Application.Repository.Interface
 {
     public interface IBookingRepository
     {

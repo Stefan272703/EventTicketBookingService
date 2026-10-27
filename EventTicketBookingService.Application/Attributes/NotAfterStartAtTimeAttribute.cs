@@ -1,7 +1,7 @@
-﻿using EventTicketBookingService.Models;
+﻿using EventTicketBookingService.Application.DTO;
 using System.ComponentModel.DataAnnotations;
 
-namespace EventTicketBookingService.Attributes
+namespace EventTicketBookingService.Application.Attributes
 {
     public class NotAfterStartAtTimeAttribute : ValidationAttribute
     {
