@@ -299,13 +299,14 @@ processedAt - дата завершения обработки брони
 ### Команды для создания и применения миграций
 ```
 // Создание миграции, где потом в приложении создается папка Migrations со снапшотом и датой и названием миграции(Например InitialCreate)
-dotnet ef migrations add InitialCreate
+// делать надо в корне проекта рядом  солюшен EventTicketBookingService.slnx
+dotnet ef migrations add *Имя* --project EventTicketBookingService.Infrastructure --startup-project EventTicketBookingService
 // Применение миграции,
 // При её вызове EF Core:
 // 1. Подключается к базе данных;
 // 2. Проверяет таблицу __EFMigrationsHistory, где хранится история применённых миграций, и определяет, какие из них уже были выполнены;
 // 3. Выполняет недостающие.
-dotnet ef database update /*Именование миграции*/
+dotnet ef database update /*Именование миграции*/ --project EventTicketBookingService.Infrastructure --startup-project EventTicketBookingService
 ```
 
 
