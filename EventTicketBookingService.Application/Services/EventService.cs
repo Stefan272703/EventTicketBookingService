@@ -38,7 +38,7 @@ namespace EventTicketBookingService.Application.Services
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            var eventById = await _eventRepository.GetEventByIdAsync(id, cancellationToken);//_context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var eventById = await _eventRepository.GetEventByIdAsync(id, cancellationToken);
             if (eventById == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
 
