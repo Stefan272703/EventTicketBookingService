@@ -21,11 +21,6 @@ namespace EventTicketBookingService.Controllers
         {
             var bookingById = await _bookingService.GetBookingByIdAsync(id);
 
-            if (bookingById == null)
-            {
-                return NotFound($"Не найдена бронь по Id: {id}");
-            }
-
             return Ok(bookingById);
         }
     }

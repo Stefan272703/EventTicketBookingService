@@ -39,10 +39,6 @@ namespace EventTicketBookingService.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var eventbyId = await _eventService.GetEventByIdAsync(id);
-            if (eventbyId == null)
-            {
-                return NotFound($"Не найдено событие по ID: {id}");
-            }
             return Ok(eventbyId);
 
         }
@@ -52,30 +48,18 @@ namespace EventTicketBookingService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] EventInfo createdEvent)
         {
-            if (!TryValidateModel(createdEvent))
-            {
-                return BadRequest(ModelState);
-            }
-
             var eventDTO = await _eventService.CreateEventAsync(createdEvent);
             return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
         }
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(int id, [FromBody] EventInfo createdEvent)
         {
-            if (!TryValidateModel(createdEvent))
-            {
-                return BadRequest(ModelState);
-            }
-
             var existingEvent = await _eventService.UpdateEventAsync(id, createdEvent);
-            if (existingEvent == null)
-            {
-                return NotFound($"Данного события не существует по id {id}");
-            }
+
             return Ok(existingEvent);
         }
 
@@ -85,10 +69,7 @@ namespace EventTicketBookingService.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var delEvent = await _eventService.DeleteEventAsync(id);
-            if (delEvent == null)
-            {
-                return NotFound($"Данного события не существует по id {id}");
-            }
+
             return NoContent();
         }
 
