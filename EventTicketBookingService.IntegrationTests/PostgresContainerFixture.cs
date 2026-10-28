@@ -1,21 +1,14 @@
-﻿using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Repository;
+﻿using EventTicketBookingService.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Testcontainers.PostgreSql;
 
 namespace EventTicketBookingService.IntegrationTests
 {
     public class PostgresContainerFixture : IAsyncLifetime
     {
-        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("eventapi_test")
-            .WithUsername("postgres")
-            .WithPassword("postgres")
+        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:16-alpine")
+            .WithDatabase("eventapi")
             .Build();
 
         public async Task InitializeAsync() => await _container.StartAsync();
@@ -28,7 +21,6 @@ namespace EventTicketBookingService.IntegrationTests
                 .UseNpgsql(_container.GetConnectionString())
                 .Options;
             var context = new AppDbContext(options);
-            //context.Database.Migrate();
             return context;
         }
 

@@ -1,4 +1,4 @@
-﻿using EventTicketBookingService.Exceptions;
+﻿using EventTicketBookingService.Domain.Exceptions;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventTicketBookingService.Middlewares

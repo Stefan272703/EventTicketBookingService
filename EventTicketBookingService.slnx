@@ -1,6 +1,9 @@
 <Solution>
   <Project Path="BookingService.Tests/BookingService.Tests.csproj" Id="4b39141b-eb5e-4c81-82e2-81330aa6081e" />
   <Project Path="EventService.Tests/EventService.Tests.csproj" Id="46a3ec4c-4ac2-465f-a2d1-a392b46aec50" />
+  <Project Path="EventTicketBookingService.Application/EventTicketBookingService.Application.csproj" />
+  <Project Path="EventTicketBookingService.Domain/EventTicketBookingService.Domain.csproj" />
+  <Project Path="EventTicketBookingService.Infrastructure/EventTicketBookingService.Infrastructure.csproj" />
   <Project Path="EventTicketBookingService.IntegrationTests/EventTicketBookingService.IntegrationTests.csproj" Id="89334746-ee97-4cdf-882b-18b89bdb2c26" />
   <Project Path="EventTicketBookingService/EventTicketBookingService.csproj" />
 </Solution>

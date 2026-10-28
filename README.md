@@ -20,8 +20,56 @@
 6. Создать бронь конкретного мероприятия по ID (HTTP POST /Events/{id}/book)
 7. Получить бронь по его ID (HTTP GET /Bookings/{id})
 
+## Структура проекта и назначение каждого слоя:
+Структура Приложения на ASP.NET Core создана согласно принципам чистой архитектуры (_Clean Architecture_), где каждый файл, отвечающий за свою роль (интерфейс, реализация, репозиторий, Доменная сущность и т.д), находится в определенном слое приложения для разделения на собственные задачи.
+
+Данные принципы чистой архитектуры позволяют правильно делать отношение слоев друг с другом, чтобы не впутывать логику в другие слои.
+
+Картинка. Как выглядят слои приложения согласно чистой архитектуре
+<img width="2880" height="2300" alt="image" src="https://github.com/user-attachments/assets/e03a7e6f-69ab-40a9-bb1a-1ea0bdf95205" />
+
+Данное приложение имеет 4 слоя:
+
+1. **EventTicketBookingService.Domain** - Центральный слой, ядро системы. Здесь определены классы бизнес-сущностей и правила бизнес-логики (В данном слое определены классы бизнес-сущностей и доменных исключений)
+<img width="340" height="221" alt="image" src="https://github.com/user-attachments/assets/7ebb7eae-b483-4d31-b24c-1207d803a43d" />
+
+2. **EventTicketBookingService.Application** - Слой, в котором описывается решение конкретных задач пользователя (интерфейсы, реализация сервисов, DTO, аттрибуты). Зависит от слоя Domain, так как работате с бизнес-сущностями
+<img width="331" height="456" alt="image" src="https://github.com/user-attachments/assets/4b59adfc-3d24-4202-83ed-0a6d166c3aaa" />
+
+3. **EventTicketBookingService.Infrastructure** - Слой, в котором определяется работа с инфраструктурой - сервером СУБД, кешированием, внешними зависимостями. Здесь находится реализация репозиториев и настройка конфигураций БД, а также миграций
+<img width="339" height="311" alt="image" src="https://github.com/user-attachments/assets/262bb45a-ab33-4ae2-92ab-7c5478d59838" />
+
+4. **EventTicketBookingService (Presntation)** - Слой, предоставляющий пользователю (или клиентскому приложению) доступ к реализуемым Use Case. Здесь могут быть объявлены контроллеры или minimal-api эндпоинты, предоставляющие API для фронтенда, view-модели для представления данных и тому подобное.
+<img width="333" height="364" alt="image" src="https://github.com/user-attachments/assets/b49bec09-5856-4122-8991-f16e1e844fd3" />
+
+
+Картинка связей слоев в проекте
+
+<img width="2880" height="1428" alt="image" src="https://github.com/user-attachments/assets/b71c794a-adf0-42e8-980d-5735a8783df2" />
+
+Скриншот. Приложение разделено на 4 проекта согласно слоям
+
+<img width="346" height="220" alt="image" src="https://github.com/user-attachments/assets/58b83fa0-7673-4ee5-b203-6e7450de9be1" />
+
 ## Установка и запуск контейнера docker
-Данный контейнер(docker-compose_.yml) лежит в папке проекта EventTicketBookingService. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты настроены в **appsettings.json**.
+Данный контейнер(docker-compose_.yml) лежит в папке проекта EventTicketBookingService. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты настраиваются в **переменных окружениях и захватывает appsettings.json**.
+
+В docker-файле есть переменные 
+```
+${POSTGRES_USER} - имя пользователя БД,
+${POSTGRES_PASSWORD} - Пароль к БД,
+${POSTGRES_DB} - название БД
+```
+
+Чтобы их задать надо ввести значения в командной строке (Примечание: введя данные, значения сохранятся в контейнере, но если сделать docker compose -f docker-compose_.eml down -v, то данные сотрутся и может произойти ошибка подключения к БД при повторном запуске)
+
+Пример ввода данных в командной строке (должны вводиться данные в папке где находится docker-compose_.yml):
+```
+PowerShell(Windows)
+$env:POSTGRES_USER="postgres"
+$env:POSTGRES_PASSWORD="postgres"
+$env:POSTGRES_DB="eventapi"
+```
 
 Чтобы запустить данный контейнер, надо перейти в папку, в которой лежит данный файл и запустить команду
 ```
@@ -30,6 +78,24 @@ docker compose -f docker-compose_.yml up -d
 # Предупреждение! Если ввести команду снизу, то все данные с БД будут потеряны, применять в крайнем случае
 docker compose -f docker-compose_.yml down -v
 ```
+
+# Переменная для самого приложения ASP.NET Core
+Чтобы приложение подхватило переменные окружения, есть 2 способа:
+1. В Windows нажать WIN+R и набрать sysdm.cpl, далее Дополнительно -> Переменные среды -> Переменные среды пользователя для "Имя пользователя" -> создать
+
+  В Имя переменной: задать ```ConnectionStrings__DefaultConnection```
+  
+  В значение переменной передать вместо POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB значения(без кавычек), которые передавали в docker-файл: ```Host=localhost;Port=5435;Database=*POSTGRES_DB*;Username=*POSTGRES_USER*;Password=*POSTGRES_PASSWORD*```
+
+  <img width="1015" height="592" alt="image" src="https://github.com/user-attachments/assets/f8450502-a5bc-4f8c-9b68-f52ec51cb9eb" />
+
+  Затем применить все
+
+2. Через PowerShell(Windows)
+  ```$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5435;Database="Своя БД";Username="user";Password="пароль""```
+
+  Однако данные хранятся в текущей сессии и запускать можно только через dotnet run(подробнее в пункте **Сборка и запуск сервиса во 2 пункте**)
+
 Чтобы проверить, что работает контейнер можно зайти в Docker Desktop и посмотреть,что запущен eventticketbookingservice
 <img width="1263" height="705" alt="image" src="https://github.com/user-attachments/assets/ebcabe1d-13ba-44a8-a9ff-fa7d4b852325" />
 
@@ -68,7 +134,9 @@ docker compose -f docker-compose_.yml down -v
 1) dotnet build
 2) dotnet test 
 
-Тесты используют InMemory-провайдеры, то есть имитируется взаимодействие приложения с БД, используя ресурсы не самого БД, а приложения, что позволяет избежать добавления данных в БД во время юнит-тестирования. 
+Юнит-Тесты используют InMemory-провайдеры, то есть имитируется взаимодействие приложения с БД, используя ресурсы не самого БД, а приложения, что позволяет избежать добавления данных в БД во время юнит-тестирования. 
+
+Интеграционные тесты используют TestContainers, чтобы проверять работу не самого приложения, а самой БД (каскадное удаление, изменение, удаление, обновление, создание, получение данных) через команды приложения. Для работы интеграционных тестов необходимо, чтобы был запущен docker
 
 ### Swagger
 Данный инструмент предназначен для тестирования работы HTTP-методов, прописанных в контроллере ASP.NET Core.
@@ -231,13 +299,14 @@ processedAt - дата завершения обработки брони
 ### Команды для создания и применения миграций
 ```
 // Создание миграции, где потом в приложении создается папка Migrations со снапшотом и датой и названием миграции(Например InitialCreate)
-dotnet ef migrations add InitialCreate
+// делать надо в корне проекта рядом  солюшен EventTicketBookingService.slnx
+dotnet ef migrations add *Имя* --project EventTicketBookingService.Infrastructure --startup-project EventTicketBookingService
 // Применение миграции,
 // При её вызове EF Core:
 // 1. Подключается к базе данных;
 // 2. Проверяет таблицу __EFMigrationsHistory, где хранится история применённых миграций, и определяет, какие из них уже были выполнены;
 // 3. Выполняет недостающие.
-dotnet ef database update /*Именование миграции*/
+dotnet ef database update /*Именование миграции*/ --project EventTicketBookingService.Infrastructure --startup-project EventTicketBookingService
 ```
 
 

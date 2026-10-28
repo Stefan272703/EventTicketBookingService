@@ -1,13 +1,11 @@
-﻿using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Interfaces;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository;
-using EventTicketBookingService.Repository.Interface;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
+﻿using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Application.Interfaces;
+using EventTicketBookingService.Domain.Models;
+using EventTicketBookingService.Infrastructure.Repository;
+using EventTicketBookingService.Application.Repository.Interface;
+using EventTicketBookingService.Application.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Moq;
 
 namespace BookingService.Tests
 {
@@ -24,8 +22,8 @@ namespace BookingService.Tests
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase(dbName));
-            services.AddScoped<IEventService, EventTicketBookingService.Services.EventService>();
-            services.AddScoped<IBookingService, EventTicketBookingService.Services.BookingService>();
+            services.AddScoped<IEventService, EventTicketBookingService.Application.Services.EventService>();
+            services.AddScoped<IBookingService, EventTicketBookingService.Application.Services.BookingService>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IBookingRepository, BookingRepository>();
 
@@ -104,27 +102,6 @@ namespace BookingService.Tests
             Assert.Equal(result.Id, created.Id);
             Assert.Equal(eventId, result.EventId);
             Assert.Equal(BookingStatus.Pending, result.Status);
-        }
-
-        // Получение брони отражает изменение статуса (после Confirm/Reject).
-        [Fact]
-        public async Task GetBookingByIdAsync_AfterStatusChange_ReflectsUpdatedStatus()
-        {
-            // Arrange
-            var eventId = await CreateTestEventAsync();
-
-            var created = await _bookingService.CreateBookingAsync(eventId);
-            var booking = await _bookingService.GetBookingByIdAsync(created.Id);
-            booking.Confirm();
-            var bookingId = created.Id;
-
-            // Act
-            var updated = await _bookingService.GetBookingByIdAsync(bookingId);
-
-            // Assert
-            Assert.NotNull(updated);
-            Assert.Equal(BookingStatus.Confirmed, updated.Status);
-            Assert.NotNull(updated.ProcessedAt);
         }
     }
 }

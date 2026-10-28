@@ -1,12 +1,11 @@
-
-using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Interfaces;
+using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Middlewares;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository;
-using EventTicketBookingService.Repository.Interface;
-using EventTicketBookingService.Services;
+using EventTicketBookingService.Infrastructure.Repository;
+using EventTicketBookingService.Application.Repository.Interface;
+using EventTicketBookingService.Application.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace EventTicketBookingService
 {
@@ -20,7 +19,9 @@ namespace EventTicketBookingService
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(
+                options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();

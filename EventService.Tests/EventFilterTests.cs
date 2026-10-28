@@ -1,8 +1,8 @@
-﻿using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Interfaces;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository;
-using EventTicketBookingService.Repository.Interface;
+﻿using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Application.Interfaces;
+using EventTicketBookingService.Infrastructure.Repository;
+using EventTicketBookingService.Application.Repository.Interface;
+using EventTicketBookingService.Application.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -21,7 +21,7 @@ namespace EventService.Tests
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
             services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IEventService, EventTicketBookingService.Services.EventService>();
+            services.AddScoped<IEventService, EventTicketBookingService.Application.Services.EventService>();
 
             _serviceProvider = services.BuildServiceProvider();
             _scope = _serviceProvider.CreateScope();

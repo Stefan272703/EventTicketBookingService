@@ -1,5 +1,4 @@
-using EventTicketBookingService.Interfaces;
-using EventTicketBookingService.Models;
+using EventTicketBookingService.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventTicketBookingService.Controllers
@@ -21,11 +20,6 @@ namespace EventTicketBookingService.Controllers
         public async Task<IActionResult> GetBookingById(int id)
         {
             var bookingById = await _bookingService.GetBookingByIdAsync(id);
-
-            if (bookingById == null)
-            {
-                return NotFound($"Не найдена бронь по Id: {id}");
-            }
 
             return Ok(bookingById);
         }
