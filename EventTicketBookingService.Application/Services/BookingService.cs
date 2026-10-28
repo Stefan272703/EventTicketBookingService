@@ -49,8 +49,8 @@ namespace EventTicketBookingService.Application.Services
                     {
                         Id = booking.Id,
                         EventId = booking.EventId,
-                        Status = BookingStatus.Pending,
-                        CreatedAt = DateTime.UtcNow
+                        Status = booking.Status,
+                        CreatedAt = booking.CreatedAt
                     };
 
                     return response;
