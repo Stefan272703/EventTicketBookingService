@@ -81,8 +81,6 @@ namespace EventTicketBookingService.Application.Services
             if (createdEvent.StartAt >= createdEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            //var updatedEvent = await _eventRepository.UpdateEventByIdAsync(id, createdEvent, cancellationToken);
-
             existingEvent?.Title = createdEvent.Title;
             existingEvent?.Description = createdEvent.Description;
             existingEvent?.StartAt = createdEvent.StartAt;
