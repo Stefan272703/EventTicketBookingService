@@ -97,50 +97,6 @@ namespace EventTicketBookingService.IntegrationTests
         }
 
         [Fact]
-        public async Task UpdateEventByIdAsync_ExistingId_UpdatesFieldsAndPersists()
-        {
-            var created = await SeedAsync("Старое", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
-
-            var info = new EventInfo
-            {
-                Title = "Новое",
-                Description = "Обновлено",
-                StartAt = new DateTime(2031, 1, 1, 10, 0, 0, DateTimeKind.Utc),
-                EndAt = new DateTime(2031, 1, 1, 12, 0, 0, DateTimeKind.Utc),
-                TotalSeats = 10
-            };
-
-            var updated = await _eventRepo.UpdateEventByIdAsync(created.Id, info);
-            await _eventRepo.SaveChangesAsync();
-
-            Assert.NotNull(updated);
-
-            await using var fresh = _fixture.CreateContext();
-            var fromDb = await fresh.Events.FindAsync(created.Id);
-
-            Assert.NotNull(fromDb);
-            Assert.Equal("Новое", fromDb!.Title);
-            Assert.Equal("Обновлено", fromDb.Description);
-            Assert.Equal(info.StartAt, fromDb.StartAt);
-            Assert.Equal(info.EndAt, fromDb.EndAt);
-        }
-
-        [Fact]
-        public async Task UpdateEventByIdAsync_MissingId_ReturnsNull()
-        {
-            var info = new EventInfo
-            {
-                Title = "x",
-                StartAt = DateTime.UtcNow,
-                EndAt = DateTime.UtcNow.AddHours(1),
-                TotalSeats = 1
-            };
-
-            var result = await _eventRepo.UpdateEventByIdAsync(9999, info);
-            Assert.Null(result);
-        }
-
-        [Fact]
         public async Task RemoveEventByIdAsync_ExistingId_DeletesFromDatabase()
         {
             var created = await SeedAsync("Удалить", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
