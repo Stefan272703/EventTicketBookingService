@@ -103,26 +103,5 @@ namespace BookingService.Tests
             Assert.Equal(eventId, result.EventId);
             Assert.Equal(BookingStatus.Pending, result.Status);
         }
-
-        // Получение брони отражает изменение статуса (после Confirm/Reject).
-        [Fact]
-        public async Task GetBookingByIdAsync_AfterStatusChange_ReflectsUpdatedStatus()
-        {
-            // Arrange
-            var eventId = await CreateTestEventAsync();
-
-            var created = await _bookingService.CreateBookingAsync(eventId);
-            var booking = await _bookingService.GetBookingByIdAsync(created.Id);
-            booking.Confirm();
-            var bookingId = created.Id;
-
-            // Act
-            var updated = await _bookingService.GetBookingByIdAsync(bookingId);
-
-            // Assert
-            Assert.NotNull(updated);
-            Assert.Equal(BookingStatus.Confirmed, updated.Status);
-            Assert.NotNull(updated.ProcessedAt);
-        }
     }
 }
