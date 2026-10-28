@@ -3,7 +3,7 @@ using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Middlewares;
 using EventTicketBookingService.Infrastructure.Repository;
 using EventTicketBookingService.Application.Repository.Interface;
-using EventTicketBookingService.Infrastructure.Services;
+using EventTicketBookingService.Application.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventTicketBookingService
