@@ -19,7 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventTicketBookingService\EventTicketBookingService.csproj" />
+    <ProjectReference Include="..\EventTicketBookingService.Application\EventTicketBookingService.Application.csproj" />
+    <ProjectReference Include="..\EventTicketBookingService.Infrastructure\EventTicketBookingService.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

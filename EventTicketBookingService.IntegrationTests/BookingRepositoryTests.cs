@@ -1,10 +1,7 @@
-﻿using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository;
+﻿using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Domain.Models;
+using EventTicketBookingService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventTicketBookingService.IntegrationTests
 {

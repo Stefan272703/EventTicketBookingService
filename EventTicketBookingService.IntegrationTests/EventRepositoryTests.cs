@@ -1,10 +1,8 @@
-﻿using EventTicketBookingService.DataAccess;
-using EventTicketBookingService.Models;
-using EventTicketBookingService.Repository;
-using EventTicketBookingService.Repository.Interface;
+﻿using EventTicketBookingService.Infrastructure.DataAccess;
+using EventTicketBookingService.Domain.Models;
+using EventTicketBookingService.Infrastructure.Repository;
+using EventTicketBookingService.Application.DTO;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Testcontainers.PostgreSql;
 
 namespace EventTicketBookingService.IntegrationTests
 {
