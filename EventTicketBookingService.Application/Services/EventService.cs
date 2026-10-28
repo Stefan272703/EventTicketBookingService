@@ -1,17 +1,11 @@
-﻿using EventTicketBookingService.Infrastructure.DataAccess;
-using EventTicketBookingService.Domain.Exceptions;
+﻿using EventTicketBookingService.Domain.Exceptions;
 using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Domain.Models;
 using EventTicketBookingService.Application.Repository.Interface;
 using EventTicketBookingService.Application.DTO;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 
-namespace EventTicketBookingService.Infrastructure.Services
+namespace EventTicketBookingService.Application.Services
 {
     public class EventService : IEventService
     {

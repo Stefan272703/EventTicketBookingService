@@ -1,14 +1,10 @@
-﻿using EventTicketBookingService.Infrastructure.DataAccess;
-using EventTicketBookingService.Domain.Exceptions;
+﻿using EventTicketBookingService.Domain.Exceptions;
 using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Application.DTO;
 using EventTicketBookingService.Application.Repository.Interface;
 using EventTicketBookingService.Domain.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Concurrent;
-using System.ComponentModel.Design;
 
-namespace EventTicketBookingService.Infrastructure.Services
+namespace EventTicketBookingService.Application.Services
 {
     public class BookingService : IBookingService
     {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventTicketBookingService.Infrastructure.Services
+namespace EventTicketBookingService.Application.Services
 {
     public class BookingBackgroundService : BackgroundService
     {
