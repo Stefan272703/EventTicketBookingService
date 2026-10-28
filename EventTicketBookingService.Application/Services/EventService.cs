@@ -71,9 +71,9 @@ namespace EventTicketBookingService.Application.Services
         }
 
         // Обновить событие целиком
-        public async Task<Event> UpdateEventAsync(int id, EventInfo createdEvent, CancellationToken cancellationToken = default)
+        public async Task<EventInfo> UpdateEventAsync(int id, EventInfo createdEvent, CancellationToken cancellationToken = default)
         {
-            var existingEvent = await _eventRepository.GetEventByIdAsync(id, cancellationToken);//_context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var existingEvent = await _eventRepository.GetEventByIdAsync(id, cancellationToken);
             if (existingEvent == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
             if (string.IsNullOrWhiteSpace(createdEvent.Title))
@@ -86,11 +86,11 @@ namespace EventTicketBookingService.Application.Services
             // Обновляем в БД значения
             await _eventRepository.SaveChangesAsync(cancellationToken);
 
-            return existingEvent;
+            return ToInfo(existingEvent);
         }
 
         // Удалить событие
-        public async Task<Event> DeleteEventAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<EventInfo> DeleteEventAsync(int id, CancellationToken cancellationToken = default)
         {
             var delEvent = await _eventRepository.RemoveEventByIdAsync(id, cancellationToken);
             if (delEvent == null)
@@ -98,7 +98,7 @@ namespace EventTicketBookingService.Application.Services
 
             // Обновляем в БД значение
             await _eventRepository.SaveChangesAsync(cancellationToken);
-            return delEvent;
+            return ToInfo(delEvent);
         }
 
 

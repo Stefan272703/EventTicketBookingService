@@ -11,5 +11,7 @@ namespace EventTicketBookingService.Application.DTO
         public BookingStatus Status { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public DateTime? ProcessedAt { get; set; }
     }
 }

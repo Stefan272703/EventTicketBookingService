@@ -63,12 +63,21 @@ namespace EventTicketBookingService.Application.Services
             }
         }
 
-        public async Task<Booking>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default)
+        public async Task<BookingResponse>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default)
         {
             var existingBooking = await _bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (existingBooking == null)
                 throw new ResourceNotFoundException($"Бронь с ID: {bookingId} не найдена");
-            return existingBooking;
+            return ToInfo(existingBooking);
         }
+
+        private static BookingResponse ToInfo(Booking booking) => new BookingResponse
+        {
+            Id = booking.Id,
+            EventId = booking.EventId,
+            Status = booking.Status,
+            CreatedAt = booking.CreatedAt,
+            ProcessedAt = booking.ProcessedAt,
+        };
     }
 }

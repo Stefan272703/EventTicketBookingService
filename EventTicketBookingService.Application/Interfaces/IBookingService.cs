@@ -9,6 +9,6 @@ namespace EventTicketBookingService.Application.Interfaces
         public Task<BookingResponse>? CreateBookingAsync(int eventId, CancellationToken cancellationToken = default);
 
         // Получение брони по идентификатору
-        public Task<Booking>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default);
+        public Task<BookingResponse>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default);
     }
 }

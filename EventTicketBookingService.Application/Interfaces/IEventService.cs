@@ -13,7 +13,7 @@ namespace EventTicketBookingService.Application.Interfaces
             CancellationToken cancellationToken = default);
         public Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default);
         public Task<EventInfo?>? CreateEventAsync(EventInfo createdEvent, CancellationToken cancellationToken = default);
-        public Task<Event> UpdateEventAsync(int id, EventInfo createdEvent, CancellationToken cancellationToken = default);
-        public Task<Event> DeleteEventAsync(int id, CancellationToken cancellationToken = default);
+        public Task<EventInfo> UpdateEventAsync(int id, EventInfo createdEvent, CancellationToken cancellationToken = default);
+        public Task<EventInfo> DeleteEventAsync(int id, CancellationToken cancellationToken = default);
     }
 }
