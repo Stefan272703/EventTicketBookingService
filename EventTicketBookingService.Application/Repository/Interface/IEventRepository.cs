@@ -8,7 +8,7 @@ namespace EventTicketBookingService.Application.Repository.Interface
         public Task<Event?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default);
         public Task<int> GetNextIdAsync(CancellationToken cancellationToken = default);
         public Task AddEventAsync(Event @event, CancellationToken cancellationToken = default);
-        public Task<Event?> UpdateEventByIdAsync(int id, EventInfo eventInfo, CancellationToken cancellationToken = default);
+        //public Task<Event?> UpdateEventByIdAsync(int id, EventInfo eventInfo, CancellationToken cancellationToken = default);
         public Task<Event?> RemoveEventByIdAsync(int id, CancellationToken cancellationToken = default);
 
         public Task<(IReadOnlyList<Event?> items, int totalCount)> GetFilteredEvents(string title,

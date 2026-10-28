@@ -35,19 +35,19 @@ namespace EventTicketBookingService.Infrastructure.Repository
             return existingEvent;
         }
 
-        public async Task<Event?> UpdateEventByIdAsync(int id, EventInfo eventInfo, CancellationToken cancellationToken = default)
-        {
-            var existingEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-            if (existingEvent == null)
-                return null;
+        //public async Task<Event?> UpdateEventByIdAsync(int id, EventInfo eventInfo, CancellationToken cancellationToken = default)
+        //{
+        //    var existingEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        //    if (existingEvent == null)
+        //        return null;
 
-            existingEvent?.Title = eventInfo.Title;
-            existingEvent?.Description = eventInfo.Description;
-            existingEvent?.StartAt = eventInfo.StartAt;
-            existingEvent?.EndAt = eventInfo.EndAt;
+        //    existingEvent?.Title = eventInfo.Title;
+        //    existingEvent?.Description = eventInfo.Description;
+        //    existingEvent?.StartAt = eventInfo.StartAt;
+        //    existingEvent?.EndAt = eventInfo.EndAt;
 
-            return existingEvent;
-        }
+        //    return existingEvent;
+        //}
 
         public async Task<(IReadOnlyList<Event?> items, int totalCount)> GetFilteredEvents(string title,
             DateTime? from,
