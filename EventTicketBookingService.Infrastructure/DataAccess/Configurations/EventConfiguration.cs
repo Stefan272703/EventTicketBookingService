@@ -14,8 +14,7 @@ namespace EventTicketBookingService.Infrastructure.DataAccess.Configurations
             builder.HasKey(e => e.Id);
             // Само приложение сгенерирует Id
             builder.Property(e => e.Id)
-                .HasColumnName("id")
-                .ValueGeneratedNever();
+                .HasColumnName("id");
             // Title обязателен и имеет размер в 200 символов
             builder.Property(e => e.Title)
                 .HasColumnName("title")

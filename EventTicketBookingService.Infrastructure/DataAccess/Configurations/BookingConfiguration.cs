@@ -14,8 +14,7 @@ namespace EventTicketBookingService.Infrastructure.DataAccess.Configurations
             builder.HasKey(b => b.Id);
             // Само приложение сгенерирует Id
             builder.Property(b => b.Id)
-                .HasColumnName("id")
-                .ValueGeneratedNever();
+                .HasColumnName("id");
             // EventId обязательно
             builder.Property(b => b.EventId)
                 .HasColumnName("event_id")
