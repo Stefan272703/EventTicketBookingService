@@ -69,20 +69,21 @@ namespace EventTicketBookingService.Application.Services
         }
 
         // Обновить событие целиком
-        public async Task<EventInfo> UpdateEventAsync(int id, EventInfo createdEvent, CancellationToken cancellationToken = default)
+        public async Task<EventInfo> UpdateEventAsync(int id, EventInfo updatedEvent, CancellationToken cancellationToken = default)
         {
             var existingEvent = await _eventRepository.GetEventByIdAsync(id, cancellationToken);
             if (existingEvent == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
-            if (string.IsNullOrWhiteSpace(createdEvent.Title))
+            if (string.IsNullOrWhiteSpace(updatedEvent.Title))
                 throw new ValidationException("Title не может быть пустым");
-            if (createdEvent.StartAt >= createdEvent.EndAt)
+            if (updatedEvent.StartAt >= updatedEvent.EndAt)
                 throw new ValidationException("Конец события должен быть позже начала события");
 
-            existingEvent?.Title = createdEvent.Title;
-            existingEvent?.Description = createdEvent.Description;
-            existingEvent?.StartAt = createdEvent.StartAt;
-            existingEvent?.EndAt = createdEvent.EndAt;
+            existingEvent.Update(
+                updatedEvent.Title,
+                updatedEvent.Description,
+                updatedEvent.StartAt,
+                updatedEvent.EndAt);
 
             // Обновляем в БД значения
             await _eventRepository.SaveChangesAsync(cancellationToken);
