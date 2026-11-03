@@ -17,16 +17,19 @@ namespace EventTicketBookingService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("EventTicketBookingService.Models.Booking", b =>
+            modelBuilder.Entity("EventTicketBookingService.Domain.Models.Booking", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -53,11 +56,14 @@ namespace EventTicketBookingService.Infrastructure.Migrations
                     b.ToTable("bookings", (string)null);
                 });
 
-            modelBuilder.Entity("EventTicketBookingService.Models.Event", b =>
+            modelBuilder.Entity("EventTicketBookingService.Domain.Models.Event", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AvailableSeats")
                         .HasColumnType("integer")
@@ -91,9 +97,9 @@ namespace EventTicketBookingService.Infrastructure.Migrations
                     b.ToTable("events", (string)null);
                 });
 
-            modelBuilder.Entity("EventTicketBookingService.Models.Booking", b =>
+            modelBuilder.Entity("EventTicketBookingService.Domain.Models.Booking", b =>
                 {
-                    b.HasOne("EventTicketBookingService.Models.Event", "Event")
+                    b.HasOne("EventTicketBookingService.Domain.Models.Event", "Event")
                         .WithMany("Bookings")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -102,7 +108,7 @@ namespace EventTicketBookingService.Infrastructure.Migrations
                     b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("EventTicketBookingService.Models.Event", b =>
+            modelBuilder.Entity("EventTicketBookingService.Domain.Models.Event", b =>
                 {
                     b.Navigation("Bookings");
                 });
