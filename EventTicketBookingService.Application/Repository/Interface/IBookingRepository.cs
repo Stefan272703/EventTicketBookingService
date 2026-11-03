@@ -8,6 +8,5 @@ namespace EventTicketBookingService.Application.Repository.Interface
         public Task<List<int>> GetBookingPendingIdsAsync(CancellationToken cancellationToken);
         public Task AddBookingAsync(Booking booking, CancellationToken cancellationToken = default);
         public Task SaveChangesAsync(CancellationToken cancellationToken = default);
-        public Task<int> GetNextIdAsync(CancellationToken cancellationToken = default);
     }
 }
