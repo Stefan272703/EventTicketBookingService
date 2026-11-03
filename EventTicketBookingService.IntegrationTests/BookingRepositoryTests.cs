@@ -57,7 +57,6 @@ namespace EventTicketBookingService.IntegrationTests
             var createdAt = new DateTime(2030, 1, 1, 10, 0, 0, DateTimeKind.Utc);
             var b = new Booking
             {
-                Id = await _bookingRepo.GetNextIdAsync(),
                 EventId = e.Id,
                 Status = BookingStatus.Pending,
                 CreatedAt = createdAt
@@ -82,7 +81,6 @@ namespace EventTicketBookingService.IntegrationTests
             var e = await SeedEventAsync();
             var b = new Booking
             {
-                Id = await _bookingRepo.GetNextIdAsync(),
                 EventId = e.Id,
                 Status = BookingStatus.Pending,
                 CreatedAt = DateTime.UtcNow
@@ -102,7 +100,6 @@ namespace EventTicketBookingService.IntegrationTests
             // Если FK нет — тест упадёт, потому что SaveChanges пройдёт без ошибки.
             var b = new Booking
             {
-                Id = await _bookingRepo.GetNextIdAsync(),
                 EventId = 9999,                 // такого события нет
                 Status = BookingStatus.Pending,
                 CreatedAt = DateTime.UtcNow
@@ -110,22 +107,6 @@ namespace EventTicketBookingService.IntegrationTests
             await _bookingRepo.AddBookingAsync(b);
 
             await Assert.ThrowsAsync<DbUpdateException>(() => _bookingRepo.SaveChangesAsync());
-        }
-
-        [Fact]
-        public async Task GetNextIdAsync_Empty_ReturnsOne()
-        {
-            Assert.Equal(1, await _bookingRepo.GetNextIdAsync());
-        }
-
-        [Fact]
-        public async Task GetNextIdAsync_NonEmpty_ReturnsMaxPlusOne()
-        {
-            var e = await SeedEventAsync();
-            await SeedBookingAsync(e.Id);
-            await SeedBookingAsync(e.Id);
-
-            Assert.Equal(3, await _bookingRepo.GetNextIdAsync());
         }
 
         [Fact]
@@ -217,7 +198,6 @@ namespace EventTicketBookingService.IntegrationTests
         {
             var e = new Event(totalSeats)
             {
-                Id = await _eventRepo.GetNextIdAsync(),
                 Title = "Событие",
                 Description = "Описание",
                 StartAt = DateTime.UtcNow,
@@ -310,7 +290,6 @@ namespace EventTicketBookingService.IntegrationTests
         {
             var b = new Booking
             {
-                Id = await _bookingRepo.GetNextIdAsync(),
                 EventId = eventId,
                 Status = status,
                 CreatedAt = DateTime.UtcNow
