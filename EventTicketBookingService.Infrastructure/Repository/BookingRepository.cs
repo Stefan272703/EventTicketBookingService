@@ -31,14 +31,6 @@ namespace EventTicketBookingService.Infrastructure.Repository
                     ToListAsync(cancellationToken);
         }
 
-        public async Task<int> GetNextIdAsync(CancellationToken cancellationToken = default)
-        {
-            if (!await _context.Bookings.AnyAsync(cancellationToken))
-                return 1;
-
-            return await _context.Bookings.MaxAsync(x => x.Id, cancellationToken) + 1;
-        }
-
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return _context.SaveChangesAsync(cancellationToken);
