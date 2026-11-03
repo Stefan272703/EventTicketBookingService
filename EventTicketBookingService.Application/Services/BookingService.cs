@@ -34,8 +34,6 @@ namespace EventTicketBookingService.Application.Services
                 {
                     Booking booking = new Booking()
                     {
-                        // ToDo: Сомнительное место, так как несколько раз используется контекст
-                        Id = await _bookingRepository.GetNextIdAsync(cancellationToken),
                         EventId = eventId,
                         Status = BookingStatus.Pending,
                         CreatedAt = DateTime.UtcNow,
