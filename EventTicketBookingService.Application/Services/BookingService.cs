@@ -18,7 +18,7 @@ namespace EventTicketBookingService.Application.Services
             _eventRepository = eventRepository;
         }
 
-        public async Task<BookingResponse> CreateBookingAsync(int eventId, CancellationToken cancellationToken = default)
+        public async Task<BookingResponse> CreateBookingAsync(int eventId, int userId, CancellationToken cancellationToken = default)
         {
             await _bookingLock.WaitAsync(cancellationToken);
             try
@@ -32,15 +32,7 @@ namespace EventTicketBookingService.Application.Services
 
                 if (@event.TryReserveSeats())
                 {
-
-                    //Booking booking = new Booking()
-                    //{
-                    //    EventId = eventId,
-                    //    Status = BookingStatus.Pending,
-                    //    CreatedAt = DateTime.UtcNow,
-                    //    //ProcessedAt = null,
-                    //};
-                    Booking booking = Booking.Create(eventId, DateTime.UtcNow);
+                    Booking booking = Booking.Create(eventId, userId, DateTime.UtcNow);
 
                     await _bookingRepository.AddBookingAsync(booking, cancellationToken);
                     await _bookingRepository.SaveChangesAsync(cancellationToken);
@@ -48,6 +40,7 @@ namespace EventTicketBookingService.Application.Services
                     BookingResponse response = new BookingResponse()
                     {
                         Id = booking.Id,
+                        UserId = userId,
                         EventId = booking.EventId,
                         Status = booking.Status,
                         CreatedAt = booking.CreatedAt
