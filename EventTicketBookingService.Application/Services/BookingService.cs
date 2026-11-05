@@ -30,9 +30,15 @@ namespace EventTicketBookingService.Application.Services
                     throw new ResourceNotFoundException($"Не удалось создать бронь к несуществующему событию с ID: {eventId}");
                 }
 
+                var now = DateTime.UtcNow;
+                // Проверка, что бронь происходит не для прошедшего или уже идущего события
+                @event.EnsureNotPassed(now);
+
+                // Попытка зарезервировать место
                 if (@event.TryReserveSeats())
                 {
-                    Booking booking = Booking.Create(eventId, userId, DateTime.UtcNow);
+                    // Создание брони прямо сейчас
+                    Booking booking = Booking.Create(eventId, userId, now);
 
                     await _bookingRepository.AddBookingAsync(booking, cancellationToken);
                     await _bookingRepository.SaveChangesAsync(cancellationToken);
@@ -40,7 +46,7 @@ namespace EventTicketBookingService.Application.Services
                     BookingResponse response = new BookingResponse()
                     {
                         Id = booking.Id,
-                        UserId = userId,
+                        UserId = booking.UserId,
                         EventId = booking.EventId,
                         Status = booking.Status,
                         CreatedAt = booking.CreatedAt

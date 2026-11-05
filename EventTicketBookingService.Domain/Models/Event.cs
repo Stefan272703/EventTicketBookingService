@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EventTicketBookingService.Domain.Exceptions;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 
 namespace EventTicketBookingService.Domain.Models
@@ -79,6 +80,12 @@ namespace EventTicketBookingService.Domain.Models
             Description = description;
             StartAt = startAt;
             EndAt = endAt;
+        }
+
+        public void EnsureNotPassed(DateTime now)
+        {
+            if(now >= StartAt)
+                throw new PastEventBookingException($"Нельзя забронировать событие c Id: {Id}, оно началось: {StartAt}, а бронь была в {now}");
         }
     }
 }
