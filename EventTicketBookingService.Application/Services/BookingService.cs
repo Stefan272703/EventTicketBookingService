@@ -32,13 +32,15 @@ namespace EventTicketBookingService.Application.Services
 
                 if (@event.TryReserveSeats())
                 {
-                    Booking booking = new Booking()
-                    {
-                        EventId = eventId,
-                        Status = BookingStatus.Pending,
-                        CreatedAt = DateTime.UtcNow,
-                        ProcessedAt = null,
-                    };
+
+                    //Booking booking = new Booking()
+                    //{
+                    //    EventId = eventId,
+                    //    Status = BookingStatus.Pending,
+                    //    CreatedAt = DateTime.UtcNow,
+                    //    //ProcessedAt = null,
+                    //};
+                    Booking booking = Booking.Create(eventId, DateTime.UtcNow);
 
                     await _bookingRepository.AddBookingAsync(booking, cancellationToken);
                     await _bookingRepository.SaveChangesAsync(cancellationToken);

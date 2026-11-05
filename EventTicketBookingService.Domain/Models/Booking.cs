@@ -19,6 +19,8 @@ namespace EventTicketBookingService.Domain.Models
         // Дата и время обработки брони
         public DateTime? ProcessedAt { get; set; }
 
+        //public int UserId { get; set; }
+
         // Навигационное свойство
         public Event? Event { get; set; }
 
@@ -26,6 +28,18 @@ namespace EventTicketBookingService.Domain.Models
         {
 
         }
+
+        private Booking(int eventId, DateTime createdAt)
+        {
+            if (eventId <= 0)
+                throw new ArgumentException("EventId должен быть положительным", nameof(eventId));
+
+            EventId = eventId;
+            Status = BookingStatus.Pending;
+            CreatedAt = createdAt;
+        }
+
+        public static Booking Create(int eventId, DateTime createdAt) => new Booking(eventId, createdAt);
 
         public void Confirm()
         {
