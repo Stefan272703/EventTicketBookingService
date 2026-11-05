@@ -53,5 +53,16 @@ namespace EventTicketBookingService.Domain.Models
             Status = BookingStatus.Rejected;
             ProcessedAt = DateTime.UtcNow;
         }
+
+        public void Cancel()
+        {
+            if (Status == BookingStatus.Cancelled)
+                throw new ValidationException("Повторная отмена заявки брони невозможна. Бронь уже отменена");
+            if (Status == BookingStatus.Rejected)
+                throw new ValidationException("Нельяз отменить отклоненную бронь");
+
+            Status = BookingStatus.Cancelled;
+            ProcessedAt = DateTime.UtcNow;
+        }
     }
 }
