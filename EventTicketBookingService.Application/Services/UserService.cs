@@ -34,7 +34,7 @@ namespace EventTicketBookingService.Application.Services
             var passwordHash = _passwordHasher.Hash(request.Password);
 
             // Создаем пользователя
-            var user = new User(request.Login, passwordHash);
+            var user = new User(request.Login, passwordHash, request.Role);
 
             await _userRepository.AddUserAsync(user, cancellationToken);
             await _userRepository.SaveChangesAsync(cancellationToken);
