@@ -15,6 +15,7 @@ namespace EventTicketBookingService
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddApplication();
             builder.Services.AddPresentation();
+            builder.Services.AddSecurity(builder.Configuration);
 
             var app = builder.Build();
 
@@ -35,6 +36,8 @@ namespace EventTicketBookingService
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
