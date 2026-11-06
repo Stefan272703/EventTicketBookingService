@@ -20,7 +20,7 @@ namespace EventTicketBookingService.Domain.Models
 
         }
 
-        public User(string login, string passwordHash, UserRoles userRoles)
+        public User(string login, string passwordHash, UserRoles userRoles = UserRoles.User)
         {
             if (string.IsNullOrWhiteSpace(login))
                 throw new ValidationException("Логин не может быть пустым");
