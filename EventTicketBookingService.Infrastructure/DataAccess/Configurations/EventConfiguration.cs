@@ -12,7 +12,7 @@ namespace EventTicketBookingService.Infrastructure.DataAccess.Configurations
             builder.ToTable("events");
             // Первичный ключ
             builder.HasKey(e => e.Id);
-            // Само приложение сгенерирует Id
+            // Сама БД сгенерирует Id
             builder.Property(e => e.Id)
                 .HasColumnName("id");
             // Title обязателен и имеет размер в 200 символов
