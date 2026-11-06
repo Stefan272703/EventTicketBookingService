@@ -1,8 +1,12 @@
+using EventTicketBookingService.Application;
+using EventTicketBookingService.Domain;
+using EventTicketBookingService.Infrastructure;
 using EventTicketBookingService.Infrastructure.DataAccess;
 using EventTicketBookingService.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using EventTicketBookingService.Application;
-using EventTicketBookingService.Infrastructure;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace EventTicketBookingService
 {
@@ -16,6 +20,30 @@ namespace EventTicketBookingService
             builder.Services.AddApplication();
             builder.Services.AddPresentation();
             builder.Services.AddSecurity(builder.Configuration);
+
+            // Настройка JWT-аутентификаии
+            var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtOptions?.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtOptions?.Audience,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtOptions?.Secret!))
+                };
+            });
+
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
@@ -38,7 +66,6 @@ namespace EventTicketBookingService
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.MapControllers();
