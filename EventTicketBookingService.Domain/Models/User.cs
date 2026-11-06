@@ -15,19 +15,18 @@ namespace EventTicketBookingService.Domain.Models
         public string? PasswordHash {  get; private set; }
         public UserRoles Role { get; private set; }
 
-        public User()
+        private User()
         {
 
         }
 
-        public User(int id, string login, string passwordHash, UserRoles userRoles)
+        public User(string login, string passwordHash, UserRoles userRoles)
         {
             if (string.IsNullOrWhiteSpace(login))
                 throw new ValidationException("Логин не может быть пустым");
             if (string.IsNullOrWhiteSpace(passwordHash))
                 throw new ValidationException("Хеш пароля не может быть пустым");
 
-            Id = id;
             Login = login;
             PasswordHash = passwordHash;
             Role = userRoles;
