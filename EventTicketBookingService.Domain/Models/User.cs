@@ -8,7 +8,7 @@ namespace EventTicketBookingService.Domain.Models
 {
     public class User
     {
-        public const int maxActiveBookings = 5;
+        public const int maxActiveBookings = 10;
 
         public int Id { get; private set; }
         public string? Login { get; private set; }
