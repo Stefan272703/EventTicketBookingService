@@ -40,9 +40,9 @@ namespace BookingService.Tests
             _serviceProvider.Dispose();
         }
 
-        protected async Task<int> CreateTestEventAsync(int totalSeats = 10)
+        protected async Task<int> CreateTestEventAsync(int totalSeats = 10, DateTime? startAt = null)
         {
-            var futureDate = DateTime.UtcNow.AddDays(1);
+            var futureDate = startAt ?? DateTime.UtcNow.AddDays(1);
             var created = await _eventService.CreateEventAsync(new EventInfo
             {
                 Title = "Test Event",
