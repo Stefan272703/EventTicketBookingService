@@ -3,7 +3,7 @@ namespace EventTicketBookingService.Domain
 {
     public class JwtOptions
     {
-        public const string SectionName = "Jwt";
+        public const string SectionName = "JWT";
 
         public string? Secret { get; set; }
         public string? Issuer { get; set; }
