@@ -64,9 +64,8 @@ namespace EventTicketBookingService.Middlewares
                 NoAvailableSeatsException nase => StatusCodes.Status409Conflict,
                 PastEventBookingException pe => StatusCodes.Status400BadRequest,
                 BookingLimitExceededException bl => StatusCodes.Status409Conflict,
-                OperationCanceledException oc => StatusCodes.Status403Forbidden,
+                OperationNotPermittedException oc => StatusCodes.Status403Forbidden,
                 _ => StatusCodes.Status500InternalServerError
-
             };
         }
 
@@ -79,7 +78,7 @@ namespace EventTicketBookingService.Middlewares
                 NoAvailableSeatsException nase => "Conflict",
                 PastEventBookingException pe => "Bad Request",
                 BookingLimitExceededException bl => "Conflict",
-                OperationCanceledException oc => "Forbidden",
+                OperationNotPermittedException oc => "Forbidden",
                 _ => "Internal Server Error"
 
             };
