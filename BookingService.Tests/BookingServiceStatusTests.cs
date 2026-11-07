@@ -1,64 +1,9 @@
-﻿using EventTicketBookingService.Infrastructure.DataAccess;
-using EventTicketBookingService.Application.Interfaces;
-using EventTicketBookingService.Domain.Models;
-using EventTicketBookingService.Infrastructure.Repository;
-using EventTicketBookingService.Application.Repository.Interface;
-using EventTicketBookingService.Application.DTO;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using EventTicketBookingService.Domain.Models;
 
 namespace BookingService.Tests
 {
-    public class BookingServiceStatusTests
+    public class BookingServiceStatusTests : BaseBookingTest
     {
-        private readonly ServiceProvider _serviceProvider;
-        private readonly IServiceScope _scope;
-        private readonly IEventService _eventService;
-        private readonly IBookingService _bookingService;
-
-        public BookingServiceStatusTests()
-        {
-            var dbName = Guid.NewGuid().ToString();
-            var services = new ServiceCollection();
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase(dbName));
-            services.AddScoped<IEventService, EventTicketBookingService.Application.Services.EventService>();
-            services.AddScoped<IBookingService, EventTicketBookingService.Application.Services.BookingService>();
-            services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IBookingRepository, BookingRepository>();
-
-            _serviceProvider = services.BuildServiceProvider();
-            _scope = _serviceProvider.CreateScope();
-            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
-            _bookingService = _scope.ServiceProvider.GetRequiredService<IBookingService>();
-        }
-
-        public void Dispose()
-        {
-            _scope.Dispose();
-            _serviceProvider.Dispose();
-        }
-
-        private async Task<int> CreateTestEventAsync(int totalSeats = 10)
-        {
-            var futureDate = DateTime.UtcNow.AddDays(1);
-            var created = await _eventService.CreateEventAsync(new EventInfo
-            {
-                Title = "Test Event",
-                StartAt = futureDate,
-                EndAt = futureDate.AddHours(2),
-                TotalSeats = totalSeats
-            });
-            return created.Id;
-        }
-
-        private async Task<Event> GetEventAsync(int eventId)
-        {
-            var context = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var @event = await context.Events.FirstAsync(e => e.Id == eventId);
-            return @event;
-        }
-
         [Fact]
         public void Confirm_ChangesStatusToConfirmedAndSetsProcessedAt()
         {
@@ -106,9 +51,10 @@ namespace BookingService.Tests
         {
             // Arrange
             int eventId = await CreateTestEventAsync(1);
+            var userId = await CreateTestUserAsync();
 
             // Act - создаём бронь (занимаем последнее место)
-            var response = await _bookingService.CreateBookingAsync(eventId);
+            var response = await _bookingService.CreateBookingAsync(eventId, userId);
             var @event = await GetEventAsync(eventId);
 
             Assert.Equal(0, /*eventEntity*/@event.AvailableSeats);
@@ -126,7 +72,7 @@ namespace BookingService.Tests
             Assert.Equal(1, @event.AvailableSeats);
 
             // Теперь можем создать новую бронь
-            var newResponse = await _bookingService.CreateBookingAsync(eventId);
+            var newResponse = await _bookingService.CreateBookingAsync(eventId, userId);
             Assert.NotNull(newResponse);
             Assert.Equal(0, @event.AvailableSeats); // снова занято
         }

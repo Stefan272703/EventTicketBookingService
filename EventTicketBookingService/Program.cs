@@ -1,11 +1,12 @@
+using EventTicketBookingService.Application;
+using EventTicketBookingService.Domain;
+using EventTicketBookingService.Infrastructure;
 using EventTicketBookingService.Infrastructure.DataAccess;
-using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Middlewares;
-using EventTicketBookingService.Infrastructure.Repository;
-using EventTicketBookingService.Application.Repository.Interface;
-using EventTicketBookingService.Application.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace EventTicketBookingService
 {
@@ -15,22 +16,34 @@ namespace EventTicketBookingService
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddApplication();
+            builder.Services.AddPresentation();
+            builder.Services.AddSecurity(builder.Configuration);
 
-            builder.Services.AddControllers().AddJsonOptions(
-                options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+            // Настройка JWT-аутентификаии
+            var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtOptions?.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtOptions?.Audience,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtOptions?.Secret!))
+                };
+            });
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IEventService, EventService>();
-            builder.Services.AddScoped<IBookingService, BookingService>();
-            builder.Services.AddHostedService<BookingBackgroundService>();
-            builder.Services.AddScoped<IEventRepository, EventRepository>();
-            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
@@ -43,15 +56,15 @@ namespace EventTicketBookingService
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-                app.MapSwagger();
-                app.MapSwaggerUI();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

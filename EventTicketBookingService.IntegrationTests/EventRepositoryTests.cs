@@ -55,7 +55,7 @@ namespace EventTicketBookingService.IntegrationTests
             var endAt = new DateTime(2030, 5, 1, 12, 0, 0, DateTimeKind.Utc);
             var e = new Event(50)
             {
-                Id = await _eventRepo.GetNextIdAsync(),
+                //Id = await _eventRepo.GetNextIdAsync(),
                 Title = "Новое событие",
                 Description = "Описание",
                 StartAt = startAt,
@@ -83,7 +83,7 @@ namespace EventTicketBookingService.IntegrationTests
         {
             var e = new Event(10)
             {
-                Id = await _eventRepo.GetNextIdAsync(),
+                //Id = await _eventRepo.GetNextIdAsync(),
                 Title = "Без SaveChanges",
                 StartAt = DateTime.UtcNow,
                 EndAt = DateTime.UtcNow.AddHours(1)
@@ -116,23 +116,6 @@ namespace EventTicketBookingService.IntegrationTests
         {
             var result = await _eventRepo.RemoveEventByIdAsync(9999);
             Assert.Null(result);
-        }
-
-        [Fact]
-        public async Task GetNextIdAsync_EmptyTable_ReturnsOne()
-        {
-            var id = await _eventRepo.GetNextIdAsync();
-            Assert.Equal(1, id);
-        }
-
-        [Fact]
-        public async Task GetNextIdAsync_NonEmptyTable_ReturnsMaxPlusOne()
-        {
-            await SeedAsync("A", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
-            await SeedAsync("B", DateTime.UtcNow, DateTime.UtcNow.AddHours(1));
-
-            var id = await _eventRepo.GetNextIdAsync();
-            Assert.Equal(3, id);
         }
 
         [Fact]
@@ -407,7 +390,7 @@ namespace EventTicketBookingService.IntegrationTests
         {
             var e = new Event(totalSeats)
             {
-                Id = await _eventRepo.GetNextIdAsync(),
+                //Id = await _eventRepo.GetNextIdAsync(),
                 Title = title,
                 StartAt = startAt,
                 EndAt = endAt

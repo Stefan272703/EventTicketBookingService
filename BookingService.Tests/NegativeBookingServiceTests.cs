@@ -1,52 +1,19 @@
-﻿using EventTicketBookingService.Infrastructure.DataAccess;
-using EventTicketBookingService.Domain.Exceptions;
-using EventTicketBookingService.Application.Interfaces;
-using EventTicketBookingService.Infrastructure.Repository;
-using EventTicketBookingService.Application.Repository.Interface;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using EventTicketBookingService.Domain.Exceptions;
 
 namespace BookingService.Tests
 {
-    public class NegativeBookingServiceTests
+    public class NegativeBookingServiceTests : BaseBookingTest
     {
-        private readonly ServiceProvider _serviceProvider;
-        private readonly IServiceScope _scope;
-        private readonly IEventService _eventService;
-        private readonly IBookingService _bookingService;
-
-        public NegativeBookingServiceTests()
-        {
-            var dbName = Guid.NewGuid().ToString();
-            var services = new ServiceCollection();
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase(dbName));
-            services.AddScoped<IEventService, EventTicketBookingService.Application.Services.EventService>();
-            services.AddScoped<IBookingService, EventTicketBookingService.Application.Services.BookingService>();
-            services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IBookingRepository, BookingRepository>();
-
-            _serviceProvider = services.BuildServiceProvider();
-            _scope = _serviceProvider.CreateScope();
-            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
-            _bookingService = _scope.ServiceProvider.GetRequiredService<IBookingService>();
-        }
-
-        public void Dispose()
-        {
-            _scope.Dispose();
-            _serviceProvider.Dispose();
-        }
-
         // Создание брони для несуществующего события;
         [Fact]
         public async Task CreateBookingAsync_ForNonExistentEvent_ThrowsResourceNotFoundException()
         {
             // Arrange
             const int eventId = 999;
+            var userId = await CreateTestUserAsync();
 
             // Act & Assert
-            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId, userId));
 
         }
 
@@ -56,9 +23,10 @@ namespace BookingService.Tests
         {
             // Arrange
             const int eventId = 1;
+            var userId = await CreateTestUserAsync();
 
             // Act & Assert
-            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _bookingService.CreateBookingAsync(eventId, userId));
         }
 
         // Получение брони по несуществующему Id.
