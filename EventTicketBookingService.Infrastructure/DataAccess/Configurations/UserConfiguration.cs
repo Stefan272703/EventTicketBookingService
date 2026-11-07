@@ -8,6 +8,17 @@ namespace EventTicketBookingService.Infrastructure.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            // Заранее создаем админа
+            // Пароль admin123
+            var adminPasswordHash = "240BE518FABD2724DDB6F04EEB1DA5967448D7E831C08C8FA822809F74C720A9";
+            builder.HasData(new
+            {
+                Id = 1, // Задаем явный ID, чтобы не было конфликтов
+                Login = "admin",
+                PasswordHash = adminPasswordHash,
+                Role = UserRoles.Admin
+            });
+
             // Название таблицы
             builder.ToTable("users");
             // Первичный ключ
