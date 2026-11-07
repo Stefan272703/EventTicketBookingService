@@ -2,10 +2,7 @@
 using EventTicketBookingService.Application.Interfaces;
 using EventTicketBookingService.Application.Repository.Interface;
 using EventTicketBookingService.Domain.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace EventTicketBookingService.Application.Services
 {
@@ -34,7 +31,7 @@ namespace EventTicketBookingService.Application.Services
             var passwordHash = _passwordHasher.Hash(request.Password);
 
             // Создаем пользователя
-            var user = new User(request.Login, passwordHash, request.Role);
+            var user = new User(request.Login, passwordHash, UserRoles.User);
 
             await _userRepository.AddUserAsync(user, cancellationToken);
             await _userRepository.SaveChangesAsync(cancellationToken);
