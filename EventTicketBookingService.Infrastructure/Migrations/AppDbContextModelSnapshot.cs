@@ -134,6 +134,15 @@ namespace EventTicketBookingService.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Login = "admin",
+                            PasswordHash = "240BE518FABD2724DDB6F04EEB1DA5967448D7E831C08C8FA822809F74C720A9",
+                            Role = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("EventTicketBookingService.Domain.Models.Booking", b =>
