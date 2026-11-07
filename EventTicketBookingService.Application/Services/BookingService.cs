@@ -103,6 +103,8 @@ namespace EventTicketBookingService.Application.Services
             actingUser.EnsureCanCancelBooking(booking);
             // Отмена брони (перевод в статус Cancel)
             booking.Cancel();
+            // Освобождаем место
+            @event.ReleaseSeats();
             // Сохранение изменений в репозитории бронирования
             await _bookingRepository.SaveChangesAsync();
         }
