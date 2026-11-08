@@ -18,6 +18,11 @@ namespace EventTicketBookingService.Infrastructure.Repository
             return _context.Bookings.AddAsync(booking, cancellationToken).AsTask();
         }
 
+        public Task<int> CountActiveByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            return _context.Bookings.CountAsync(b => b.UserId == userId && (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed));
+        }
+
         public Task<Booking?> GetBookingByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return _context.Bookings.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
@@ -29,14 +34,6 @@ namespace EventTicketBookingService.Infrastructure.Repository
                     .Where(b => b.Status == BookingStatus.Pending)
                     .Select(b => b.Id).
                     ToListAsync(cancellationToken);
-        }
-
-        public async Task<int> GetNextIdAsync(CancellationToken cancellationToken = default)
-        {
-            if (!await _context.Bookings.AnyAsync(cancellationToken))
-                return 1;
-
-            return await _context.Bookings.MaxAsync(x => x.Id, cancellationToken) + 1;
         }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)

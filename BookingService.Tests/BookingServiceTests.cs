@@ -1,66 +1,19 @@
-﻿using EventTicketBookingService.Infrastructure.DataAccess;
-using EventTicketBookingService.Application.Interfaces;
-using EventTicketBookingService.Domain.Models;
-using EventTicketBookingService.Infrastructure.Repository;
-using EventTicketBookingService.Application.Repository.Interface;
-using EventTicketBookingService.Application.DTO;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using EventTicketBookingService.Domain.Models;
 
 namespace BookingService.Tests
 {
-    public class BookingServiceTests
+    public class BookingServiceTests : BaseBookingTest
     {
-        private readonly ServiceProvider _serviceProvider;
-        private readonly IServiceScope _scope;
-        private readonly IEventService _eventService;
-        private readonly IBookingService _bookingService;
-
-        public BookingServiceTests()
-        {
-            var dbName = Guid.NewGuid().ToString();
-            var services = new ServiceCollection();
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase(dbName));
-            services.AddScoped<IEventService, EventTicketBookingService.Application.Services.EventService>();
-            services.AddScoped<IBookingService, EventTicketBookingService.Application.Services.BookingService>();
-            services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IBookingRepository, BookingRepository>();
-
-            _serviceProvider = services.BuildServiceProvider();
-            _scope = _serviceProvider.CreateScope();
-            _eventService = _scope.ServiceProvider.GetRequiredService<IEventService>();
-            _bookingService = _scope.ServiceProvider.GetRequiredService<IBookingService>();
-        }
-
-        public void Dispose()
-        {
-            _scope.Dispose();
-            _serviceProvider.Dispose();
-        }
-
-        private async Task<int> CreateTestEventAsync(int totalSeats = 10)
-        {
-            var futureDate = DateTime.UtcNow.AddDays(1);
-            var created = await _eventService.CreateEventAsync(new EventInfo
-            {
-                Title = "Test Event",
-                StartAt = futureDate,
-                EndAt = futureDate.AddHours(2),
-                TotalSeats = totalSeats
-            });
-            return created.Id;
-        }
-
         // Создание брони для существующего события — возвращается BookingInfo со статусом Pending;
         [Fact]
         public async Task CreateBookingAsync_ExistingEvent_ReturnsBookingInfoByPending()
         {
             // Arrange
             var eventId = await CreateTestEventAsync();
+            var userId = await CreateTestUserAsync();
 
             // Act
-            var result = await _bookingService.CreateBookingAsync(eventId);
+            var result = await _bookingService.CreateBookingAsync(eventId, userId);
 
             // Assert
             Assert.NotNull(result);
@@ -73,11 +26,12 @@ namespace BookingService.Tests
         {
             // Arrange
             var eventId = await CreateTestEventAsync();
+            var userId = await CreateTestUserAsync();
 
             // Act
-            var booking1 = await _bookingService.CreateBookingAsync(eventId);
-            var booking2 = await _bookingService.CreateBookingAsync(eventId);
-            var booking3 = await _bookingService.CreateBookingAsync(eventId);
+            var booking1 = await _bookingService.CreateBookingAsync(eventId, userId);
+            var booking2 = await _bookingService.CreateBookingAsync(eventId, userId);
+            var booking3 = await _bookingService.CreateBookingAsync(eventId, userId);
 
             // Assert
             Assert.NotEqual(booking1.Id, booking2.Id);
@@ -91,8 +45,9 @@ namespace BookingService.Tests
         {
             // Arrange
             var eventId = await CreateTestEventAsync();
+            var userId = await CreateTestUserAsync();
 
-            var created = await _bookingService.CreateBookingAsync(eventId);
+            var created = await _bookingService.CreateBookingAsync(eventId, userId);
 
             // Act
             var result = await _bookingService.GetBookingByIdAsync(created.Id);

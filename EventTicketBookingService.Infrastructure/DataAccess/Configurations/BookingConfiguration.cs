@@ -12,13 +12,16 @@ namespace EventTicketBookingService.Infrastructure.DataAccess.Configurations
             builder.ToTable("bookings");
             // Первичный ключ
             builder.HasKey(b => b.Id);
-            // Само приложение сгенерирует Id
+            // Сама БД сгенерирует Id
             builder.Property(b => b.Id)
-                .HasColumnName("id")
-                .ValueGeneratedNever();
+                .HasColumnName("id");
             // EventId обязательно
             builder.Property(b => b.EventId)
                 .HasColumnName("event_id")
+                .IsRequired();
+            // UserId обязательно
+            builder.Property(b => b.UserId)
+                .HasColumnName("user_id")
                 .IsRequired();
             // Status обязателен, храним как строку БД, длина 20 символов
             builder.Property(b => b.Status)
