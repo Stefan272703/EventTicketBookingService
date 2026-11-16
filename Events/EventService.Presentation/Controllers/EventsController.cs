@@ -12,13 +12,13 @@ namespace EventService.Presentation.Controllers
     {
 
         private readonly IEventService _eventService;
-        private readonly IBookingService _bookingService;
+        //private readonly IBookingService _bookingService;
 
-        public EventsController(IEventService eventService,
-                                IBookingService bookingService)
+        public EventsController(IEventService eventService
+                                /*IBookingService bookingService*/)
         {
             _eventService = eventService;
-            _bookingService = bookingService;
+            //_bookingService = bookingService;
         }
 
         [HttpGet]
@@ -94,9 +94,10 @@ namespace EventService.Presentation.Controllers
             if(!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
-            var booking = await _bookingService.CreateBookingAsync(id, userId);
+            //var booking = await _bookingService.CreateBookingAsync(id, userId);
+            return Ok();
 
-            return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id }, booking);
+            //return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id }, booking);
         }
     }
 }
