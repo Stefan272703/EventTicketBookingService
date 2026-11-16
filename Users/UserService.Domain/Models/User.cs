@@ -36,18 +36,18 @@ namespace UserService.Domain.Models
                 throw new BookingLimitExceededException($"Пользователь с Id: {Id} превысил количество создания активных броней");
         }
 
-        public void EnsureCanCancelBooking(Booking booking)
+        public void EnsureCanCancelBooking(int bookingId /*booking*/)
         {
             // Админ может всё, пользователь — только свои брони
             if (Role == UserRoles.Admin) return;
-            if (booking.UserId != Id)
+            if (/*booking.UserId*/ bookingId != Id)
                 throw new OperationNotPermittedException($"Пользователь с Id: {Id} с ролью {Role} не иммет прав на изменение статуса брони другого пользователя на Cancel");
         }
 
         public void EnsureCanConfirmBooking()
         {
             if (Role == UserRoles.Admin) return;
-                throw new OperationNotPermittedException($"Пользователь с Id: {Id} с ролью {Role} не имеет права на самостоятельное изменение брони в сосотояние Confirm");
+                throw new OperationNotPermittedException($"Пользователь с Id: {Id} с ролью {Role} не имеет права на самостоятельное изменение брони в состояние Confirm");
         }
 
     }
