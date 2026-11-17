@@ -11,6 +11,9 @@
     <Project Path="BuildingBlocks/BuildingBlocks.GlobalExceptionMiddleware/BuildingBlocks.GlobalExceptionMiddleware.csproj" Id="bd375211-7e39-46d5-b686-c301f95f7fbc" />
     <Project Path="BuildingBlocks/BuildingBlocks.Swagger/BuildingBlocks.Swagger.csproj" Id="2cd902d4-ebac-4b50-b3cc-df5661bee6a9" />
   </Folder>
+  <Folder Name="/Contracts/">
+    <Project Path="Contracts/EventTicketBooking.Contracts/EventTicketBooking.Contracts.csproj" Id="792bc672-bec4-4f64-ab79-2f27252a92a4" />
+  </Folder>
   <Folder Name="/Events/">
     <Project Path="Events/EventService.Application/EventService.Application.csproj" Id="dd627b39-435e-4de4-a11c-8df0a00ba5b5" />
     <Project Path="Events/EventService.Domain/EventService.Domain.csproj" Id="8df785d3-82dc-43ae-9bc3-8d628ccf3ae6" />

@@ -5,6 +5,9 @@ using BuildingBlocks.GlobalExceptionMiddleware.Middlewares;
 using BuildingBlocks.Swagger;
 using BookingService.Application;
 using Microsoft.EntityFrameworkCore;
+using BookingService.Application.Interfaces;
+using BookingService.Infrastructure.Kafka;
+using BuildingBlocks.Domain;
 
 namespace BookingService.Presentation
 {
@@ -24,6 +27,10 @@ namespace BookingService.Presentation
             // Настройка под Booking
             builder.Services.AddBookingInfrastructure(builder.Configuration);
             builder.Services.AddBookingApplication();
+            
+            // Настройка Kafka и издателя 
+            builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection(KafkaOptions.SectionName));
+            builder.Services.AddSingleton<IBookingPublisher, BookingPublisher>();
 
             var app = builder.Build();
 
