@@ -6,7 +6,7 @@ namespace BookingService.Application.Interfaces
     {
         public Task PublishAsync<T>(string topic,
             string key,
-            T bookingResponse,
+            T integrationEvent,
             CancellationToken ct = default) 
             where T : class;
             

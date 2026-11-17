@@ -28,14 +28,14 @@ namespace BookingService.Infrastructure.Kafka
         }
 
         // Создание продюсера, сериализаия события в JSON и отпрака в топик
-        public async Task PublishAsync<T>(string topic, string key, T bookingResponse, CancellationToken ct = default) where T : class
+        public async Task PublishAsync<T>(string topic, string key, T integrationEvent, CancellationToken ct = default) where T : class
         {
             try
             {
                 var result = await _producer.ProduceAsync(topic, new Message<string, string>
                 {
                     Key = key,
-                    Value = JsonSerializer.Serialize(bookingResponse)
+                    Value = JsonSerializer.Serialize(integrationEvent)
                 }, ct);
                 _logger.LogInformation($"Доставлено {typeof(T).Name} в топик {topic}, партиция {result.Partition.Value}, Оффсет {result.Offset.Value}, ключ {key}");
             }
