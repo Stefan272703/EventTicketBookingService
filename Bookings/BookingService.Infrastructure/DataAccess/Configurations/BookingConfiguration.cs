@@ -41,10 +41,10 @@ namespace BookingService.Infrastructure.DataAccess.Configurations
             // У одного события может быть много броней, но у брони только одно событие.
             // Внешний ключ - Id события.
             // Удаление происходит каскадно (Удалив событие, удалятся и брони, относящиеся к данному событию)
-            builder.HasOne(b => b.Event)
-                .WithMany(e => e.Bookings)
-                .HasForeignKey(b => b.EventId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(b => b.Event)
+            //    .WithMany(e => e.Bookings)
+            //    .HasForeignKey(b => b.EventId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
         }
     }
