@@ -38,7 +38,10 @@ namespace BookingService.Presentation.Controllers
             if (!int.TryParse(userIdStr, out var userId))
                 return Unauthorized();
 
-            await _bookingService.CancelBookingAsync(id, userId);
+            // Получаем роль пользователя
+            var userRole = User.FindFirstValue(ClaimTypes.Role);
+            
+            await _bookingService.CancelBookingAsync(id, userId, userRole);
 
             return NoContent();
         }
