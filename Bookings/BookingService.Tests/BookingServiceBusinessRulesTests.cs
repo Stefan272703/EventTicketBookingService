@@ -1,5 +1,5 @@
-﻿using EventTicketBookingService.Domain.Exceptions;
-using EventTicketBookingService.Domain.Models;
+﻿using BuildingBlocks.Domain.Exceptions;
+using BookingService.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,42 +8,17 @@ namespace BookingService.Tests
 {
     public class BookingServiceBusinessRulesTests : BaseBookingTest
     {
-        // 1. Попытка забронировать прошедшее событие
-        [Fact]
-        public async Task CreateBookingAsync_PastEvent_ThrowsPastEventBookingException()
-        {
-            // Arrange
-            var userId = await CreateTestUserAsync();
-            // Создаем событие, которое началось вчера
-            var pastDate = DateTime.UtcNow.AddDays(-1);
-            var eventId = await CreateTestEventAsync(startAt: pastDate);
-
-            // Act & Assert
-            var ex = await Assert.ThrowsAsync<PastEventBookingException>(
-                () => _bookingService.CreateBookingAsync(eventId, userId)
-            );
-
-            Assert.Contains("Нельзя забронировать событие", ex.Message);
-        }
-
         // 2. При достижении лимита активных броней новая бронь не создается
         [Fact]
         public async Task CreateBookingAsync_WhenLimitReached_ThrowsBookingLimitExceededException()
         {
             // Arrange
-            var userId = await CreateTestUserAsync();
-            // Создаем событие с большим количеством мест, чтобы места не кончились
-            var eventId = await CreateTestEventAsync(totalSeats: 100);
+            int userId = 1;
+            await CreateActiveBookingAsync(userId, count: 10);
 
-            // Act - заполняем лимит (10 броней)
-            for (int i = 0; i < User.maxActiveBookings; i++)
-            {
-                await _bookingService.CreateBookingAsync(eventId, userId);
-            }
-
-            // Assert - 11-я бронь должна упасть
+            // Act & Assert - 11-я бронь должна упасть
             await Assert.ThrowsAsync<BookingLimitExceededException>(
-                () => _bookingService.CreateBookingAsync(eventId, userId)
+                () => _bookingService.CreateBookingAsync(eventId: 1, userId)
             );
         }
 
@@ -52,25 +27,19 @@ namespace BookingService.Tests
         public async Task CreateBookingAsync_DifferentUsers_LimitsAreIndependent()
         {
             // Arrange
-            var user1Id = await CreateTestUserAsync("user1");
-            var user2Id = await CreateTestUserAsync("user2");
-            var eventId = await CreateTestEventAsync(totalSeats: 100);
+            int user1 = 1, user2 = 2;
+            await CreateActiveBookingAsync(user1, count: 10);
 
-            // Act - User1 заполняет свой лимит
-            for (int i = 0; i < User.maxActiveBookings; i++)
-            {
-                await _bookingService.CreateBookingAsync(eventId, user1Id);
-            }
-
+            // Assert
             // Проверяем, что User1 больше не может (для надежности)
             await Assert.ThrowsAsync<BookingLimitExceededException>(
-                () => _bookingService.CreateBookingAsync(eventId, user1Id)
+                () => _bookingService.CreateBookingAsync(eventId: 1, user1)
             );
 
             // Assert - User2 спокойно создает бронь
-            var user2Booking = await _bookingService.CreateBookingAsync(eventId, user2Id);
+            var user2Booking = await _bookingService.CreateBookingAsync(eventId: 1, user2);
             Assert.NotNull(user2Booking);
-            Assert.Equal(user2Id, user2Booking.UserId);
+            Assert.Equal(user2, user2Booking.UserId);
         }
 
         // 4. Проверка, что отмененная бронь освобождает слот в лимите
@@ -78,22 +47,16 @@ namespace BookingService.Tests
         public async Task CreateBookingAsync_AfterCancel_AllowsNewBookingWithinLimit()
         {
             // Arrange
-            var userId = await CreateTestUserAsync();
-            var eventId = await CreateTestEventAsync(totalSeats: 100);
+            int userId = 1;
+            var bookings = await CreateActiveBookingAsync(userId, count: 10);
 
             // Заполняем лимит
-            var bookings = new List<int>();
-            for (int i = 0; i < User.maxActiveBookings; i++)
-            {
-                var b = await _bookingService.CreateBookingAsync(eventId, userId);
-                bookings.Add(b.Id);
-            }
 
             // Act - отменяем одну бронь
-            await _bookingService.CancelBookingAsync(bookings.First(), userId);
+            await _bookingService.CancelBookingAsync(bookings.First().Id, userId, "User");
 
             // Assert - теперь можем создать новую
-            var newBooking = await _bookingService.CreateBookingAsync(eventId, userId);
+            var newBooking = await _bookingService.CreateBookingAsync(eventId: 1, userId);
             Assert.NotNull(newBooking);
         }
     }

@@ -1,4 +1,5 @@
-﻿using EventTicketBookingService.Domain.Models;
+﻿using BuildingBlocks.Domain;
+using BookingService.Domain.Models;
 
 namespace BookingService.Tests
 {
@@ -6,11 +7,11 @@ namespace BookingService.Tests
     {
         // Создание брони для существующего события — возвращается BookingInfo со статусом Pending;
         [Fact]
-        public async Task CreateBookingAsync_ExistingEvent_ReturnsBookingInfoByPending()
+        public async Task CreateBookingAsync_AnyEvent_ReturnsBookingInfoByPending()
         {
             // Arrange
-            var eventId = await CreateTestEventAsync();
-            var userId = await CreateTestUserAsync();
+            var eventId = 42;
+            var userId = 1;
 
             // Act
             var result = await _bookingService.CreateBookingAsync(eventId, userId);
@@ -18,6 +19,8 @@ namespace BookingService.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(BookingStatus.Pending, result.Status);
+            Assert.Equal(eventId, result.EventId);
+            Assert.Equal(userId, result.UserId);
         }
 
         // Создание нескольких броней для одного события — все создаются с уникальными Id
@@ -25,8 +28,8 @@ namespace BookingService.Tests
         public async Task CreateBookingAsync_MiltipleBookingsForSameEvent_GenerateUniqueIds()
         {
             // Arrange
-            var eventId = await CreateTestEventAsync();
-            var userId = await CreateTestUserAsync();
+            var eventId = 1;
+            var userId = 1;
 
             // Act
             var booking1 = await _bookingService.CreateBookingAsync(eventId, userId);
@@ -44,8 +47,8 @@ namespace BookingService.Tests
         public async Task GetBookingByIdAsync_WithValidId_ReturnsCorrectBooking()
         {
             // Arrange
-            var eventId = await CreateTestEventAsync();
-            var userId = await CreateTestUserAsync();
+            var eventId = 42;
+            var userId = 1;
 
             var created = await _bookingService.CreateBookingAsync(eventId, userId);
 
