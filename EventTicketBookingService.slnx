@@ -26,7 +26,7 @@
     <Project Path="Users/UserService.Infrastructure/UserService.Infrastructure.csproj" Id="e2dbd5df-1c9d-4471-97f8-c5af97b37527" />
     <Project Path="Users/UserService.Presentation/UserService.Presentation.csproj" Id="915b18b9-68a4-4e13-b4b9-38f55d63f057" />
   </Folder>
-  <Project Path="BookingService.Tests/BookingService.Tests.csproj" Id="4b39141b-eb5e-4c81-82e2-81330aa6081e" />
+  <Project Path="BookingService.Tests/BookingService.Tests.csproj" />
   <Project Path="EventService.Tests/EventService.Tests.csproj" Id="46a3ec4c-4ac2-465f-a2d1-a392b46aec50" />
   <Project Path="EventTicketBookingService.IntegrationTests/EventTicketBookingService.IntegrationTests.csproj" Id="89334746-ee97-4cdf-882b-18b89bdb2c26" />
 </Solution>
