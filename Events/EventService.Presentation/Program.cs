@@ -1,8 +1,10 @@
 using BuildingBlocks.Authentication;
+using BuildingBlocks.Domain;
 using BuildingBlocks.GlobalExceptionMiddleware.Middlewares;
 using BuildingBlocks.Swagger;
 using EventService.Infrastructure;
 using EventService.Infrastructure.DataAccess;
+using EventService.Infrastructure.Workers;
 using EventTicketBookingService.Application;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +26,10 @@ namespace EventService.Presentation
             // Настройка для Event
             builder.Services.AddEventInfrastructure(builder.Configuration);
             builder.Services.AddEventApplication();
+
+            // Настройка Kafka и подписчика
+            builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(KafkaConsumerOptions.SectionName));
+            builder.Services.AddHostedService<EventConsumerWorker>();
 
             var app = builder.Build();
 
