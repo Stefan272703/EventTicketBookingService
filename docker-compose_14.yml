@@ -40,6 +40,8 @@ services:
   # ─────────────────────────── Базы данных (по одной на сервис) ───────────────────────────
   users-db:
     image: postgres:16
+    ports:
+      - "5433:5432"
     container_name: eventapi-users-db
     environment:
       POSTGRES_DB: users
@@ -55,6 +57,8 @@ services:
 
   events-db:
     image: postgres:16
+    ports:
+      - "5434:5432"
     container_name: eventapi-events-db
     environment:
       POSTGRES_DB: events
