@@ -12,7 +12,7 @@ namespace BookingService.Infrastructure.Kafka
         private readonly IProducer<string, string> _producer;
         private readonly ILogger<BookingPublisher> _logger;
 
-        public BookingPublisher(IOptions<KafkaOptions> options,
+        public BookingPublisher(IOptions<KafkaProducerOptions> options,
                                 ILogger<BookingPublisher> logger)
         {
             _logger = logger;

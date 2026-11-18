@@ -29,7 +29,7 @@ namespace BookingService.Presentation
             builder.Services.AddBookingApplication();
             
             // Настройка Kafka и издателя 
-            builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection(KafkaOptions.SectionName));
+            builder.Services.Configure<KafkaProducerOptions>(builder.Configuration.GetSection(KafkaProducerOptions.SectionName));
             builder.Services.AddSingleton<IBookingPublisher, BookingPublisher>();
 
             var app = builder.Build();
