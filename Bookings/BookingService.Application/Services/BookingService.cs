@@ -92,7 +92,7 @@ namespace BookingService.Application.Services
             return ToInfo(existingBooking);
         }
 
-        public async Task CancelBookingAsync(int bookingId, int actingUserId, CancellationToken cancellationToken = default)
+        public async Task CancelBookingAsync(int bookingId, int actingUserId, string actingUserRole, CancellationToken cancellationToken = default)
         {
             //throw new NotImplementedException();
             // Получаем бронь по Id
@@ -100,6 +100,9 @@ namespace BookingService.Application.Services
             if (booking == null)
                 throw new ResourceNotFoundException($"Бронь с Id: {bookingId} не найдена");
 
+            var isAdmin = string.Equals(actingUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+            if(!isAdmin && booking.UserId != actingUserId)
+                throw new OperationNotPermittedException($"Пользователь {actingUserId} не имеет прав на отмену чужой брони {bookingId}");
             // Получаем пользователя по Id
             //var actingUser = await _userRepository.GetUserByIdAsync(actingUserId, cancellationToken);
             //if (actingUser == null)

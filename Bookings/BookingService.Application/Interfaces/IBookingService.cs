@@ -11,6 +11,6 @@ namespace BookingService.Application.Interfaces
         public Task<BookingResponse>? GetBookingByIdAsync(int bookingId, CancellationToken cancellationToken = default);
 
         // Отмена брони по идентификатору брони и пользователем
-        public Task CancelBookingAsync(int bookingId, int actingUserId, CancellationToken cancellationToken = default);
+        public Task CancelBookingAsync(int bookingId, int actingUserId, string actingUserRole, CancellationToken cancellationToken = default);
     }
 }
