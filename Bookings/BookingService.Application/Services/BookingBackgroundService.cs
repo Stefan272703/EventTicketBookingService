@@ -97,7 +97,7 @@ namespace BookingService.Application.Services
                 await publisher.PublishAsync(
                     topic: BookingTopics.BookingConfirmed,
                     key: booking.EventId.ToString(),
-                    integrationEvent: new BookingConfirmedRequest()
+                    integrationEvent: new BookingConfirmedIntegrationEvent()
                     {
                         EventId = booking.EventId,
                         BookingId = bookingId,

@@ -1,6 +1,6 @@
 ﻿namespace EventTicketBooking.Contracts.Bookings
 {
-    public record BookingConfirmedRequest
+    public record BookingConfirmedIntegrationEvent
     {
         public int EventId { get; init; }
         public int BookingId { get; init; }
