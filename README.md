@@ -8,6 +8,7 @@
 - Swagger
 - Docker Desktop
 - Postgres
+- Kafka
 
 Данный сервис получает на вход мероприятия, которые пользователь может получать(GET), создавать(POST), обновлять(PUT) и удалять(DELETE), и выводить информацию в виде HTTP-ответов с телом ответа.
 
@@ -17,7 +18,7 @@
 3. Создать мероприятие по телу запроса (HTTP POST /Events)
 4. Обновить мероприятие в теле запроса по ID (HTTP PUT /Events/{id})
 5. Удалить мероприятие по ID (HTTP DELETE /Events/{id})
-6. Создать бронь конкретного мероприятия по ID (HTTP POST /Events/{id}/book)
+6. Создать бронь конкретного мероприятия по ID (HTTP POST /Bookings/{id}/book)
 7. Получить бронь по его ID (HTTP GET /Bookings/{id})
 8. Отменить бронь по его ID (HTTP DELETE /Bookings/{id})
 9. Регистрировать нового пользователя по телу запроса (HTTP POST /Auth/register)
@@ -25,6 +26,14 @@
 
 ## Структура проекта и назначение каждого слоя:
 Структура Приложения на ASP.NET Core создана согласно принципам чистой архитектуры (_Clean Architecture_), где каждый файл, отвечающий за свою роль (интерфейс, реализация, репозиторий, Доменная сущность и т.д), находится в определенном слое приложения для разделения на собственные задачи.
+
+Данная структура разделена на 3 отдельных микросервиса Events, Bookings и Users, где каждый микросервис ничего не знает друг о друге и обмен происходит событиями через брокер сообщений Kafka с топиком booking-confirmed. В корне проекта находится docker-compose файл, содержащий 3 БД под каждый микросервис со своими портами общения(Events имеет порт 5434, Bookings - 5435, Users - 5433), а также имеет Kafka  с портом 9092, через который общаются микросервисы.
+
+Есть топик BookingConfirmed, к которому обращаются сервисы Events и Bookings с каждой своей ролью(продюсером-публикатором или консьюмером-подписчиком события).
+
+Bookings участвует в роли продюсера, который создает бронь и после сохранения данных в соей БД отправляет событие в топик BookingConfirmed с такими данными: Id брони, Id на мероприятие, Id пользователя, количеством мест и временем подтверждения отправки в брокер Kafka.
+
+Events участвует в роли консьюмера-подписчика на принятие события из брокера Kafka по pull-модели, где сам консьмер берет событие из брокера а не брокер сам дает событие. Данный консьюмер берет событие из Kafka и в зависимости от своей логики и соыбтия определяет, что делать с данным событием(занять место на мероприятие и передать событие обратно в Kafka, что данное событие обработано)  
 
 Данные принципы чистой архитектуры позволяют правильно делать отношение слоев друг с другом, чтобы не впутывать логику в другие слои.
 
@@ -88,22 +97,24 @@
 ## Установка и запуск контейнера docker
 Данный контейнер(docker-compose_.yml) лежит в папке проекта EventTicketBookingService. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты настраиваются в **переменных окружениях и захватывает appsettings.json**.
 
-В docker-файле есть переменные 
-```
-${POSTGRES_USER} - имя пользователя БД,
-${POSTGRES_PASSWORD} - Пароль к БД,
-${POSTGRES_DB} - название БД
-```
+(Данная интсрукция устарела, в будущих спринтах будет обновление данной инструкции)
+> [!WARNING]
+> В docker-файле есть переменные 
+> ```
+> ${POSTGRES_USER} - имя пользователя БД,
+> ${POSTGRES_PASSWORD} - Пароль к БД,
+> ${POSTGRES_DB} - название БД
+> ```
 
-Чтобы их задать надо ввести значения в командной строке (Примечание: введя данные, значения сохранятся в контейнере, но если сделать docker compose -f docker-compose_.eml down -v, то данные сотрутся и может произойти ошибка подключения к БД при повторном запуске)
+> Чтобы их задать надо ввести значения в командной строке (Примечание: введя данные, значения сохранятся в контейнере, но если сделать docker compose -f docker-compose_.eml down -v, то данные сотрутся и может произойти ошибка подключения к БД при повторном запуске)
 
-Пример ввода данных в командной строке (должны вводиться данные в папке где находится docker-compose_.yml):
-```
-PowerShell(Windows)
-$env:POSTGRES_USER="postgres"
-$env:POSTGRES_PASSWORD="postgres"
-$env:POSTGRES_DB="eventapi"
-```
+> Пример ввода данных в командной строке (должны вводиться данные в папке где находится docker-compose_.yml):
+> ```
+> PowerShell(Windows)
+> $env:POSTGRES_USER="postgres"
+> $env:POSTGRES_PASSWORD="postgres"
+> $env:POSTGRES_DB="eventapi"
+> ```
 
 Чтобы запустить данный контейнер, надо перейти в папку, в которой лежит данный файл и запустить команду
 ```
@@ -113,22 +124,24 @@ docker compose -f docker-compose_.yml up -d
 docker compose -f docker-compose_.yml down -v
 ```
 
-# Переменная для самого приложения ASP.NET Core
-Чтобы приложение подхватило переменные окружения, есть 2 способа:
-1. В Windows нажать WIN+R и набрать sysdm.cpl, далее Дополнительно -> Переменные среды -> Переменные среды пользователя для "Имя пользователя" -> создать
+> [!WARNING]
 
-  В Имя переменной: задать ```ConnectionStrings__DefaultConnection```
-  
-  В значение переменной передать вместо POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB значения(без кавычек), которые передавали в docker-файл: ```Host=localhost;Port=5435;Database=*POSTGRES_DB*;Username=*POSTGRES_USER*;Password=*POSTGRES_PASSWORD*```
-
-  <img width="1015" height="592" alt="image" src="https://github.com/user-attachments/assets/f8450502-a5bc-4f8c-9b68-f52ec51cb9eb" />
-
-  Затем применить все
-
-2. Через PowerShell(Windows)
-  ```$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5435;Database="Своя БД";Username="user";Password="пароль""```
-
-  Однако данные хранятся в текущей сессии и запускать можно только через dotnet run(подробнее в пункте **Сборка и запуск сервиса во 2 пункте**)
+> # Переменная для самого приложения ASP.NET Core
+> Чтобы приложение подхватило переменные окружения, есть 2 способа:
+> 1. В Windows нажать WIN+R и набрать sysdm.cpl, далее Дополнительно -> Переменные среды -> Переменные среды пользователя для "Имя пользователя" -> создать
+>
+>  В Имя переменной: задать ```ConnectionStrings__DefaultConnection```
+>  
+>  В значение переменной передать вместо POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB значения(без кавычек), которые передавали в docker-файл: ```Host=localhost;Port=5435;Database=*POSTGRES_DB*;Username=*POSTGRES_USER*;Password=*POSTGRES_PASSWORD*```
+>
+>  <img width="1015" height="592" alt="image" src="https://github.com/user-attachments/assets/f8450502-a5bc-4f8c-9b68-f52ec51cb9eb" />
+>
+>  Затем применить все
+>
+> 2. Через PowerShell(Windows)
+>  ```$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5435;Database="Своя БД";Username="user";Password="пароль""```
+>
+>  Однако данные хранятся в текущей сессии и запускать можно только через dotnet run(подробнее в пункте **Сборка и запуск сервиса во 2 пункте**)
 
 Чтобы проверить, что работает контейнер можно зайти в Docker Desktop и посмотреть,что запущен eventticketbookingservice
 <img width="1263" height="705" alt="image" src="https://github.com/user-attachments/assets/ebcabe1d-13ba-44a8-a9ff-fa7d4b852325" />
@@ -139,6 +152,8 @@ docker compose -f docker-compose_.yml down -v
 Чтобы запустить данный сервис можно воспользоваться 2 способами: через IDE(Visual Studio) и через командную строку(CMD)
 
 1. Через IDE(Visual Studio)
+Чтобы запустить 3 микросервиса надо в Visual Studio нажать на "шестеренку" рядом с запуском приложения и настроить запуск 3 сервисов, это UserService.Presentation, EventService.Presentation и BookingService.Presentation и выбрать для каждого сервиса "Действие->запустить"
+<img width="1684" height="815" alt="image" src="https://github.com/user-attachments/assets/9d21a5c4-9661-4d7b-9351-b52bf6d5aded" />
 
 Запустить можно через кнопку F5 или нажать на панели https (Проект сразу соберется и запустится).
 <img width="1572" height="751" alt="image" src="https://github.com/user-attachments/assets/f16a6e8a-ab74-428a-b5d6-f040ab542a09" />
@@ -146,11 +161,13 @@ docker compose -f docker-compose_.yml down -v
 
 2. Через командную строку(CMD)
 
-Заходим в папку с проектом, где находится файл EventTicketBookingService.csproj через командную строку и запускаем команды
+Заходим в папку (Users, Events, Bookings), находим проект с Presentation и запускаем по порядку 1) UserService.Presentation.csproj, 2) BookingService.Presentation.csproj 3) EventService.Presentation.csproj и через командную строку и запускаем команды
 
 1) dotnet build
 2) dotnet run --environment Development
-3) start https://localhost:7246/swagger
+3) start https://localhost:7283/swagger (Users)
+4) start https://localhost:7285/swagger (Bookings)
+5) start https://localhost:7284/swagger (Events)
 
 ## Unit-тесты и интеграционные тесты
 Перед запуском Юнит-тестов и интеграционных тестов неободимо в первую очередь запустить Docker(см. пункт "Установка и запуск контейнера docker")
