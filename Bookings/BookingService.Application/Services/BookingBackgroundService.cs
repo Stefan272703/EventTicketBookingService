@@ -103,7 +103,7 @@ namespace BookingService.Application.Services
                         BookingId = bookingId,
                         UserId = booking.UserId,
                         SeatsCount = 1,
-                        ConfirmedAt = booking.CreatedAt,
+                        ConfirmedAt = DateTime.UtcNow,
                     }
                     );
                 _logger.LogInformation($"Бронь с Id {booking.Id} подтверждена и опубликована в {BookingTopics.BookingConfirmed}");
