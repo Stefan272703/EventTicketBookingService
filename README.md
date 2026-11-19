@@ -8,6 +8,18 @@
 - Swagger
 - Docker Desktop
 - Postgres
+- Kafka
+
+## Оглавление
+- [Структура проекта и назначение каждого слоя](#структура-проекта-и-назначение-каждого-слоя)
+- [Ролевая модель и разграничение прав](#ролевая-модель-и-разграничение-прав)
+- [Установка и запуск контейнера docker](#установка-и-запуск-контейнера-docker)
+- [Сборка и запуск сервиса](#сборка-и-запуск-сервиса)
+- [Unit-тесты и интеграционные тесты](#unit-тесты-и-интеграционные-тесты)
+- [Swagger](#swagger)
+- [Тест данных методов](#тест-данных-методов)
+- [Миграции EF Core](#миграции-ef-core)
+- [Общий формат ошибок, пойманный глобальным обработчиком ошибок](#общий-формат-ошибок-пойманный-глобальным-обработчиком-ошибок)
 
 Данный сервис получает на вход мероприятия, которые пользователь может получать(GET), создавать(POST), обновлять(PUT) и удалять(DELETE), и выводить информацию в виде HTTP-ответов с телом ответа.
 
@@ -17,14 +29,32 @@
 3. Создать мероприятие по телу запроса (HTTP POST /Events)
 4. Обновить мероприятие в теле запроса по ID (HTTP PUT /Events/{id})
 5. Удалить мероприятие по ID (HTTP DELETE /Events/{id})
-6. Создать бронь конкретного мероприятия по ID (HTTP POST /Events/{id}/book)
+6. Создать бронь конкретного мероприятия по ID (HTTP POST /Bookings/{id}/book)
 7. Получить бронь по его ID (HTTP GET /Bookings/{id})
 8. Отменить бронь по его ID (HTTP DELETE /Bookings/{id})
 9. Регистрировать нового пользователя по телу запроса (HTTP POST /Auth/register)
 10. Логин пользователя по телу запроса (HTTP POST /Auth/login)
 
-## Структура проекта и назначение каждого слоя:
+## Структура проекта и назначение каждого слоя
 Структура Приложения на ASP.NET Core создана согласно принципам чистой архитектуры (_Clean Architecture_), где каждый файл, отвечающий за свою роль (интерфейс, реализация, репозиторий, Доменная сущность и т.д), находится в определенном слое приложения для разделения на собственные задачи.
+
+Данная структура разделена на 3 отдельных микросервиса Events, Bookings и Users, где каждый микросервис ничего не знает друг о друге и обмен происходит событиями через брокер сообщений Kafka с топиком booking-confirmed. В корне проекта находится docker-compose файл, содержащий 3 БД под каждый микросервис(database per service) со своими портами общения(Events имеет порт 5434, Bookings - 5435, Users - 5433), а также имеет Kafka  с портом 9092, через который общаются микросервисы.
+
+Таблица
+**Таблица «сервис — БД — порт»:**
+
+| Сервис | БД (контейнер) | Порт БД (хост) | Swagger |
+| :--- | :--- | :--- | :--- |
+| `UserService` | `users-db` (`users`) | `5433` | `https://localhost:7283/swagger` |
+| `EventService` | `events-db` (`events`) | `5434` | `https://localhost:7284/swagger` |
+| `BookingService` | `bookings-db` (`bookings`) | `5435` | `https://localhost:7285/swagger` |
+| Kafka | `kafka` + `zookeeper` | `9092` | — |
+
+Есть топик BookingConfirmed, к которому обращаются сервисы Events и Bookings с каждой своей ролью(продюсером-публикатором или консьюмером-подписчиком события).
+
+Bookings участвует в роли продюсера, который создает бронь и после сохранения данных в соей БД отправляет событие в топик BookingConfirmed с такими данными: Id брони, Id на мероприятие, Id пользователя, количеством мест и временем подтверждения отправки в брокер Kafka.
+
+Events участвует в роли консьюмера-подписчика на принятие события из брокера Kafka по pull-модели, где сам консьмер берет событие из брокера а не брокер сам дает событие. Данный консьюмер берет событие из Kafka и в зависимости от своей логики и соыбтия определяет, что делать с данным событием(занять место на мероприятие и передать событие обратно в Kafka, что данное событие обработано)  
 
 Данные принципы чистой архитектуры позволяют правильно делать отношение слоев друг с другом, чтобы не впутывать логику в другие слои.
 
@@ -86,49 +116,15 @@
 Благодаря токену, пользователь с определенной ролью и выданным токеном может выполнять определенные действия с HTTP-запросами 
 
 ## Установка и запуск контейнера docker
-Данный контейнер(docker-compose_.yml) лежит в папке проекта EventTicketBookingService. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты настраиваются в **переменных окружениях и захватывает appsettings.json**.
-
-В docker-файле есть переменные 
-```
-${POSTGRES_USER} - имя пользователя БД,
-${POSTGRES_PASSWORD} - Пароль к БД,
-${POSTGRES_DB} - название БД
-```
-
-Чтобы их задать надо ввести значения в командной строке (Примечание: введя данные, значения сохранятся в контейнере, но если сделать docker compose -f docker-compose_.eml down -v, то данные сотрутся и может произойти ошибка подключения к БД при повторном запуске)
-
-Пример ввода данных в командной строке (должны вводиться данные в папке где находится docker-compose_.yml):
-```
-PowerShell(Windows)
-$env:POSTGRES_USER="postgres"
-$env:POSTGRES_PASSWORD="postgres"
-$env:POSTGRES_DB="eventapi"
-```
+Данный контейнер(docker-compose_14.yml) лежит в корне решения, рядом с EventTicketBookingService.slnx. Он необходим для поднятия БД внутри контейнера и прослушивания портов данного БД, порты захватывает appsettings.json**.
 
 Чтобы запустить данный контейнер, надо перейти в папку, в которой лежит данный файл и запустить команду
 ```
-docker compose -f docker-compose_.yml up -d
+docker compose -f docker-compose_14.yml up -d
 # В случае если не получается связаться с БД через приложение, то можно "снести" и поднять снова
 # Предупреждение! Если ввести команду снизу, то все данные с БД будут потеряны, применять в крайнем случае
 docker compose -f docker-compose_.yml down -v
 ```
-
-# Переменная для самого приложения ASP.NET Core
-Чтобы приложение подхватило переменные окружения, есть 2 способа:
-1. В Windows нажать WIN+R и набрать sysdm.cpl, далее Дополнительно -> Переменные среды -> Переменные среды пользователя для "Имя пользователя" -> создать
-
-  В Имя переменной: задать ```ConnectionStrings__DefaultConnection```
-  
-  В значение переменной передать вместо POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB значения(без кавычек), которые передавали в docker-файл: ```Host=localhost;Port=5435;Database=*POSTGRES_DB*;Username=*POSTGRES_USER*;Password=*POSTGRES_PASSWORD*```
-
-  <img width="1015" height="592" alt="image" src="https://github.com/user-attachments/assets/f8450502-a5bc-4f8c-9b68-f52ec51cb9eb" />
-
-  Затем применить все
-
-2. Через PowerShell(Windows)
-  ```$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5435;Database="Своя БД";Username="user";Password="пароль""```
-
-  Однако данные хранятся в текущей сессии и запускать можно только через dotnet run(подробнее в пункте **Сборка и запуск сервиса во 2 пункте**)
 
 Чтобы проверить, что работает контейнер можно зайти в Docker Desktop и посмотреть,что запущен eventticketbookingservice
 <img width="1263" height="705" alt="image" src="https://github.com/user-attachments/assets/ebcabe1d-13ba-44a8-a9ff-fa7d4b852325" />
@@ -139,6 +135,8 @@ docker compose -f docker-compose_.yml down -v
 Чтобы запустить данный сервис можно воспользоваться 2 способами: через IDE(Visual Studio) и через командную строку(CMD)
 
 1. Через IDE(Visual Studio)
+Чтобы запустить 3 микросервиса надо в Visual Studio нажать на "шестеренку" рядом с запуском приложения и настроить запуск 3 сервисов, это UserService.Presentation, EventService.Presentation и BookingService.Presentation и выбрать для каждого сервиса "Действие->запустить"
+<img width="1684" height="815" alt="image" src="https://github.com/user-attachments/assets/9d21a5c4-9661-4d7b-9351-b52bf6d5aded" />
 
 Запустить можно через кнопку F5 или нажать на панели https (Проект сразу соберется и запустится).
 <img width="1572" height="751" alt="image" src="https://github.com/user-attachments/assets/f16a6e8a-ab74-428a-b5d6-f040ab542a09" />
@@ -146,11 +144,14 @@ docker compose -f docker-compose_.yml down -v
 
 2. Через командную строку(CMD)
 
-Заходим в папку с проектом, где находится файл EventTicketBookingService.csproj через командную строку и запускаем команды
+Заходим в папку (Users, Events, Bookings), находим проект с Presentation и запускаем по порядку 1) UserService.Presentation.csproj, 2) BookingService.Presentation.csproj 3) EventService.Presentation.csproj и через командную строку и запускаем команды
 
 1) dotnet build
 2) dotnet run --environment Development
-3) start https://localhost:7246/swagger
+3) start https://localhost:7283/swagger (Users)
+4) start https://localhost:7285/swagger (Bookings)
+5) start https://localhost:7284/swagger (Events)
+
 
 ## Unit-тесты и интеграционные тесты
 Перед запуском Юнит-тестов и интеграционных тестов неободимо в первую очередь запустить Docker(см. пункт "Установка и запуск контейнера docker")
@@ -159,18 +160,18 @@ docker compose -f docker-compose_.yml down -v
 1. Через IDE(Visual Studio)
 
 Нажать на решение, ПКМ и нажать на "выполнить тесты"
-<img width="1149" height="505" alt="image" src="https://github.com/user-attachments/assets/b2f1341f-f24a-494f-b875-1a2f09838255" />
+<img width="1184" height="614" alt="image" src="https://github.com/user-attachments/assets/ff559485-4c94-4eaf-b869-e75a8ea25799" />
 
 2. Через командную строку(CMD)
-
+ 
 Заходим в папку с решением, где находится файл EventTicketBookingService.slnx, через командную строку запускаем команды
-
+ 
 1) dotnet build
 2) dotnet test 
-
+ 
 Юнит-Тесты используют InMemory-провайдеры, то есть имитируется взаимодействие приложения с БД, используя ресурсы не самого БД, а приложения, что позволяет избежать добавления данных в БД во время юнит-тестирования. 
-
-Интеграционные тесты используют TestContainers, чтобы проверять работу не самого приложения, а самой БД (каскадное удаление, изменение, удаление, обновление, создание, получение данных) через команды приложения. Для работы интеграционных тестов необходимо, чтобы был запущен docker
+ 
+Интеграционные тесты используют TestContainers, чтобы проверять работу не самого приложения, а самой БД (каскадное удаление, изменение, удаление, обновление, создание, получение данных) через команды приложения. Для работы интеграционных тестов необходимо, чтобы был > запущен docker
 
 ### Swagger
 Данный инструмент предназначен для тестирования работы HTTP-методов, прописанных в контроллере ASP.NET Core.
@@ -179,7 +180,7 @@ docker compose -f docker-compose_.yml down -v
 
 
 ## Тест данных методов
-В браузере в swagger будут доступны 7 HTTP-методов, выполняющих тесты запросов.
+В браузере в swagger будут доступны 10 HTTP-методов, выполняющих тесты запросов.
 Для выполнения запросов, необходимо выбрать один из методов, отображенных в swagger и нажать Try it out, после Execute для выполнения самого запроса.
 
 
@@ -264,11 +265,11 @@ availableSeats - целочисленный тип, доступное на да
 Пример при несуществующем ID
 <img width="1432" height="861" alt="image" src="https://github.com/user-attachments/assets/9d769df8-b545-4c81-8e70-37361d5b38f7" />
 
-6. При вызове **POST /Events/{id}/book**. Создает новую бронь мероприятия по его ID.
+6. При вызове **POST /Bookings/{id}/book**. Создает новую бронь мероприятия по его ID.
 
 Сначала создается мероприятие согласно 2 пункту, по которому делается с методом **POST /Events**.
 
-Затем в **POST /Events/{id}/book** создаем бронь по ID мероприятию, который создали недавно.
+Затем в **POST /Bookings/{id}/book** создаем бронь по ID мероприятию, который создали недавно.
 
 Пример при правильном ID.
 <img width="1428" height="867" alt="image" src="https://github.com/user-attachments/assets/c231eb3a-527c-45b6-a06f-90bd507626d3" />
@@ -319,7 +320,7 @@ processedAt - дата завершения обработки брони
 3. Lock - синхронный потокобезопасный примитив. Предназначен для вхождения только одного потока в критическую секцию. Данный примитив необходим для того, чтобы при параллельном создании брони другие потоки не могли изменить общий ресурс.
 
 ## Миграции EF Core
-В приложении ASP.NET Core были добавлены миграции и была создана первая миграция **InitialCreate**. Обновляя схему БД посредством изменения в конфигурациях EventConfiguration и BookingConfiguration, нужно делать миграции, для того, чтобы БД подхватывала изменения конфигурации и в случае чего можно откатить до предыдущей миграции, чтобы вернуть схему БД.
+В приложении ASP.NET Core были добавлены миграции и была создана первая миграция **InitialCreate**. Обновляя схему БД посредством изменения в конфигурациях EventConfiguration, BookingConfiguration и UserConfiguration, нужно делать миграции, для того, чтобы БД подхватывала изменения конфигурации и в случае чего можно откатить до предыдущей миграции, чтобы вернуть схему БД.
 
 **Миграция InitialCreate**
 Показывает какие внесены изменения в конфигурации ASP.NET для схемы БД и что можно сделать при откате миграции(Например, полностью очистить таблицу)
@@ -333,8 +334,10 @@ processedAt - дата завершения обработки брони
 ### Команды для создания и применения миграций
 ```
 // Создание миграции, где потом в приложении создается папка Migrations со снапшотом и датой и названием миграции(Например InitialCreate)
-// делать надо в корне проекта рядом  солюшен EventTicketBookingService.slnx
-dotnet ef migrations add *Имя* --project EventTicketBookingService.Infrastructure --startup-project EventTicketBookingService
+// делать надо в корне проекта рядом с солюшен EventTicketBookingService.slnx
+dotnet ef migrations add *Имя* --project Events/EventService.Infrastructure/EventService.Infrastructure.csproj --startup-project Events/EventService.Presentation/
+dotnet ef migrations add *Имя* --project Bookings/BookingService.Infrastructure/BookingService.Infrastructure.csproj --startup-project Bookingss/BookingService.Presentation/
+dotnet ef migrations add *Имя* --project Users/UserService.Infrastructure/UserService.Infrastructure.csproj --startup-project Users/UserService.Presentation/
 // Применение миграции,
 // При её вызове EF Core:
 // 1. Подключается к базе данных;

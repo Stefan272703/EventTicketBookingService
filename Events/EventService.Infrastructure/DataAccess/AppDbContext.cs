@@ -1,0 +1,19 @@
+﻿using EventService.Domain.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace EventService.Infrastructure.DataAccess
+{
+    public class AppDbContext : DbContext
+    {
+        public DbSet<Event> Events => Set<Event>();
+        public AppDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        {
+
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        }
+    }
+}

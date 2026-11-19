@@ -1,0 +1,81 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using EventService.Application.Interfaces;
+using EventService.Application.DTO;
+
+namespace EventService.Presentation.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class EventsController : ControllerBase
+    {
+
+        private readonly IEventService _eventService;
+
+        public EventsController(IEventService eventService)
+        {
+            _eventService = eventService;
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAll([FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
+            [FromQuery] string title = "",
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            var events = await _eventService.GetAllEventsAsync(title, from, to, page, pageSize);
+            return Ok(events);
+        }
+
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var eventbyId = await _eventService.GetEventByIdAsync(id);
+            return Ok(eventbyId);
+
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")] // Только для Админа
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Create([FromBody] EventInfo createdEvent)
+        {
+            var eventDTO = await _eventService.CreateEventAsync(createdEvent);
+            return CreatedAtAction(nameof(GetById), new { id = eventDTO?.Id }, eventDTO);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")] // Только для Админа
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Update(int id, [FromBody] EventInfo createdEvent)
+        {
+            var existingEvent = await _eventService.UpdateEventAsync(id, createdEvent);
+
+            return Ok(existingEvent);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")] // Только для Админа
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var delEvent = await _eventService.DeleteEventAsync(id);
+
+            return NoContent();
+        }
+    }
+}

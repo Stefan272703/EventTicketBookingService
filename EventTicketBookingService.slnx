@@ -1,9 +1,33 @@
 <Solution>
-  <Project Path="BookingService.Tests/BookingService.Tests.csproj" Id="4b39141b-eb5e-4c81-82e2-81330aa6081e" />
-  <Project Path="EventService.Tests/EventService.Tests.csproj" Id="46a3ec4c-4ac2-465f-a2d1-a392b46aec50" />
-  <Project Path="EventTicketBookingService.Application/EventTicketBookingService.Application.csproj" />
-  <Project Path="EventTicketBookingService.Domain/EventTicketBookingService.Domain.csproj" />
-  <Project Path="EventTicketBookingService.Infrastructure/EventTicketBookingService.Infrastructure.csproj" />
-  <Project Path="EventTicketBookingService.IntegrationTests/EventTicketBookingService.IntegrationTests.csproj" Id="89334746-ee97-4cdf-882b-18b89bdb2c26" />
-  <Project Path="EventTicketBookingService/EventTicketBookingService.csproj" />
+  <Folder Name="/Bookings/">
+    <Project Path="Bookings/BookingService.Application/BookingService.Application.csproj" Id="4e667dbe-ac31-43b5-8dba-e3dcaa4bf129" />
+    <Project Path="Bookings/BookingService.Domain/BookingService.Domain.csproj" Id="9e340227-986e-4c4e-a337-696ef17722c5" />
+    <Project Path="Bookings/BookingService.Infrastructure/BookingService.Infrastructure.csproj" Id="d3561e07-7b44-4192-a906-e64a78cef19c" />
+    <Project Path="Bookings/BookingService.IntegrationTests/BookingService.IntegrationTests.csproj" Id="c96f800a-df0f-40cd-bfe5-3c7fae013054" />
+    <Project Path="Bookings/BookingService.Presentation/BookingService.Presentation.csproj" Id="cff66619-20a9-465f-8ea6-6b482c983135" />
+    <Project Path="Bookings/BookingService.Tests/BookingService.Tests.csproj" />
+  </Folder>
+  <Folder Name="/BuildingBlocks/">
+    <Project Path="BuildingBlocks/BuildingBlocks.Authentication/BuildingBlocks.Authentication.csproj" Id="5803d35c-a2ef-4a2a-8eb0-36403bdb0e6e" />
+    <Project Path="BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain.csproj" Id="cd558fc6-52dc-478e-97b8-2bdb1955d71a" />
+    <Project Path="BuildingBlocks/BuildingBlocks.GlobalExceptionMiddleware/BuildingBlocks.GlobalExceptionMiddleware.csproj" Id="bd375211-7e39-46d5-b686-c301f95f7fbc" />
+    <Project Path="BuildingBlocks/BuildingBlocks.Swagger/BuildingBlocks.Swagger.csproj" Id="2cd902d4-ebac-4b50-b3cc-df5661bee6a9" />
+  </Folder>
+  <Folder Name="/Contracts/">
+    <Project Path="Contracts/EventTicketBooking.Contracts/EventTicketBooking.Contracts.csproj" Id="792bc672-bec4-4f64-ab79-2f27252a92a4" />
+  </Folder>
+  <Folder Name="/Events/">
+    <Project Path="Events/EventService.Application/EventService.Application.csproj" Id="dd627b39-435e-4de4-a11c-8df0a00ba5b5" />
+    <Project Path="Events/EventService.Domain/EventService.Domain.csproj" Id="8df785d3-82dc-43ae-9bc3-8d628ccf3ae6" />
+    <Project Path="Events/EventService.Infrastructure/EventService.Infrastructure.csproj" Id="e1c11166-f4b0-4c3a-aa78-e71ce0ee8999" />
+    <Project Path="Events/EventService.IntegrationTests/EventService.IntegrationTests.csproj" Id="3fc6d082-7cc2-4805-89ee-fb565d94b76a" />
+    <Project Path="Events/EventService.Presentation/EventService.Presentation.csproj" Id="174eadc8-17d4-4747-ab3b-dcbfb7267fa2" />
+    <Project Path="Events/EventService.Tests/EventService.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Users/">
+    <Project Path="Users/UserService.Application/UserService.Application.csproj" Id="5948350f-0f64-4897-ba4e-4c12d283e147" />
+    <Project Path="Users/UserService.Domain/UserService.Domain.csproj" Id="644f6c20-a097-4785-8159-230c2cd21fc8" />
+    <Project Path="Users/UserService.Infrastructure/UserService.Infrastructure.csproj" Id="e2dbd5df-1c9d-4471-97f8-c5af97b37527" />
+    <Project Path="Users/UserService.Presentation/UserService.Presentation.csproj" Id="915b18b9-68a4-4e13-b4b9-38f55d63f057" />
+  </Folder>
 </Solution>
