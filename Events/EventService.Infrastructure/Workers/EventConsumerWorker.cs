@@ -7,9 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 
 namespace EventService.Infrastructure.Workers
@@ -103,6 +100,7 @@ namespace EventService.Infrastructure.Workers
                     catch (ConsumeException ex)
                     {
                         _logger.LogError($"Ошибка consume: {ex.Message}");
+                        await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
                     }
                     catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                     {
@@ -110,8 +108,8 @@ namespace EventService.Infrastructure.Workers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Ошибка обработки сообщения OffSet {consumeResult.Offset}");
-
+                        _logger.LogError(ex, $"Ошибка обработки сообщения OffSet {consumeResult?.Offset}");
+                        await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
                     }
                 }
             }
