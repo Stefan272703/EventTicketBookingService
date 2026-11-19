@@ -21,9 +21,6 @@ namespace BookingService.Domain.Models
 
         public int UserId { get; set; }
 
-        // Навигационное свойство
-        //public Event? Event { get; set; }
-
         public Booking()
         {
 

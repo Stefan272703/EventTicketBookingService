@@ -11,38 +11,17 @@ namespace BookingService.Application.Services
         private static readonly SemaphoreSlim _bookingLock = new(1, 1);
         private const int MaxActiveBookings = 10;
         private readonly IBookingRepository _bookingRepository;
-        //private readonly IEventRepository _eventRepository;
-        //private readonly IUserRepository _userRepository;
 
         public BookingService(IBookingRepository bookingRepository)
-                              //IEventRepository eventRepository,
-                              //IUserRepository userRepository)
         {
             _bookingRepository = bookingRepository;
-            //_eventRepository = eventRepository;
-            //_userRepository = userRepository;
         }
 
         public async Task<BookingResponse> CreateBookingAsync(int eventId, int userId, CancellationToken cancellationToken = default)
         {
-            //throw new NotImplementedException();
             await _bookingLock.WaitAsync(cancellationToken);
             try
             {
-                //// Получаем пользователя по Id
-                //var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
-                //if (user == null)
-                //    throw new ResourceNotFoundException($"Пользователь с Id: {userId} не найден");
-
-                //// Получаем событие по Id
-                //var @event = await _eventRepository.GetEventByIdAsync(eventId, cancellationToken);
-                //if (@event == null)
-                //    throw new ResourceNotFoundException($"Не удалось создать бронь к несуществующему событию с ID: {eventId}");
-
-
-                //// Проверка, что бронь происходит не для прошедшего или уже идущего события
-                //@event.EnsureNotPassed(now);
-
                 // Проверка на лимит активных броней
                 var activeBookingsCount = await _bookingRepository.CountActiveByUserIdAsync(userId, cancellationToken);
 
@@ -52,11 +31,6 @@ namespace BookingService.Application.Services
 
                 // Время создания брони прямо сейчас
                 var now = DateTime.UtcNow;
-                //user.EnsureCanCreateBooking(activeBookingsCount);
-
-                // Попытка зарезервировать место
-                //if (@event.TryReserveSeats())
-                //{
                 // Создание брони прямо сейчас
                 Booking booking = Booking.Create(eventId, userId, now);
 
@@ -75,8 +49,6 @@ namespace BookingService.Application.Services
                 };
 
                 return response;
-                //}
-                //throw new NoAvailableSeatsException("No available seats for this event");
             }
             finally
             {
@@ -94,7 +66,6 @@ namespace BookingService.Application.Services
 
         public async Task CancelBookingAsync(int bookingId, int actingUserId, string actingUserRole, CancellationToken cancellationToken = default)
         {
-            //throw new NotImplementedException();
             // Получаем бронь по Id
             var booking = await _bookingRepository.GetBookingByIdAsync(bookingId, cancellationToken);
             if (booking == null)
@@ -103,23 +74,9 @@ namespace BookingService.Application.Services
             var isAdmin = string.Equals(actingUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
             if(!isAdmin && booking.UserId != actingUserId)
                 throw new OperationNotPermittedException($"Пользователь {actingUserId} не имеет прав на отмену чужой брони {bookingId}");
-            // Получаем пользователя по Id
-            //var actingUser = await _userRepository.GetUserByIdAsync(actingUserId, cancellationToken);
-            //if (actingUser == null)
-            //    throw new ResourceNotFoundException($"Пользователь с Id: {actingUserId} не найден");
-            //// Получаем событие по Id 
-            //var @event = await _eventRepository.GetEventByIdAsync(booking.EventId, cancellationToken);
-            //if (@event == null)
-            //    throw new ResourceNotFoundException($"Событие с Id: {booking.EventId} не найдено");
-
-            // Проверка, что есть права на изменение состояния брони
-            //actingUser.EnsureCanCancelBooking(booking);
-
 
             // Отмена брони (перевод в статус Cancel)
             booking.Cancel();
-            // Освобождаем место
-            //@event.ReleaseSeats();
             // Сохранение изменений в репозитории бронирования
             await _bookingRepository.SaveChangesAsync();
         }

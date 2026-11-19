@@ -12,13 +12,10 @@ namespace EventService.Presentation.Controllers
     {
 
         private readonly IEventService _eventService;
-        //private readonly IBookingService _bookingService;
 
-        public EventsController(IEventService eventService
-                                /*IBookingService bookingService*/)
+        public EventsController(IEventService eventService)
         {
             _eventService = eventService;
-            //_bookingService = bookingService;
         }
 
         [HttpGet]
@@ -80,24 +77,5 @@ namespace EventService.Presentation.Controllers
 
             return NoContent();
         }
-
-        //[HttpPost("{id}/book")]
-        //[Authorize] // Трбуется любая авторизаия
-        //[ProducesResponseType(StatusCodes.Status202Accepted)]
-        //[ProducesResponseType(StatusCodes.Status409Conflict)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
-        //public async Task<IActionResult> CreateBooking(int id)
-        //{
-        //    var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //    if(!int.TryParse(userIdStr, out var userId))
-        //        return Unauthorized();
-
-        //    //var booking = await _bookingService.CreateBookingAsync(id, userId);
-        //    return Ok();
-
-        //    //return AcceptedAtRoute(nameof(BookingsController.GetBookingById), new { id = booking?.Id }, booking);
-        //}
     }
 }

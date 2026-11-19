@@ -1,5 +1,4 @@
-﻿//using BookingService.Domain.Exceptions;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using BuildingBlocks.Domain.Exceptions;
 
 namespace UserService.Domain.Models
@@ -36,11 +35,11 @@ namespace UserService.Domain.Models
                 throw new BookingLimitExceededException($"Пользователь с Id: {Id} превысил количество создания активных броней");
         }
 
-        public void EnsureCanCancelBooking(int bookingId /*booking*/)
+        public void EnsureCanCancelBooking(int bookingId)
         {
             // Админ может всё, пользователь — только свои брони
             if (Role == UserRoles.Admin) return;
-            if (/*booking.UserId*/ bookingId != Id)
+            if (bookingId != Id)
                 throw new OperationNotPermittedException($"Пользователь с Id: {Id} с ролью {Role} не иммет прав на изменение статуса брони другого пользователя на Cancel");
         }
 
