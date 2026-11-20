@@ -7,6 +7,7 @@ using EventService.Infrastructure.DataAccess;
 using EventService.Infrastructure.Workers;
 using EventTicketBookingService.Application;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace EventService.Presentation
 {
@@ -30,6 +31,10 @@ namespace EventService.Presentation
             // Настройка Kafka и подписчика
             builder.Services.Configure<KafkaConsumerOptions>(builder.Configuration.GetSection(KafkaConsumerOptions.SectionName));
             builder.Services.AddHostedService<EventConsumerWorker>();
+
+            // Настройка Redis
+            var redisOptions = builder.Configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisOptions?.ConnectionString));
 
             var app = builder.Build();
 
