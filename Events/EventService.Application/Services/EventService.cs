@@ -4,16 +4,26 @@ using EventService.Domain.Models;
 using EventService.Application.Repository.Interface;
 using EventService.Application.DTO;
 using System.ComponentModel.DataAnnotations;
+using EventService.Application.Interfaces.Redis;
+using BuildingBlocks.Domain;
+using Microsoft.VisualBasic.FileIO;
+using Microsoft.Extensions.Options;
 
 namespace EventService.Application.Services
 {
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
+        private readonly ICacheService _redis;
+        private readonly RedisOptions _redisOptions;
 
-        public EventService(IEventRepository eventRepository)
+        public EventService(IEventRepository eventRepository,
+                            ICacheService redis,
+                            IOptions<RedisOptions> redisOptions)
         {
             _eventRepository = eventRepository;
+            _redis = redis;
+            _redisOptions = redisOptions.Value;
         }
 
         // Получить все события
@@ -38,9 +48,18 @@ namespace EventService.Application.Services
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
         {
+            var cacheKey = $"event:{id}";
+
+            var cached = await _redis.GetAsync<EventInfo>(cacheKey, cancellationToken);
+            if (cached != null)
+                return cached;
+
             var eventById = await _eventRepository.GetEventByIdAsync(id, cancellationToken);
             if (eventById == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
+
+            // Записываем в кеш с TTL из appsettings.json
+            await _redis.SetAsync(cacheKey, ToInfo(eventById), cancellationToken: cancellationToken);
 
             return ToInfo(eventById);
         }
@@ -102,7 +121,6 @@ namespace EventService.Application.Services
             await _eventRepository.SaveChangesAsync(cancellationToken);
             return ToInfo(delEvent);
         }
-
 
         private static EventInfo ToInfo(Event @event) => new EventInfo
         {
