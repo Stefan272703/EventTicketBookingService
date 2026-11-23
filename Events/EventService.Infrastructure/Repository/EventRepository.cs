@@ -63,7 +63,7 @@ namespace EventService.Infrastructure.Repository
 
             return (items, totalCount);
         }
-        public async Task<IReadOnlyList<Event>> GetTop10EventsAsync(int totalSeats, int availableSeats, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Event>> GetTop10EventsAsync(CancellationToken cancellationToken = default)
         {
             return await _context.Events
                     .Where(e => e.TotalSeats > 0) // Чтобы не было деления на ноль

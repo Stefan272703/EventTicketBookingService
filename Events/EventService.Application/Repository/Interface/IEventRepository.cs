@@ -22,7 +22,7 @@ namespace EventService.Application.Repository.Interface
             CancellationToken cancellationToken = default);
 
         // Получить список топ-10 событий
-        public Task<IReadOnlyList<Event>> GetTop10EventsAsync(int totalSeats, int availableSeats, CancellationToken cancellationToken = default);
+        public Task<IReadOnlyList<Event>> GetTop10EventsAsync(CancellationToken cancellationToken = default);
 
         // Сохранение данных в БД, таблицу событий
         public Task SaveChangesAsync(CancellationToken cancellationToken = default);
