@@ -6,7 +6,6 @@ using EventService.Application.DTO;
 using System.ComponentModel.DataAnnotations;
 using EventService.Application.Interfaces.Redis;
 using BuildingBlocks.Domain;
-using Microsoft.VisualBasic.FileIO;
 using Microsoft.Extensions.Options;
 
 namespace EventService.Application.Services
@@ -120,6 +119,24 @@ namespace EventService.Application.Services
             // Обновляем в БД значение
             await _eventRepository.SaveChangesAsync(cancellationToken);
             return ToInfo(delEvent);
+        }
+
+        // Получить топ-10 событий
+        public async Task<IReadOnlyList<EventInfo>> GetTop10EventsAsync(CancellationToken cancellationToken)
+        {
+            const string cacheKey = "events:top10";
+
+            var cached = await _redis.GetAsync<List<EventInfo>>(cacheKey, cancellationToken);
+            if (cached is not null)
+                return cached;
+
+            var top10Events = await _eventRepository.GetTop10EventsAsync(cancellationToken);
+
+            var result = top10Events.Select(ToInfo).ToList();
+
+            await _redis.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5), cancellationToken);
+
+            return result;
         }
 
         private static EventInfo ToInfo(Event @event) => new EventInfo
