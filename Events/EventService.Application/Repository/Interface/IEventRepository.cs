@@ -13,13 +13,16 @@ namespace EventService.Application.Repository.Interface
         // Удалить событие из репозитория событий
         public Task<Event?> RemoveEventByIdAsync(int id, CancellationToken cancellationToken = default);
 
-        // Получить Список событий в отфильрованнос состоянии из репозитория событий
+        // Получить список событий в отфильрованнос состоянии из репозитория событий
         public Task<(IReadOnlyList<Event?> items, int totalCount)> GetFilteredEvents(string title,
             DateTime? from,
             DateTime? to,
             int page,
             int pageSize,
             CancellationToken cancellationToken = default);
+
+        // Получить список топ-10 событий
+        public Task<IReadOnlyList<Event>> GetTop10EventsAsync(int totalSeats, int availableSeats, CancellationToken cancellationToken = default);
 
         // Сохранение данных в БД, таблицу событий
         public Task SaveChangesAsync(CancellationToken cancellationToken = default);
