@@ -103,7 +103,7 @@ namespace EventService.Application.Services
             // Обновляем в БД значения
             await _eventRepository.SaveChangesAsync(cancellationToken);
 
-            // Сохраняем в кеш
+            // Удаляем из кеша
             await _redis.RemoveKeyAsync(CacheKeys.Event(id), cancellationToken);
 
             return ToInfo(existingEvent);
@@ -118,6 +118,10 @@ namespace EventService.Application.Services
 
             // Обновляем в БД значение
             await _eventRepository.SaveChangesAsync(cancellationToken);
+
+            // Удаляем из кеша
+            await _redis.RemoveKeyAsync(CacheKeys.Event(id), cancellationToken);
+
             return ToInfo(delEvent);
         }
 
