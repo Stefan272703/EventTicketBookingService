@@ -14,15 +14,12 @@ namespace EventService.Application.Services
     {
         private readonly IEventRepository _eventRepository;
         private readonly ICacheService _redis;
-        private readonly RedisOptions _redisOptions;
 
         public EventService(IEventRepository eventRepository,
-                            ICacheService redis,
-                            IOptions<RedisOptions> redisOptions)
+                            ICacheService redis)
         {
             _eventRepository = eventRepository;
             _redis = redis;
-            _redisOptions = redisOptions.Value;
         }
 
         // Получить все события
