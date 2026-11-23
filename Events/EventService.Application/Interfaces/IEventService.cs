@@ -20,6 +20,6 @@ namespace EventService.Application.Interfaces
         // Удалить событие по его Id
         public Task<EventInfo> DeleteEventAsync(int id, CancellationToken cancellationToken = default);
         // Получить топ-10 событий
-        public Task<HashSet<EventInfo>> GetTop10EventsAsync(CancellationToken cancellationToken);
+        public Task<IReadOnlyList<EventInfo>> GetTop10EventsAsync(CancellationToken cancellationToken);
     }
 }
