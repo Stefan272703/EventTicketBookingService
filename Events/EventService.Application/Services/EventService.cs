@@ -47,7 +47,7 @@ namespace EventService.Application.Services
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            var cacheKey = $"event:{id}";
+            var cacheKey = CacheKeys.Event(id);
 
             var cached = await _redis.GetAsync<EventInfo>(cacheKey, cancellationToken);
             if (cached != null)
@@ -106,6 +106,9 @@ namespace EventService.Application.Services
             // Обновляем в БД значения
             await _eventRepository.SaveChangesAsync(cancellationToken);
 
+            // Сохраняем в кеш
+            await _redis.RemoveKeyAsync(CacheKeys.Event(id), cancellationToken);
+
             return ToInfo(existingEvent);
         }
 
@@ -124,9 +127,7 @@ namespace EventService.Application.Services
         // Получить топ-10 событий
         public async Task<IReadOnlyList<EventInfo>> GetTop10EventsAsync(CancellationToken cancellationToken)
         {
-            const string cacheKey = "events:top10";
-
-            var cached = await _redis.GetAsync<List<EventInfo>>(cacheKey, cancellationToken);
+            var cached = await _redis.GetAsync<List<EventInfo>>(CacheKeys.Top10Events, cancellationToken);
             if (cached is not null)
                 return cached;
 
@@ -134,7 +135,7 @@ namespace EventService.Application.Services
 
             var result = top10Events.Select(ToInfo).ToList();
 
-            await _redis.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5), cancellationToken);
+            await _redis.SetAsync(CacheKeys.Top10Events, result, TimeSpan.FromMinutes(5), cancellationToken);
 
             return result;
         }
