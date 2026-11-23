@@ -2,8 +2,10 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Domain;
 using BuildingBlocks.GlobalExceptionMiddleware.Middlewares;
 using BuildingBlocks.Swagger;
+using EventService.Application.Interfaces.Redis;
 using EventService.Infrastructure;
 using EventService.Infrastructure.DataAccess;
+using EventService.Infrastructure.Redis;
 using EventService.Infrastructure.Workers;
 using EventTicketBookingService.Application;
 using Microsoft.EntityFrameworkCore;
@@ -33,8 +35,19 @@ namespace EventService.Presentation
             builder.Services.AddHostedService<EventConsumerWorker>();
 
             // Настройка Redis
+            builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection(RedisOptions.SectionName));
             var redisOptions = builder.Configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>();
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisOptions?.ConnectionString));
+
+            var redisConfig = new ConfigurationOptions
+            {
+                EndPoints = { redisOptions.ConnectionString },
+                AbortOnConnectFail = false
+            };
+
+            builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(redisConfig));
+
+            builder.Services.AddSingleton<ICacheService, CacheService>();
 
             var app = builder.Build();
 
