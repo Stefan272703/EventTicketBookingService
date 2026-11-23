@@ -1,5 +1,7 @@
 ﻿using BuildingBlocks.Domain;
 using Confluent.Kafka;
+using EventService.Application;
+using EventService.Application.Interfaces.Redis;
 using EventService.Application.Repository.Interface;
 using EventTicketBooking.Contracts.Bookings;
 using EventTicketBooking.Contracts.Topics;
@@ -16,12 +18,15 @@ namespace EventService.Infrastructure.Workers
         private readonly ILogger<EventConsumerWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IConsumer<string, string> _consumer;
+        private readonly ICacheService _redis;
         public EventConsumerWorker(IOptions<KafkaConsumerOptions> options,
                                    IServiceScopeFactory ScopeFactory,
-                                   ILogger<EventConsumerWorker> logger)
+                                   ILogger<EventConsumerWorker> logger,
+                                   ICacheService redis)
         {
             _logger = logger;
             _scopeFactory = ScopeFactory;
+            _redis = redis;
             var o = options.Value;
 
             var config = new ConsumerConfig
@@ -93,6 +98,9 @@ namespace EventService.Infrastructure.Workers
                         }
 
                         await eventRepo.SaveChangesAsync(stoppingToken);
+                        // Удаляем ключ из кеша Redis
+                        await _redis.RemoveKeyAsync(CacheKeys.Event(@event.EventId), stoppingToken);
+
                         _consumer.Commit(consumeResult);
 
                         _logger.LogInformation($"BookingConfirmed {@event.BookingId}: событие {eventEntity.Id} уменьшил AvailableSeats на {@event.SeatsCount} свободных мест");
