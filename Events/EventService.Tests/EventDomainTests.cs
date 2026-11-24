@@ -1,11 +1,14 @@
-﻿using BuildingBlocks.Domain.Exceptions;
+﻿using BuildingBlocks.Domain;
+using BuildingBlocks.Domain.Exceptions;
 using EventService.Application.Interfaces;
+using EventService.Application.Interfaces.Redis;
 using EventService.Application.Repository.Interface;
 using EventService.Domain.Models;
 using EventService.Infrastructure.DataAccess;
 using EventService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace EventService.Tests
 {
@@ -22,6 +25,8 @@ namespace EventService.Tests
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(dbName));
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IEventService, EventService.Application.Services.EventService>();
+            services.AddSingleton<ICacheService>(new Mock<ICacheService>().Object);
+            services.Configure<RedisOptions>(_ => { });  // пустые опции, TTL=0/дефолт
 
             _serviceProvider = services.BuildServiceProvider();
             _scope = _serviceProvider.CreateScope();
