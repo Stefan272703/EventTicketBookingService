@@ -176,7 +176,7 @@ docker compose -f docker-compose_.yml down -v
 1. Через IDE(Visual Studio)
 
 Нажать на решение, ПКМ и нажать на "выполнить тесты"
-<img width="1184" height="614" alt="image" src="https://github.com/user-attachments/assets/ff559485-4c94-4eaf-b869-e75a8ea25799" />
+<img width="831" height="431" alt="image" src="https://github.com/user-attachments/assets/3480e180-5407-4378-90ec-aeedffee0743" />
 
 2. Через командную строку(CMD)
  
