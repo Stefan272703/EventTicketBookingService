@@ -143,7 +143,7 @@ docker compose -f docker-compose_.yml down -v
 ```
 
 Чтобы проверить, что работает контейнер можно зайти в Docker Desktop и посмотреть,что запущен eventticketbookingservice
-<img width="1263" height="705" alt="image" src="https://github.com/user-attachments/assets/ebcabe1d-13ba-44a8-a9ff-fa7d4b852325" />
+<img width="1270" height="797" alt="image" src="https://github.com/user-attachments/assets/ee088416-e123-45d1-8432-ada9bf5fa605" />
 
 После того, как запустили контейнер, можно переходить к пункту _**Сборка и запуск сервиса**_. 
 
