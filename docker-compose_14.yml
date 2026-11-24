@@ -36,6 +36,19 @@ services:
       interval: 10s
       timeout: 10s
       retries: 15
+  # ─────────────────────────── Redis ───────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: eventapi-redis
+    ports:
+      - "6379:6379"                       # ← чтобы можно было подключиться с хоста (dotnet run)
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - redis-data:/data                  # ← опционально: переживёт рестарт контейнера
 
   # ─────────────────────────── Базы данных (по одной на сервис) ───────────────────────────
   users-db:
@@ -92,3 +105,4 @@ volumes:
   users-db-data:
   events-db-data:
   bookings-db-data:
+  redis-data:
