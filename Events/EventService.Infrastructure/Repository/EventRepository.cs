@@ -63,6 +63,15 @@ namespace EventService.Infrastructure.Repository
 
             return (items, totalCount);
         }
+        public async Task<IReadOnlyList<Event>> GetTop10EventsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Events
+                    .Where(e => e.TotalSeats > 0) // Чтобы не было деления на ноль
+                    .OrderByDescending(e => (double)(e.TotalSeats - e.AvailableSeats) / e.TotalSeats) // Процент продаж, сортируем по убыванию
+                    .ThenBy(e => e.Id) // Сортировка по Id
+                    .Take(10) // Берем только первые 10
+                    .ToListAsync(cancellationToken);
+        }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {

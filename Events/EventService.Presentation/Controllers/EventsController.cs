@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using EventService.Application.Interfaces;
 using EventService.Application.DTO;
 
@@ -76,6 +75,14 @@ namespace EventService.Presentation.Controllers
             var delEvent = await _eventService.DeleteEventAsync(id);
 
             return NoContent();
+        }
+
+        [HttpGet("top")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTop10Events()
+        {
+            var top10Events = await _eventService.GetTop10EventsAsync();
+            return Ok(top10Events);
         }
     }
 }

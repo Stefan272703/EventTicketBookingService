@@ -4,16 +4,22 @@ using EventService.Domain.Models;
 using EventService.Application.Repository.Interface;
 using EventService.Application.DTO;
 using System.ComponentModel.DataAnnotations;
+using EventService.Application.Interfaces.Redis;
+using BuildingBlocks.Domain;
+using Microsoft.Extensions.Options;
 
 namespace EventService.Application.Services
 {
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
+        private readonly ICacheService _redis;
 
-        public EventService(IEventRepository eventRepository)
+        public EventService(IEventRepository eventRepository,
+                            ICacheService redis)
         {
             _eventRepository = eventRepository;
+            _redis = redis;
         }
 
         // Получить все события
@@ -38,9 +44,18 @@ namespace EventService.Application.Services
         // Получить событие по Id
         public async Task<EventInfo?> GetEventByIdAsync(int id, CancellationToken cancellationToken = default)
         {
+            var cacheKey = CacheKeys.Event(id);
+
+            var cached = await _redis.GetAsync<EventInfo>(cacheKey, cancellationToken);
+            if (cached != null)
+                return cached;
+
             var eventById = await _eventRepository.GetEventByIdAsync(id, cancellationToken);
             if (eventById == null)
                 throw new ResourceNotFoundException($"Не найдено событие по ID: {id}");
+
+            // Записываем в кеш с TTL из appsettings.json
+            await _redis.SetAsync(cacheKey, ToInfo(eventById), cancellationToken: cancellationToken);
 
             return ToInfo(eventById);
         }
@@ -88,6 +103,9 @@ namespace EventService.Application.Services
             // Обновляем в БД значения
             await _eventRepository.SaveChangesAsync(cancellationToken);
 
+            // Удаляем из кеша
+            await _redis.RemoveKeyAsync(CacheKeys.Event(id), cancellationToken);
+
             return ToInfo(existingEvent);
         }
 
@@ -100,9 +118,28 @@ namespace EventService.Application.Services
 
             // Обновляем в БД значение
             await _eventRepository.SaveChangesAsync(cancellationToken);
+
+            // Удаляем из кеша
+            await _redis.RemoveKeyAsync(CacheKeys.Event(id), cancellationToken);
+
             return ToInfo(delEvent);
         }
 
+        // Получить топ-10 событий
+        public async Task<IReadOnlyList<EventInfo>> GetTop10EventsAsync(CancellationToken cancellationToken)
+        {
+            var cached = await _redis.GetAsync<List<EventInfo>>(CacheKeys.Top10Events, cancellationToken);
+            if (cached is not null)
+                return cached;
+
+            var top10Events = await _eventRepository.GetTop10EventsAsync(cancellationToken);
+
+            var result = top10Events.Select(ToInfo).ToList();
+
+            await _redis.SetAsync(CacheKeys.Top10Events, result, TimeSpan.FromMinutes(5), cancellationToken);
+
+            return result;
+        }
 
         private static EventInfo ToInfo(Event @event) => new EventInfo
         {
